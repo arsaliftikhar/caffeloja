@@ -1,0 +1,46 @@
+<?php
+
+return [
+    //config admin settings
+    'settings' => 'Settings',
+    'client_id' => 'Client Id',
+    'basic_url' => 'Basic URL',
+    'api_endpoint' => 'Api Endpoint',
+    'client_secret' => 'Client Secret',
+    'grant_type' => 'Grant Type',
+    'default_discount' => 'Default Discount Rate(%)',
+    'discount_price' => 'Discount Price',
+    'registration_type' => 'Registration type',
+    'wc_to_mlm' => 'WOOCOMMERCE->MLM',
+    'mlm_to_wc' => 'MLM->WOOCOMMERCE',
+    'both_direction' => 'Both Direction',
+    'sponsor_required_text' => 'Make Sponsor Name Required on Registration',
+    'save' => 'Save',
+    'information_saved' => 'Information saved',
+    'configure' => 'Configure',
+    //pv
+    'mlm_product_pv' => 'MLM Product PV',
+    'enter_mlm_product_pv' => 'Enter MLM Product PV',
+    'products_PV' => "Products PV",
+    'product' => "Product",
+    'quantity' => "Quantity",
+    'total_pv' => "Total PV",
+    'pv' => "PV",
+    //customer
+    'sponsor' => 'Sponsor',
+    'username' => 'Username',
+    'first_name' => 'First Name',
+    'last_name' => 'Last Name',
+    'sponsor_required' => 'Sponsor field is required!',
+    'sponsor_validation' => 'Invalid Sponsor!',
+    'username_required' => 'Username is required!',
+    'username_validation' => 'Invalid / Username Already Exists!',
+    'firstname_required' => 'First name is required!',
+    'lastname_required' => 'Last name is required!',
+    'email_validation' => 'The email seems to be taken or not valid !',
+    'email_exists' => 'The email ID already exists.',
+    'username_short' => '<strong>ERROR</strong>: Username must be at least 5 characters.',
+    //Replication
+    'invalid_replication_user' => 'Invalid Replication User',
+    'replication_name' => 'Replication Name :',
+];

@@ -1,0 +1,214 @@
+<?php
+/**
+ *  -------------------------------------------------
+ *  Hybrid MLM  Copyright (c) 2018 All Rights Reserved
+ *  -------------------------------------------------
+ *
+ * @author Acemero Technologies Pvt Ltd
+ * @link https://www.acemero.com
+ * @see https://www.hybridmlm.io
+ * @version 1.00
+ */
+
+namespace HybridMLMWP\Inc;
+
+
+require_once HYBRIDMLM_PLUGIN_DIR . 'inc/api_helper.php';
+require_once HYBRIDMLM_PLUGIN_DIR . 'inc/helper.php';
+global $apiHelper;
+
+/**
+ * Class purchase
+ */
+class purchase extends helper
+{
+    /**
+     * @return $this
+     */
+    function __construct()
+    {
+        $this->register_hooks();
+
+
+        $this->apiHelper = new api_helper();
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    function register_hooks()
+    {
+        add_action('init', [$this, 'register_session']);
+        add_action('woocommerce_checkout_order_processed', [$this, 'send_order_data'], 10, 1);
+        add_action('woocommerce_order_status_changed', [$this, 'update_order_status'], 10, 4);
+       // add_action('woocommerce_applied_coupon', [$this, 'user_applied_coupon'], 10, 1);
+       // add_action('woocommerce_removed_coupon', [$this, 'user_removed_coupon'], 10, 1);
+
+        return $this;
+    }
+
+    /**
+     *
+     */
+    function register_session()
+    {
+        if (!session_id()) {
+            session_start();
+        }
+    }
+
+    /**
+     * @param $order_id
+     * @return bool|ResponseInterface
+     */
+    function send_order_data($order_id)
+    {
+        if (!$order_id) return false;
+
+        $order = wc_get_order($order_id);
+        $items = $order->get_items();
+        $total_pv = 0;
+        $products = [];
+        foreach ($items as $key => $item) {
+            $products[$key] = [
+                'name' => $item->get_name(),
+                'product_id' => $item->get_product_id(),
+                'variation_id' => $item->get_variation_id(),
+                'quantity' => $item->get_quantity(),
+                'subtotal' => $item->get_subtotal(),
+                'total' => $item->get_total(),
+                'tax' => $item->get_subtotal_tax(),
+                'taxclass' => $item->get_tax_class(),
+                'taxstat' => $item->get_tax_status(),
+                'allmeta' => $item->get_meta_data(),
+                'type' => $item->get_type()
+            ];
+
+            $product_pv = get_post_meta($item->get_variation_id(), 'mlm_variation_product_pv', true);
+            if (!$product_pv)
+                $product_pv = get_post_meta($item->get_product_id(), 'mlm_product_pv', true);
+            $products[$key]['pv'] = $product_pv;
+            if ($products[$key]['pv']) $total_pv += ((double)$products[$key]['pv'] * (int)$products[$key]['quantity']);
+
+            $item->update_meta_data('pv', $product_pv);
+            $item->save();
+        }
+        $order_id = $order->get_id();
+        update_post_meta($order_id, 'total_pv', esc_attr(htmlspecialchars($total_pv)));
+
+        $body = [
+            'action' => 'purchase',
+            'data' => [
+                'orderId' => $order_id,
+                'wp_customer_id' => $order->get_user_id(),
+                'currency' => $order->get_currency(),
+                'sub_total' => $order->get_subtotal(),
+                'total' => $order->get_total(),
+                'items' => $products,
+                'total_pv' => $total_pv
+            ]
+        ];
+
+        if (isset($_SESSION['replicaName']) && !$order->get_user_id()) {
+            $replication_status = true;
+            $wp_user = get_user_by('login', $replicaName = $_SESSION['replicaName']);
+            $replication_mlm_user_id = get_user_meta($wp_user->ID, 'mlm_user_id', true);
+
+            update_post_meta($order_id, 'replication_status', esc_attr(htmlspecialchars($replication_status)));
+            update_post_meta($order_id, 'replication_user_id', esc_attr(htmlspecialchars($wp_user->ID)));
+            update_post_meta($order_id, 'replication_mlm_user_id', esc_attr(htmlspecialchars($replication_mlm_user_id)));
+            $body['data']['replication_status'] = $replication_status;
+            $body['data']['replication_user_id'] = $replication_mlm_user_id;
+            $body['data']['wp_customer_id'] = $wp_user->ID;
+        }
+
+        if(count($order->get_coupon_codes()))
+        {
+            foreach( $order->get_coupon_codes() as $coupon_code ) {
+                $body['data']['coupon_code'] = $coupon_code;
+            }
+
+        }
+
+        $access_token = $this->get_token();
+        $headers = [
+            'Authorization' => $access_token,
+        ];
+
+        $result = $this->apiHelper->call_api($body, $headers);
+
+        $mlm_order_id = json_decode($result['body'], true)[0]['order']['id'];
+        if ($mlm_order_id)
+            update_post_meta($order_id, 'mlm_order_id', esc_attr(htmlspecialchars($mlm_order_id)));
+
+        return $this;
+    }
+
+    /**
+     * @param $order_id
+     * @param $old_status
+     * @param $new_status
+     * @param $that
+     * @return mixed
+     */
+    function update_order_status($order_id, $old_status, $new_status, $that)
+    {
+        $access_token = $this->get_token();
+        $headers = [
+            'Authorization' => $access_token,
+        ];
+        $body = [
+            'action' => 'updateOrderStatus',
+            'data' => [
+                'wp_order_id' => $order_id,
+                'status' => $new_status,
+            ]
+        ];
+        $update_status = $this->apiHelper->call_api($body, $headers);
+
+        return json_decode($update_status['body'], true);
+    }
+
+    /**
+     * @param $coupon_code
+     */
+  /*  function user_applied_coupon($coupon_code ) {
+
+        $access_token = $this->get_token();
+        $headers = [
+            'Authorization' => $access_token,
+        ];
+        $body = [
+            'action' => 'applyCoupon',
+            'data' => [
+                'coupon_code' => $coupon_code
+            ]
+        ];
+        $update_status = $this->apiHelper->call_api($body, $headers);
+
+        return json_decode($update_status['body'], true);
+
+    }*/
+
+    /**
+     * @param $coupon_code
+     */
+   /* function user_removed_coupon($coupon_code ) {
+
+        $access_token = $this->get_token();
+        $headers = [
+            'Authorization' => $access_token,
+        ];
+        $body = [
+            'action' => 'removeCoupon',
+            'data' => [
+                'coupon_code' => $coupon_code
+            ]
+        ];
+        $update_status = $this->apiHelper->call_api($body, $headers);
+
+        return json_decode($update_status['body'], true);
+    }*/
+}

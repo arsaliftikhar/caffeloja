@@ -1,0 +1,22 @@
+export const initialProducts = [
+  {
+    name: 'Coffee Box (60 Pods)',
+    slug: 'coffee-box-60-pods',
+    sku: 'CB-60PODS',
+    category: 'coffee-pods',
+    tagline: '60 Premium Single Serve Artisan Coffee Pods (Keurig K-Cup Compatible)',
+    description: 'Our flagship Coffee Box containing 60 artisan roasted single-serve coffee pods. Hand-selected premium high-elevation Arabica beans roasted to perfection, delivering rich notes of chocolate, caramel, and toasted hazelnut with a smooth crema in every cup. 100% recyclable, compatible with all Keurig K-Cup machines and single-serve brewers.',
+    price: 110.00,
+    origin: 'Artisan High-Elevation Reserve (60 Pods Box)',
+    roastLevel: 'Medium-Dark',
+    flavorNotes: ['Rich Chocolate', 'Smooth Caramel', 'Toasted Hazelnut', 'Golden Crema'],
+    process: 'Fresh Roasted & Hermetically Sealed Pods',
+    altitude: '1,650m - 2,100m',
+    rating: 4.98,
+    reviewsCount: 340,
+    imageUrl: '/images/coffee-box-60-pods.png',
+    badge: 'Flagship 60 Pods Box',
+    isFeatured: true,
+    inStock: true,
+  },
+];
