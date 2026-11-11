@@ -20,7 +20,7 @@ export async function POST(request) {
       if (existing) {
         return NextResponse.json({
           success: true,
-          message: 'You are already subscribed to the Caffè Loja Gazette!',
+          message: 'You are already subscribed to the Caffeloja Gazette!',
         });
       }
 
@@ -31,13 +31,13 @@ export async function POST(request) {
 
       return NextResponse.json({
         success: true,
-        message: 'Welcome to the Caffè Loja tasting club! 10% off coupon sent to your inbox.',
+        message: 'Welcome to the Caffeloja tasting club! 10% off coupon sent to your inbox.',
       });
     } catch (dbError) {
       console.warn('MongoDB newsletter insert fallback:', dbError.message);
       return NextResponse.json({
         success: true,
-        message: 'Welcome to the Caffè Loja tasting club! (Subscribed)',
+        message: 'Welcome to the Caffeloja tasting club! (Subscribed)',
       });
     }
   } catch (error) {

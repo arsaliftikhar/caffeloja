@@ -40,7 +40,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Thank you for contacting Caffè Loja! Our team has received your message and will respond shortly.',
+      message: 'Thank you for contacting Caffeloja! Our team has received your message and will respond shortly.',
       data: {
         id: contactDoc._id,
         name: contactDoc.name,

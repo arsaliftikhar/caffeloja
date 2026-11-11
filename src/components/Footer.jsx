@@ -31,7 +31,7 @@ export default function Footer() {
       setStatus({
         loading: false,
         success: true,
-        message: 'Thank you for subscribing to Caffè Loja!',
+        message: 'Thank you for subscribing to Caffeloja!',
       });
       setEmail('');
     }
@@ -47,7 +47,7 @@ export default function Footer() {
             <div className="footer-logo">
               <img
                 src="/logo.png"
-                alt="Caffè Loja"
+                alt="Caffeloja"
                 className="footer-logo-only"
               />
             </div>
@@ -63,8 +63,10 @@ export default function Footer() {
               <li><Link href="/">Home</Link></li>
               <li><Link href="/about">Our Story</Link></li>
               <li><Link href="/menu">Products</Link></li>
-              <li><Link href="/affiliate">Earn An Income</Link></li>
+              <li><Link href="/earn-an-income">Earn An Income</Link></li>
               <li><Link href="/contact">Contact Us</Link></li>
+              <li><Link href="/terms-and-conditions">Terms and Conditions</Link></li>
+              <li><Link href="/privacy-policy">Privacy Policy</Link></li>
             </ul>
           </div>
 
@@ -128,11 +130,13 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} Caffè Loja. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Caffeloja. All rights reserved.</p>
           <div className="footer-tech-stack">
-            <Link href="/contact" style={{ color: 'inherit', textDecoration: 'none' }}>Support</Link>
+            <Link href="/terms-and-conditions" style={{ color: 'inherit', textDecoration: 'none' }}>Terms and Conditions</Link>
             <span>•</span>
-            <Link href="/affiliate" style={{ color: 'inherit', textDecoration: 'none' }}>Affiliate Program</Link>
+            <Link href="/privacy-policy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
+            <span>•</span>
+            <Link href="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Affiliate Login</Link>
           </div>
         </div>
       </div>

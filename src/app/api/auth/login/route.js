@@ -3,12 +3,13 @@ import bcrypt from 'bcryptjs';
 import connectToDatabase from '@/lib/mongoose';
 import User from '@/models/User';
 import { signToken } from '@/lib/auth';
+import { verifyTotpCode } from '@/lib/totp';
 
 export async function POST(request) {
   try {
     await connectToDatabase();
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, totpCode } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -31,6 +32,27 @@ export async function POST(request) {
         { success: false, message: 'Invalid email or password' },
         { status: 401 }
       );
+    }
+
+    if (user.twoFactorEnabled && user.twoFactorSecret) {
+      if (!totpCode) {
+        return NextResponse.json({
+          success: false,
+          requiresTwoFactor: true,
+          message: 'Enter the 6-digit code from Google Authenticator.',
+        });
+      }
+      const validCode = verifyTotpCode(user.twoFactorSecret, totpCode);
+      if (!validCode) {
+        return NextResponse.json(
+          {
+            success: false,
+            requiresTwoFactor: true,
+            message: 'Invalid Google Authenticator code. Please try again.',
+          },
+          { status: 401 }
+        );
+      }
     }
 
     const token = signToken({

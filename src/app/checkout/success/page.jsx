@@ -43,7 +43,7 @@ function SuccessContent() {
         Thank You For Your Order!
       </h1>
       <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.7', marginBottom: '32px' }}>
-        Your payment has been securely processed through Stripe. We are now preparing your <strong>Coffee Box (60 Pods)</strong> for fresh fulfillment and dispatch.
+        Your payment has been securely processed through Stripe. We are now preparing your <strong>Coffee Box (20 Pods)</strong> for fresh fulfillment and dispatch.
       </p>
 
       {/* Order Summary Card */}
@@ -82,7 +82,7 @@ function SuccessContent() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '0.9rem' }}>
           <div>
             <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.78rem' }}>Product</span>
-            <span style={{ fontWeight: '600' }}>Coffee Box (60 Pods)</span>
+            <span style={{ fontWeight: '600' }}>Coffee Box (20 Pods)</span>
           </div>
           <div>
             <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.78rem' }}>Estimated Delivery</span>
@@ -105,7 +105,7 @@ function SuccessContent() {
           <ShoppingBag size={18} />
           <span>Return to Homepage</span>
         </Link>
-        <Link href="/affiliate" className="btn-secondary">
+        <Link href="/login" className="btn-secondary">
           <Share2 size={18} />
           <span>Join Partner Affiliate</span>
         </Link>

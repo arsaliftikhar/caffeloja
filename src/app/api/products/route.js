@@ -21,10 +21,10 @@ export async function GET(request) {
 
     let products = await Product.find(query).sort({ isFeatured: -1, createdAt: -1 }).lean();
 
-    // Ensure database products reflect the single Coffee Box (60 Pods) with current price and image
+    // Ensure database products reflect the single Coffee Box (20 Pods) with current price ($69) and image
     if (
       products.length === 0 ||
-      products.some((p) => p.slug !== 'coffee-box-60-pods' || p.price !== 110 || p.imageUrl !== '/images/coffee-box-60-pods.png')
+      products.some((p) => p.slug !== 'coffee-box-20-pods' || p.price !== 69 || p.imageUrl !== '/images/coffee-box-60-pods.png')
     ) {
       await Product.deleteMany({});
       await Product.insertMany(initialProducts);

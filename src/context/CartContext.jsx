@@ -14,7 +14,26 @@ export function CartProvider({ children }) {
     try {
       const saved = localStorage.getItem('caffeloja_cart');
       if (saved) {
-        setCart(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const migrated = parsed.map((item) => {
+            if (
+              item.slug === 'coffee-box-60-pods' ||
+              item.slug === 'coffee-box-20-pods' ||
+              item.name?.includes('Coffee Box')
+            ) {
+              return {
+                ...item,
+                slug: 'coffee-box-20-pods',
+                name: 'Coffee Box (20 Pods)',
+                price: 69.0,
+                grind: 'Coffee Box (20 Pods)',
+              };
+            }
+            return item;
+          });
+          setCart(migrated);
+        }
       }
     } catch (e) {
       console.error('Failed to load cart from storage', e);

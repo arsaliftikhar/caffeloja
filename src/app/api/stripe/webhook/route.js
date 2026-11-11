@@ -1,15 +1,24 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongoose';
 import Order from '@/models/Order';
+import User from '@/models/User';
 import { distribute4LevelCommissions } from '@/lib/mlmEngine';
 import { forwardOrderToWordPress } from '@/lib/dropshipService';
+import { verifyStripeWebhookSignature, retrieveStripeSubscription } from '@/lib/stripe';
 
 export async function POST(request) {
   try {
-    await connectToDatabase();
-    const event = await request.json();
+    const rawBody = await request.text();
+    const signature = request.headers.get('stripe-signature');
 
-    // Handle checkout.session.completed event from Stripe
+    if (!verifyStripeWebhookSignature(rawBody, signature)) {
+      return NextResponse.json({ error: 'Invalid Stripe webhook signature' }, { status: 400 });
+    }
+
+    await connectToDatabase();
+    const event = JSON.parse(rawBody);
+
+    // 1. Handle Checkout Session Completed
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const orderNumber = session?.metadata?.orderNumber;
@@ -29,7 +38,6 @@ export async function POST(request) {
         order.stripePaymentIntentId = paymentIntentId;
         await order.save();
 
-        // 1. Distribute 4-Level MLM Commissions
         const code = referralCode || order.referralCode;
         if (code && !order.commissionsDistributed) {
           const commissionResult = await distribute4LevelCommissions(order, code);
@@ -40,10 +48,195 @@ export async function POST(request) {
           }
         }
 
-        // 2. Forward to WordPress Dropshipper
         if (!order.dropshipping?.isForwarded) {
           await forwardOrderToWordPress(order);
         }
+      }
+    }
+
+    // 2. Handle Recurring Monthly Subscription Invoice Paid
+    if (event.type === 'invoice.paid') {
+      const invoice = event.data.object;
+      const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+      const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+      const paymentIntentId = typeof invoice.payment_intent === 'string' ? invoice.payment_intent : invoice.payment_intent?.id;
+
+      if (subscriptionId || customerId || invoice.customer_email) {
+        const userQuery = [];
+        if (subscriptionId) userQuery.push({ stripeSubscriptionId: subscriptionId });
+        if (customerId) userQuery.push({ stripeCustomerId: customerId });
+        if (invoice.customer_email) userQuery.push({ email: invoice.customer_email.toLowerCase() });
+
+        const user = await User.findOne({ $or: userQuery }).lean();
+
+        if (user) {
+          let periodEndDate = new Date();
+          periodEndDate.setMonth(periodEndDate.getMonth() + 1);
+          if (subscriptionId) {
+            try {
+              const stripeSub = await retrieveStripeSubscription(subscriptionId);
+              if (stripeSub?.current_period_end) {
+                periodEndDate = new Date(stripeSub.current_period_end * 1000);
+              }
+            } catch {}
+          }
+
+          // Idempotency check: prevent duplicate renewal orders for same Stripe Invoice
+          const existingInvoiceOrder = await Order.findOne({
+            $or: [
+              { stripeInvoiceId: invoice.id },
+              ...(paymentIntentId ? [{ stripePaymentIntentId: paymentIntentId }] : []),
+            ],
+          });
+
+          if (existingInvoiceOrder) {
+            if (existingInvoiceOrder.paymentStatus !== 'paid') {
+              existingInvoiceOrder.paymentStatus = 'paid';
+              existingInvoiceOrder.status = 'processing';
+              existingInvoiceOrder.stripeInvoiceId = invoice.id;
+              await existingInvoiceOrder.save();
+
+              const code = existingInvoiceOrder.referralCode || user.sponsorCode;
+              if (code && !existingInvoiceOrder.commissionsDistributed) {
+                const commRes = await distribute4LevelCommissions(existingInvoiceOrder, code);
+                if (commRes.success) {
+                  existingInvoiceOrder.commissionsDistributed = true;
+                  existingInvoiceOrder.totalCommissionsPaid = commRes.totalPaid;
+                  await existingInvoiceOrder.save();
+                }
+              }
+              if (!existingInvoiceOrder.dropshipping?.isForwarded) {
+                await forwardOrderToWordPress(existingInvoiceOrder);
+              }
+            } else if (!existingInvoiceOrder.stripeInvoiceId) {
+              await Order.findByIdAndUpdate(existingInvoiceOrder._id, {
+                $set: { stripeInvoiceId: invoice.id },
+              });
+            }
+          } else if (invoice.billing_reason === 'subscription_cycle' || invoice.billing_reason === 'subscription_create') {
+            // Create new monthly renewal order automatically
+            const renewalOrderNumber = 'REN-' + Math.floor(100000 + Math.random() * 900000);
+            const amountPaid = Number(invoice.amount_paid || 6900) / 100;
+
+            const renewalOrder = await Order.create({
+              orderNumber: renewalOrderNumber,
+              customer: {
+                name: user.name,
+                email: user.email,
+                phone: user.shippingAddress?.phone || user.phone || '000-000-0000',
+                address: {
+                  street: user.shippingAddress?.street || 'On File',
+                  city: user.shippingAddress?.city || 'On File',
+                  postalCode: user.shippingAddress?.postalCode || '00000',
+                  country: user.shippingAddress?.country || 'United States',
+                },
+              },
+              items: [
+                {
+                  name: 'Coffee Box (20 Pods) — Monthly Renewal',
+                  price: amountPaid,
+                  quantity: 1,
+                  grind: 'Coffee Box (20 Pods)',
+                  imageUrl: '/images/coffee-box-60-pods.png',
+                  sku: 'CB-20PODS',
+                },
+              ],
+              subtotal: amountPaid,
+              shippingFee: 0,
+              total: amountPaid,
+              referralCode: user.sponsorCode || null,
+              paymentMethod: user.paymentMethodSummary?.last4
+                ? `Stripe Auto-Renew (${user.paymentMethodSummary.brand || 'Card'} •••• ${user.paymentMethodSummary.last4})`
+                : 'Stripe Auto-Renew',
+              paymentStatus: 'paid',
+              status: 'processing',
+              stripePaymentIntentId: paymentIntentId || null,
+              stripeInvoiceId: invoice.id,
+              stripeSubscriptionId: subscriptionId || null,
+            });
+
+            if (user.sponsorCode) {
+              const commResult = await distribute4LevelCommissions(renewalOrder, user.sponsorCode);
+              if (commResult.success) {
+                await Order.findByIdAndUpdate(renewalOrder._id, {
+                  commissionsDistributed: true,
+                  totalCommissionsPaid: commResult.totalPaid,
+                });
+              }
+            }
+
+            await forwardOrderToWordPress(renewalOrder);
+          }
+
+          await User.findByIdAndUpdate(
+            user._id,
+            {
+              $set: {
+                hasActiveSubscription: true,
+                subscriptionStatus: 'active',
+                subscriptionUpdatedAt: new Date(),
+                subscriptionCurrentPeriodEnd: periodEndDate,
+                ...(subscriptionId ? { stripeSubscriptionId: subscriptionId } : {}),
+                ...(customerId ? { stripeCustomerId: customerId } : {}),
+              },
+            },
+            { strict: false }
+          );
+        }
+      }
+    }
+
+    // 3. Handle Subscription Payment Failed
+    if (event.type === 'invoice.payment_failed') {
+      const invoice = event.data.object;
+      const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+      const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+
+      if (subscriptionId || customerId) {
+        await User.findOneAndUpdate(
+          {
+            $or: [
+              ...(subscriptionId ? [{ stripeSubscriptionId: subscriptionId }] : []),
+              ...(customerId ? [{ stripeCustomerId: customerId }] : []),
+            ],
+          },
+          {
+            $set: {
+              hasActiveSubscription: false,
+              subscriptionStatus: 'inactive',
+              subscriptionUpdatedAt: new Date(),
+            },
+          },
+          { strict: false }
+        );
+      }
+    }
+
+    // 4. Handle Subscription Cancelled / Deleted in Stripe
+    if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object;
+      const subscriptionId = subscription?.id;
+      const customerId = typeof subscription?.customer === 'string' ? subscription.customer : subscription?.customer?.id;
+
+      if (subscriptionId || customerId) {
+        await User.findOneAndUpdate(
+          {
+            $or: [
+              ...(subscriptionId ? [{ stripeSubscriptionId: subscriptionId }] : []),
+              ...(customerId ? [{ stripeCustomerId: customerId }] : []),
+            ],
+          },
+          {
+            $set: {
+              hasActiveSubscription: false,
+              subscriptionStatus: 'cancelled',
+              stripeSubscriptionId: '',
+              subscriptionCurrentPeriodEnd: null,
+              subscriptionUpdatedAt: new Date(),
+            },
+          },
+          { strict: false }
+        );
       }
     }
 

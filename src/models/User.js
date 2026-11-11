@@ -77,6 +77,57 @@ const UserSchema = new mongoose.Schema(
       mbwayPhone: { type: String, default: '' },
       cryptoWallet: { type: String, default: '' },
     },
+    shippingAddress: {
+      phone: { type: String, default: '' },
+      street: { type: String, default: '' },
+      city: { type: String, default: '' },
+      state: { type: String, default: '' },
+      postalCode: { type: String, default: '' },
+      country: { type: String, default: 'United States' },
+    },
+    hasActiveSubscription: {
+      type: Boolean,
+      default: false,
+    },
+    subscriptionStatus: {
+      type: String,
+      enum: ['inactive', 'active', 'cancelled'],
+      default: 'inactive',
+    },
+    subscriptionUpdatedAt: {
+      type: Date,
+      default: null,
+    },
+    subscriptionCurrentPeriodEnd: {
+      type: Date,
+      default: null,
+    },
+    stripeCustomerId: {
+      type: String,
+      default: '',
+    },
+    stripeSubscriptionId: {
+      type: String,
+      default: '',
+    },
+    paymentMethodSummary: {
+      brand: { type: String, default: '' },
+      last4: { type: String, default: '' },
+      cardholderName: { type: String, default: '' },
+    },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    twoFactorSecret: {
+      type: String,
+      default: '',
+    },
+    notificationPreferences: {
+      commissions: { type: Boolean, default: true },
+      shipping: { type: Boolean, default: true },
+      security: { type: Boolean, default: true },
+    },
     status: {
       type: String,
       enum: ['active', 'suspended'],
@@ -87,5 +138,14 @@ const UserSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+if (
+  mongoose.models.User &&
+  (!mongoose.models.User.schema.path('shippingAddress.street') ||
+    !mongoose.models.User.schema.path('twoFactorEnabled') ||
+    !mongoose.models.User.schema.path('stripeSubscriptionId'))
+) {
+  delete mongoose.models.User;
+}
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

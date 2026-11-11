@@ -64,14 +64,12 @@ export async function distribute4LevelCommissions(order, referralCode) {
   for (let currentLevel = 1; currentLevel <= 4; currentLevel++) {
     if (!currentSponsor) break;
 
-    // Find configured percentage for this level
-    const levelConfig = settings.levels.find((l) => l.level === currentLevel) || {
-      level: currentLevel,
-      percentage: currentLevel === 1 ? 10 : currentLevel === 2 ? 5 : currentLevel === 3 ? 3 : 2,
-    };
-
-    const percentage = Number(levelConfig.percentage) || 0;
-    const commissionAmount = parseFloat(((orderAmount * percentage) / 100).toFixed(2));
+    // Fixed dollar commission per box for each level: L1=$10, L2=$8, L3=$6, L4=$6
+    const fixedByLevel = { 1: 10, 2: 8, 3: 6, 4: 6 };
+    const totalBoxes = (order.items || []).reduce((sum, item) => sum + (Number(item.quantity) || 1), 0) || 1;
+    const perBoxCommission = fixedByLevel[currentLevel] || 6;
+    const percentage = perBoxCommission;
+    const commissionAmount = parseFloat((perBoxCommission * totalBoxes).toFixed(2));
 
     if (commissionAmount > 0) {
       // 1. Create commission record
@@ -162,17 +160,24 @@ export async function get4LevelDownline(userId) {
     totalDownlineVolume: 0,
   };
 
+  const memberFields =
+    'name email referralCode sponsorId sponsorCode rank hasActiveSubscription subscriptionStatus totalSalesVolume totalEarnings createdAt';
+
   // Level 1: Direct referrals
   const l1Users = await User.find({
     $or: [{ sponsorId: userId }, { sponsorCode: rootUser.referralCode }],
-  }).select('name email referralCode rank totalSalesVolume totalEarnings createdAt').lean();
+  })
+    .select(memberFields)
+    .lean();
   downline.level1 = l1Users;
 
   const getNextLevel = async (parentIds, parentCodes) => {
     if (parentIds.length === 0 && parentCodes.length === 0) return [];
     return await User.find({
       $or: [{ sponsorId: { $in: parentIds } }, { sponsorCode: { $in: parentCodes } }],
-    }).select('name email referralCode rank totalSalesVolume totalEarnings createdAt').lean();
+    })
+      .select(memberFields)
+      .lean();
   };
 
   // Level 2

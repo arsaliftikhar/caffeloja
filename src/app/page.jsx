@@ -36,9 +36,9 @@ export default function HomePage() {
       ctaLink: '/menu',
     },
     {
-      title: 'Coffee Box (60 Pods)',
+      title: 'Coffee Box (20 Pods)',
       subtitle: 'Premium Single-Serve Artisan Pods',
-      desc: '60 hermetically sealed Keurig-compatible pods. Rich chocolate, toasted hazelnut, and warm caramel with smooth crema in every brew.',
+      desc: '20 hermetically sealed Keurig-compatible pods. Rich chocolate, toasted hazelnut, and warm caramel with smooth crema in every brew.',
       image: 'https://caffeloja.com/wp-content/uploads/2018/04/home-1-slider-image-2.jpg',
       ctaText: 'Order Coffee Box',
       ctaLink: '/menu',
@@ -48,8 +48,8 @@ export default function HomePage() {
       subtitle: 'Earn An Income with Coffee',
       desc: 'Join our revolutionary 4-tier MLM partner program. Earn recurring commissions on every cup sold through your network.',
       image: 'https://caffeloja.com/wp-content/uploads/2018/04/home-1-slider-image-3.jpg',
-      ctaText: 'Join Partner Program',
-      ctaLink: '/affiliate',
+      ctaText: 'View Compensation Plan',
+      ctaLink: '/earn-an-income',
     },
   ];
 
@@ -71,19 +71,89 @@ export default function HomePage() {
     setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
   };
 
-  const galleryItems = [
-    { title: 'Perfect Cup', tag: 'Espresso Craft', img: 'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-1.jpg' },
-    { title: 'Brewed', tag: 'Pour Over', img: 'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-2.jpg' },
-    { title: 'Coffee Drips', tag: 'Artisan Chemex', img: 'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-3.jpg' },
-    { title: 'Baked Beans', tag: 'Fresh Batch', img: 'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-7.jpg' },
-    { title: 'Best Aromas', tag: 'Cupping Flight', img: 'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-5.jpg' },
-    { title: 'Creams', tag: 'Latte Art', img: 'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-6.jpg' },
-    { title: 'Enjoyment', tag: 'Specialty Moment', img: 'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-4.jpg' },
-    { title: 'Big Mugs', tag: 'Morning Ritual', img: 'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-8.jpg' },
+  const galleryImages = [
+    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-1.jpg',
+    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-2.jpg',
+    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-3.jpg',
+    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-4.jpg',
+    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-5.jpg',
+    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-6.jpg',
+    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-7.jpg',
+    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-8.jpg',
   ];
 
   return (
-    <div className="home-page-root">
+    <div className="home-page-root" style={{ overflowX: 'hidden' }}>
+      <style>{`
+        .home-offer-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 32px;
+        }
+        .home-split-section {
+          padding: 76px 0;
+        }
+        .home-split-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          gap: 50px;
+          align-items: center;
+        }
+        .home-split-col {
+          min-width: 0;
+          width: 100%;
+        }
+        .home-split-img-wrap {
+          position: relative;
+          border-radius: 20px;
+          overflow: hidden;
+          border: 1px solid var(--mocha-border);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+          width: 100%;
+        }
+        .home-split-img {
+          width: 100%;
+          height: 400px;
+          object-fit: cover;
+          display: block;
+          filter: brightness(0.82) contrast(0.96);
+        }
+        @media (max-width: 900px) {
+          .home-offer-grid {
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 20px !important;
+          }
+          .home-split-section {
+            padding: 48px 0 !important;
+          }
+          .home-split-grid {
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 28px !important;
+          }
+          .home-split-img {
+            height: 280px !important;
+          }
+        }
+        @media (max-width: 600px) {
+          .home-split-section {
+            padding: 40px 0 !important;
+          }
+          .home-split-img-wrap {
+            border-radius: 14px !important;
+          }
+          .home-split-img {
+            height: 220px !important;
+          }
+          .home-split-actions {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .home-split-actions a {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      `}</style>
       {/* 1. HERO SLIDER (Original caffeloja.com Hero Images) */}
       <section
         onMouseEnter={() => setIsPaused(true)}
@@ -94,7 +164,7 @@ export default function HomePage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundImage: `linear-gradient(rgba(13, 9, 7, 0.65), rgba(13, 9, 7, 0.85)), url("${heroSlides[activeSlide].image}")`,
+          backgroundImage: `linear-gradient(rgba(13, 9, 7, 0.76), rgba(13, 9, 7, 0.90)), url("${heroSlides[activeSlide].image}")`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           transition: 'background-image 0.8s ease-in-out',
@@ -128,15 +198,15 @@ export default function HomePage() {
             style={{ margin: '0 auto 16px', display: 'block' }}
           />
 
-          <span style={{ fontSize: '0.95rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--amber-light)', fontWeight: '600' }}>
+          <span style={{ fontSize: '0.88rem', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--amber-light)', fontWeight: '600' }}>
             {heroSlides[activeSlide].subtitle}
           </span>
 
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '3.6rem', lineHeight: '1.15', margin: '14px 0 20px', fontWeight: '700' }}>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.1rem, 5vw, 3.6rem)', lineHeight: '1.15', margin: '14px 0 20px', fontWeight: '700' }}>
             {heroSlides[activeSlide].title}
           </h1>
 
-          <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '32px', maxWidth: '640px', margin: '0 auto 32px' }}>
+          <p style={{ fontSize: 'clamp(0.98rem, 2vw, 1.15rem)', color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '32px', maxWidth: '640px', margin: '0 auto 32px' }}>
             {heroSlides[activeSlide].desc}
           </p>
 
@@ -185,8 +255,8 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
-            <div style={{ background: '#19110c', border: '1px solid var(--mocha-border)', borderRadius: '20px', padding: '36px 28px', textAlign: 'center' }}>
+          <div className="home-offer-grid">
+            <div style={{ background: '#19110c', border: '1px solid var(--mocha-border)', borderRadius: '20px', padding: '32px 24px', textAlign: 'center' }}>
               <img
                 src="https://caffeloja.com/wp-content/uploads/2018/04/h2-custom-icon-5.png"
                 alt="Types of Coffee"
@@ -224,7 +294,7 @@ export default function HomePage() {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '20px' }}>
                 Earn direct and multi-tier recurring commissions on coffee bags ordered through your unique affiliate referral code.
               </p>
-              <Link href="/affiliate" style={{ color: 'var(--amber-light)', fontWeight: '600', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <Link href="/earn-an-income" style={{ color: 'var(--amber-light)', fontWeight: '600', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 <span>Start Earning</span> <ChevronRight size={16} />
               </Link>
             </div>
@@ -233,27 +303,27 @@ export default function HomePage() {
       </section>
 
       {/* 3. THE WORLD'S BEST COFFEE / CONTINUOUS FRESH ROASTED SECTION */}
-      <section style={{ padding: '80px 0', background: '#140e0a', borderTop: '1px solid var(--mocha-border)', borderBottom: '1px solid var(--mocha-border)' }}>
+      <section className="home-split-section" style={{ background: '#140e0a', borderTop: '1px solid var(--mocha-border)', borderBottom: '1px solid var(--mocha-border)' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '50px', alignItems: 'center' }}>
-            <div>
+          <div className="home-split-grid">
+            <div className="home-split-col">
               <img
                 src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
                 alt="separator"
                 style={{ marginBottom: '12px', display: 'block' }}
               />
               <span className="section-tag">Quality In Every Cup</span>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', lineHeight: '1.2', marginBottom: '20px' }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.65rem, 4vw, 2.5rem)', lineHeight: '1.25', marginBottom: '18px' }}>
                 The World&apos;s Best Coffee & Continuous Fresh Roasts
               </h2>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '18px' }}>
-                At Caffè Loja, we believe coffee is not just a morning habit, but an experience. Sourced responsibly and roasted with precision drum roasters to unlock delicate natural sweetness without burnt bitterness.
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.98rem', lineHeight: '1.7', marginBottom: '16px' }}>
+                At Caffeloja, we believe coffee is not just a morning habit, but an experience. Sourced responsibly and roasted with precision drum roasters to unlock delicate natural sweetness without burnt bitterness.
               </p>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '28px' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.98rem', lineHeight: '1.7', marginBottom: '26px' }}>
                 All coffee orders are freshly roasted and dropshipped directly from our partner fulfillment roastery at <strong>Old Chicago Coffee Co.</strong>, ensuring unparalleled freshness.
               </p>
 
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+              <div className="home-split-actions" style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
                 <Link href="/menu" className="btn-primary">
                   <span>Explore Catalog</span>
                   <ArrowRight size={18} />
@@ -264,116 +334,113 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div style={{ position: 'relative' }}>
-              <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--mocha-border)', boxShadow: '0 20px 40px rgba(0,0,0,0.7)' }}>
+            <div className="home-split-col">
+              <div className="home-split-img-wrap">
                 <img
                   src="https://caffeloja.com/wp-content/uploads/2025/10/1.jpg"
-                  alt="Caffè Loja Barista Brew"
-                  style={{ width: '100%', height: '420px', objectFit: 'cover' }}
+                  alt="Caffeloja Barista Brew"
+                  className="home-split-img"
                 />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(13,9,7,0.12) 0%, rgba(13,9,7,0.38) 100%)', pointerEvents: 'none' }} />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. FEATURED SPOTLIGHT: Flagship Coffee Box (60 Pods) */}
-      <section style={{ padding: '80px 0', background: 'var(--bg-primary)' }}>
+      {/* 4. FRESHLY ROAST COFFEE & 100% ARABICA PODS SECTION */}
+      <section className="home-split-section" style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--mocha-border)' }}>
         <div className="container">
-          <div className="section-header" style={{ marginBottom: '40px' }}>
-            <span className="section-tag">Featured Highlight</span>
-            <h2 className="section-title">Flagship Coffee Box (60 Pods)</h2>
-            <p className="section-desc">
-              60 premium single-serve artisan coffee pods roasted to perfection and sealed for unmatched freshness.
-            </p>
-          </div>
-
-          <div style={{ maxWidth: '520px', margin: '0 auto 40px' }}>
-            {/* Spotlight Single Product Card */}
-            <div style={{ background: '#1c140e', border: '1px solid var(--mocha-border)', borderRadius: '20px', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
-              <div style={{ height: '320px', position: 'relative' }}>
+          <div className="home-split-grid">
+            <div className="home-split-col">
+              <div className="home-split-img-wrap">
                 <img
-                  src="/images/coffee-box-60-pods.png"
-                  alt="Coffee Box (60 Pods)"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#120d09', padding: '16px' }}
+                  src="/images/freshly-roast-coffee.jpg"
+                  alt="Experience True Freshly Roast Coffee"
+                  className="home-split-img"
                 />
-                <span className="coffee-badge">Flagship 60 Pods Box</span>
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(13,9,7,0.12) 0%, rgba(13,9,7,0.38) 100%)', pointerEvents: 'none' }} />
               </div>
-              <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--amber-light)', fontWeight: '700', letterSpacing: '0.8px', textTransform: 'uppercase' }}>SKU: CB-60PODS &bull; 60 SINGLE-SERVE PODS</span>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', margin: '8px 0' }}>Coffee Box (60 Pods)</h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: '1.6' }}>
-                  Handcrafted from select high-elevation Arabica beans. Rich notes of sweet chocolate, toasted hazelnut, and warm caramel with smooth crema in every cup. Keurig K-Cup compatible and 100% recyclable.
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--mocha-border)', paddingTop: '18px' }}>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Box of 60 Pods</span>
-                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: '700', color: 'var(--amber-light)' }}>$110.00</span>
-                  </div>
-                  <Link href="/menu" className="btn-primary">
-                    <ShoppingBag size={16} /> <span>Order Coffee Box</span>
-                  </Link>
-                </div>
+            </div>
+
+            <div className="home-split-col">
+              <img
+                src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
+                alt="separator"
+                style={{ marginBottom: '14px', display: 'block' }}
+              />
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.65rem, 4vw, 2.35rem)', lineHeight: '1.25', marginBottom: '18px' }}>
+                Experience True Freshly Roast Coffee
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.98rem', lineHeight: '1.75', marginBottom: '16px' }}>
+                Experience true freshly roast coffee. Quite often the coffee grounds are still hot when packaged, offering the freshest coffee anywhere! Our beans are 100% Arabica beans. And are organically grown. Experience the great flavor from the highest coffee beans without the additives. No artificial colors or preservatives in our coffee.
+              </p>
+              <p style={{ color: 'var(--text-primary)', fontSize: '1.02rem', lineHeight: '1.7', marginBottom: '26px', fontWeight: '500' }}>
+                Enjoy the taste of a rich brew in an instant with our gourmet coffee one serve pods.
+              </p>
+
+              <div className="home-split-actions" style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                <Link href="/menu" className="btn-primary">
+                  <span>Order Coffee Pods</span>
+                  <ArrowRight size={18} />
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. OUR SWEET GALLERY SECTION (caffeloja.com 8 Portfolio Images) */}
-      <section style={{ padding: '80px 0', background: '#120d09', borderTop: '1px solid var(--mocha-border)' }}>
-        <div className="container">
-          <div className="section-header" style={{ marginBottom: '40px' }}>
-            <img
-              src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
-              alt="separator"
-              style={{ margin: '0 auto 12px', display: 'block' }}
-            />
-            <span className="section-tag">Visual Moments</span>
-            <h2 className="section-title">Our Sweet Gallery</h2>
-            <p className="section-desc">
-              Moments of espresso craft, roasted beans, and morning perfection at Caffè Loja.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
-            {galleryItems.map((item, idx) => (
-              <div
-                key={idx}
-                style={{
-                  position: 'relative',
-                  height: '240px',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  border: '1px solid var(--mocha-border)',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-                }}
-              >
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'linear-gradient(to top, rgba(13, 9, 7, 0.95) 0%, rgba(13, 9, 7, 0.2) 60%, transparent 100%)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-end',
-                    padding: '20px',
-                  }}
-                >
-                  <span style={{ fontSize: '0.74rem', color: 'var(--amber-light)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    {item.tag}
-                  </span>
-                  <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', color: '#fff' }}>
-                    {item.title}
-                  </h4>
+      {/* 5. INFINITE LEFT-TO-RIGHT GALLERY ROW */}
+      <section style={{ padding: '48px 0', background: '#120d09', borderBottom: '1px solid var(--mocha-border)' }}>
+        <div className="gallery-marquee-viewport">
+          <div className="gallery-marquee-track">
+            <div className="gallery-marquee-group">
+              {galleryImages.map((imgUrl, idx) => (
+                <div key={`g1-${idx}`} className="gallery-marquee-item">
+                  <img src={imgUrl} alt={`Caffeloja Gallery ${idx + 1}`} loading="lazy" />
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="gallery-marquee-group" aria-hidden="true">
+              {galleryImages.map((imgUrl, idx) => (
+                <div key={`g2-${idx}`} className="gallery-marquee-item">
+                  <img src={imgUrl} alt={`Caffeloja Gallery ${idx + 1}`} loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. SIMPLE CLOSING BANNER */}
+      <section
+        style={{
+          padding: '100px 20px',
+          backgroundImage: 'linear-gradient(rgba(13, 9, 7, 0.78), rgba(13, 9, 7, 0.88)), url("https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1920&q=85")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          textAlign: 'center',
+        }}
+      >
+        <div className="container" style={{ maxWidth: '680px' }}>
+          <img
+            src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
+            alt="separator"
+            style={{ margin: '0 auto 16px', display: 'block' }}
+          />
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.85rem, 3.5vw, 2.5rem)', lineHeight: '1.25', marginBottom: '16px' }}>
+            150 Years of Roasting Tradition
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.75', marginBottom: '32px' }}>
+            We truly feel our coffee is the best tasting coffee in the world. Our goal is to get our freshly roasted coffee into the hands and homes of coffee lovers everywhere.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <Link href="/menu" className="btn-primary">
+              <span>Shop Coffee</span>
+            </Link>
+            <Link href="/earn-an-income" className="btn-secondary">
+              <span>Earn An Income</span>
+            </Link>
           </div>
         </div>
       </section>

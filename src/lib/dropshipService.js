@@ -36,7 +36,7 @@ export async function forwardOrderToWordPress(order) {
     // Construct WooCommerce payload
     const wcPayload = {
       payment_method: 'bacs',
-      payment_method_title: 'Dropship Forwarded from Caffè Loja',
+      payment_method_title: 'Dropship Forwarded from Caffeloja',
       set_paid: true,
       billing: {
         first_name: order.customer?.name?.split(' ')[0] || 'Coffee',
@@ -57,7 +57,7 @@ export async function forwardOrderToWordPress(order) {
         country: order.customer?.address?.country || 'PT',
       },
       line_items: lineItems,
-      customer_note: `Dropship Order from Caffè Loja. Original Ref: ${order.orderNumber}. Referrer: ${order.referralCode || 'Direct'}.`,
+      customer_note: `Dropship Order from Caffeloja. Original Ref: ${order.orderNumber}. Referrer: ${order.referralCode || 'Direct'}.`,
     };
 
     let responseResult = {

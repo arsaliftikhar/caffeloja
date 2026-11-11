@@ -333,7 +333,7 @@ export default function AdminPage() {
                   📦 How Dropshipping Forwarding Works:
                 </strong>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                  Whenever an order is placed on Caffè Loja, our background engine formats the billing/shipping and line items payload and dispatches it directly to the WordPress WooCommerce REST / Bridge API on <strong>oldchicagocoffee.com</strong>.
+                  Whenever an order is placed on Caffeloja, our background engine formats the billing/shipping and line items payload and dispatches it directly to the WordPress WooCommerce REST / Bridge API on <strong>oldchicagocoffee.com</strong>.
                 </p>
               </div>
             </div>

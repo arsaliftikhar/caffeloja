@@ -58,6 +58,14 @@ const OrderSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    stripeInvoiceId: {
+      type: String,
+      default: null,
+    },
+    stripeSubscriptionId: {
+      type: String,
+      default: null,
+    },
     // MLM Referral & Commission Details
     referralCode: {
       type: String,
@@ -95,5 +103,9 @@ const OrderSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+if (mongoose.models.Order && !mongoose.models.Order.schema.path('stripeInvoiceId')) {
+  delete mongoose.models.Order;
+}
 
 export default mongoose.models.Order || mongoose.model('Order', OrderSchema);

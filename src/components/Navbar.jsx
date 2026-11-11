@@ -17,6 +17,7 @@ export default function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -47,19 +48,23 @@ export default function Navbar() {
     { name: 'Home', href: '/' },
     { name: 'Our Story', href: '/about' },
     { name: 'Product', href: '/menu' },
-    { name: 'Earn An Income', href: '/affiliate' },
+    { name: 'Earn An Income', href: '/earn-an-income' },
     { name: 'Contact', href: '/contact' },
   ];
+
+  if (pathname?.startsWith('/user')) {
+    return null;
+  }
 
   return (
     <>
       <header className={`navbar-root ${isScrolled ? 'navbar-scrolled' : ''}`}>
         <div className="navbar-container">
           {/* Pure Official Logo (No Background, No Text) */}
-          <Link href="/" className="navbar-logo-link" onClick={() => setMobileMenuOpen(false)} aria-label="Caffè Loja">
+          <Link href="/" className="navbar-logo-link" onClick={() => setMobileMenuOpen(false)} aria-label="Caffeloja">
             <img
               src="/logo.png"
-              alt="Caffè Loja"
+              alt="Caffeloja"
               className="brand-logo-only"
             />
           </Link>
@@ -84,7 +89,7 @@ export default function Navbar() {
           {/* Action Buttons */}
           <div className="navbar-actions">
             <Link
-              href="/affiliate"
+              href={isLoggedIn ? '/user/dashboard' : '/login'}
               className="btn-reserve-nav"
               style={{
                 borderColor: 'var(--amber-primary)',
@@ -105,15 +110,15 @@ export default function Navbar() {
               )}
             </Link>
 
-            <button
+            <Link
+              href="/checkout"
               id="cart-drawer-toggle"
               aria-label="Shopping Cart"
               className="cart-btn"
-              onClick={() => setIsDrawerOpen(true)}
             >
               <ShoppingBag size={20} />
               {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
-            </button>
+            </Link>
 
             {/* Mobile Hamburger */}
             <button
@@ -143,7 +148,7 @@ export default function Navbar() {
               ))}
               <div className="mobile-menu-divider" />
               <Link
-                href="/affiliate"
+                href={isLoggedIn ? '/user/dashboard' : '/login'}
                 className="btn-primary mobile-menu-reserve"
                 onClick={() => setMobileMenuOpen(false)}
               >
