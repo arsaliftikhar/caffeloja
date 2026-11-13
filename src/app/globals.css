@@ -1525,6 +1525,8 @@ input, textarea, select {
 
 /* AFFILIATE DASHBOARD SIDEBAR LAYOUT */
 .affiliate-dashboard-wrap {
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
   padding-top: 135px;
   padding-bottom: 70px;

@@ -46,7 +46,7 @@ export default function HomePage() {
     {
       title: '4-Level Affiliate Network',
       subtitle: 'Earn An Income with Coffee',
-      desc: 'Join our revolutionary 4-tier MLM partner program. Earn recurring commissions on every cup sold through your network.',
+      desc: 'Join our revolutionary 4-tier affiliate partner program. Earn recurring commissions on every cup sold through your network.',
       image: 'https://caffeloja.com/wp-content/uploads/2018/04/home-1-slider-image-3.jpg',
       ctaText: 'View Compensation Plan',
       ctaLink: '/earn-an-income',
@@ -290,7 +290,7 @@ export default function HomePage() {
               <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(230,157,69,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--amber-light)', margin: '0 auto 20px' }}>
                 <Users size={30} />
               </div>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '12px' }}>4-Level MLM Rewards</h3>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '12px' }}>4-Level Partner Rewards</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '20px' }}>
                 Earn direct and multi-tier recurring commissions on coffee bags ordered through your unique affiliate referral code.
               </p>
@@ -320,7 +320,7 @@ export default function HomePage() {
                 At Caffeloja, we believe coffee is not just a morning habit, but an experience. Sourced responsibly and roasted with precision drum roasters to unlock delicate natural sweetness without burnt bitterness.
               </p>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.98rem', lineHeight: '1.7', marginBottom: '26px' }}>
-                All coffee orders are freshly roasted and dropshipped directly from our partner fulfillment roastery at <strong>Old Chicago Coffee Co.</strong>, ensuring unparalleled freshness.
+                All coffee orders are freshly roasted in small batches and dispatched directly from our dedicated roastery fulfillment partner, ensuring peak freshness in every cup.
               </p>
 
               <div className="home-split-actions" style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>

@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import connectToDatabase from '@/lib/mongoose';
 import User from '@/models/User';
 import { signToken } from '@/lib/auth';
+import { sendVerificationEmail } from '@/lib/emailService';
 
 export async function POST(request) {
   try {
@@ -67,6 +69,8 @@ export async function POST(request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     const newUser = await User.create({
       name: cleanName,
@@ -77,18 +81,38 @@ export async function POST(request) {
       sponsorCode: sponsor ? sponsor.referralCode : null,
       sponsorId: sponsor ? sponsor._id : null,
       role: 'member',
+      isEmailVerified: false,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
     });
+
+    // Send verification email via Resend
+    const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://caffeloja.com';
+    let emailResult = null;
+    try {
+      emailResult = await sendVerificationEmail({
+        email: cleanEmail,
+        name: cleanName,
+        token: verificationToken,
+        origin,
+      });
+    } catch (mailErr) {
+      console.error('Failed to dispatch verification email:', mailErr.message);
+    }
 
     const token = signToken({
       userId: newUser._id,
       email: newUser.email,
       role: newUser.role,
       referralCode: newUser.referralCode,
+      isEmailVerified: false,
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Account registered successfully!',
+      message: 'Account registered successfully! Please check your email to verify your account.',
+      requiresVerification: true,
+      emailSent: Boolean(emailResult?.success),
       token,
       user: {
         id: newUser._id,
@@ -97,6 +121,7 @@ export async function POST(request) {
         referralCode: newUser.referralCode,
         sponsorCode: newUser.sponsorCode,
         role: newUser.role,
+        isEmailVerified: false,
         walletBalance: newUser.walletBalance,
         totalEarnings: newUser.totalEarnings,
         totalSalesVolume: newUser.totalSalesVolume,

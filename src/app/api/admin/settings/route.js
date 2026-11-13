@@ -29,7 +29,8 @@ export async function POST(request) {
     if (levels && Array.isArray(levels)) {
       settings.levels = levels.map((l) => ({
         level: Number(l.level),
-        percentage: Number(l.percentage),
+        amount: Number(l.amount ?? l.percentage ?? 6),
+        percentage: Number(l.amount ?? l.percentage ?? 6),
         label: l.label || `Level ${l.level}`,
       }));
     }
@@ -53,7 +54,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      message: 'MLM 4-Level Commission & Dropshipping configuration updated successfully!',
+      message: '4-Level Commission & Dropshipping configuration updated successfully!',
       data: settings,
     });
   } catch (error) {

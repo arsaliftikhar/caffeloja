@@ -4,6 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { CreditCard, Lock, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
+import {
+  ALLOWED_SHIPPING_COUNTRY,
+  isUnitedStatesCountry,
+  US_ONLY_SHIPPING_ERROR,
+} from '@/lib/shipping';
 
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 const HAS_REAL_STRIPE_PK = Boolean(
@@ -130,6 +135,10 @@ export default function StripeSubscriptionCard({
       !shippingForm.postalCode.trim()
     ) {
       toast.error('Please fill in your phone number, street address, city, and ZIP code.');
+      return false;
+    }
+    if (!isUnitedStatesCountry(shippingForm.country)) {
+      toast.error(US_ONLY_SHIPPING_ERROR);
       return false;
     }
     return true;
@@ -440,9 +449,17 @@ export default function StripeSubscriptionCard({
               <label>Country</label>
               <input
                 type="text"
-                value={shippingForm.country}
-                onChange={(e) => setShippingForm({ ...shippingForm, country: e.target.value })}
+                readOnly
+                value={ALLOWED_SHIPPING_COUNTRY}
+                style={{
+                  background: '#0d0907',
+                  color: 'var(--text-secondary)',
+                  cursor: 'not-allowed',
+                }}
               />
+              <span style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                Shipping available to United States only.
+              </span>
             </div>
           </div>
 
@@ -481,7 +498,8 @@ export default function StripeSubscriptionCard({
                 Shipping To
               </span>
               <span style={{ color: 'var(--text-primary)', fontWeight: '500', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {shippingForm.street}, {shippingForm.city} {shippingForm.postalCode}
+                {shippingForm.street}, {shippingForm.city}
+                {shippingForm.state ? `, ${shippingForm.state}` : ''} {shippingForm.postalCode} — {ALLOWED_SHIPPING_COUNTRY}
               </span>
             </div>
             <button

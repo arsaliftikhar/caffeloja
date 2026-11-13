@@ -15,6 +15,12 @@ import {
 } from '@/lib/stripe';
 import { distribute4LevelCommissions } from '@/lib/mlmEngine';
 import { forwardOrderToWordPress } from '@/lib/dropshipService';
+import {
+  ALLOWED_SHIPPING_COUNTRY_CODE,
+  isUnitedStatesCountry,
+  normalizeShippingFields,
+  US_ONLY_SHIPPING_ERROR,
+} from '@/lib/shipping';
 
 const SUBSCRIPTION_ITEM = {
   name: 'Coffee Box (20 Pods) — Monthly Subscription',
@@ -22,7 +28,7 @@ const SUBSCRIPTION_ITEM = {
   quantity: 1,
   grind: 'Coffee Box (20 Pods)',
   imageUrl: '/images/coffee-box-60-pods.png',
-  sku: 'CB-20PODS',
+  sku: '20PK',
 };
 
 function buildCustomerPayload(user, shipping) {
@@ -33,8 +39,9 @@ function buildCustomerPayload(user, shipping) {
     address: {
       street: shipping.street.trim(),
       city: shipping.city.trim(),
+      state: (shipping.state || '').trim(),
       postalCode: shipping.postalCode.trim(),
-      country: (shipping.country || 'United States').trim(),
+      country: ALLOWED_SHIPPING_COUNTRY_CODE,
     },
   };
 }
@@ -169,14 +176,14 @@ export async function POST(request) {
       );
     }
 
-    const shippingData = {
-      phone: shipping.phone.trim(),
-      street: shipping.street.trim(),
-      city: shipping.city.trim(),
-      state: (shipping.state || '').trim(),
-      postalCode: shipping.postalCode.trim(),
-      country: (shipping.country || 'United States').trim(),
-    };
+    if (!isUnitedStatesCountry(shipping?.country)) {
+      return NextResponse.json(
+        { success: false, message: US_ONLY_SHIPPING_ERROR },
+        { status: 400 }
+      );
+    }
+
+    const shippingData = normalizeShippingFields(shipping);
 
     if (action === 'save_shipping') {
       const updatedUser = await User.findByIdAndUpdate(
@@ -249,14 +256,39 @@ export async function POST(request) {
       const order = await Order.findByIdAndUpdate(
         orderId,
         {
-          paymentStatus: 'paid',
-          status: 'processing',
-          stripePaymentIntentId: paymentIntentId,
-          ...(subscriptionId ? { stripeSubscriptionId: subscriptionId } : {}),
-          ...(latestInvoiceId ? { stripeInvoiceId: latestInvoiceId } : {}),
-          ...(resolvedCardSummary?.last4
-            ? { paymentMethod: `Stripe (${resolvedCardSummary.brand || 'Card'} •••• ${resolvedCardSummary.last4})` }
-            : {}),
+          $set: {
+            paymentStatus: 'paid',
+            status: 'processing',
+            stripePaymentIntentId: paymentIntentId,
+            ...(subscriptionId ? { stripeSubscriptionId: subscriptionId } : {}),
+            ...(latestInvoiceId ? { stripeInvoiceId: latestInvoiceId } : {}),
+            ...(resolvedCardSummary?.last4
+              ? { paymentMethod: `Stripe (${resolvedCardSummary.brand || 'Card'} •••• ${resolvedCardSummary.last4})` }
+              : {}),
+            paymentLog: {
+              provider: 'stripe',
+              eventType: 'subscription.payment_intent.succeeded',
+              status: intent.status,
+              transactionId: intent.id,
+              amount: Number(intent.amount_received || intent.amount || 6900) / 100,
+              currency: intent.currency || 'usd',
+              rawResponse: JSON.stringify(
+                {
+                  paymentIntentId: intent.id,
+                  status: intent.status,
+                  amount: intent.amount,
+                  amount_received: intent.amount_received,
+                  currency: intent.currency,
+                  subscriptionId: subscriptionId || null,
+                  invoiceId: latestInvoiceId || null,
+                  card: resolvedCardSummary || null,
+                },
+                null,
+                2
+              ),
+              loggedAt: new Date(),
+            },
+          },
         },
         { new: true, strict: false }
       );
@@ -388,7 +420,7 @@ export async function POST(request) {
         items: [SUBSCRIPTION_ITEM],
         total: 69.0,
         referralCode: user.sponsorCode || null,
-        successUrl: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
+        successUrl: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}&order_number=${order.orderNumber}`,
         cancelUrl: `${origin}/user/subscription`,
       });
 
@@ -421,6 +453,26 @@ export async function POST(request) {
       paymentMethod: `Stripe (${cardSummary.brand || 'Card'} •••• ${cardSummary.last4})`,
       paymentStatus: 'paid',
       status: 'processing',
+      paymentLog: {
+        provider: 'stripe',
+        eventType: 'subscription.direct_card_activation',
+        status: 'succeeded',
+        transactionId: orderNumber,
+        amount: 69.0,
+        currency: 'usd',
+        rawResponse: JSON.stringify(
+          {
+            mode: 'direct_card',
+            orderNumber,
+            card: `${cardSummary.brand || 'Card'} •••• ${cardSummary.last4}`,
+            amount: 69.0,
+            paidAt: new Date().toISOString(),
+          },
+          null,
+          2
+        ),
+        loggedAt: new Date(),
+      },
     });
 
     const updatedUser = await finalizePaidSubscription({

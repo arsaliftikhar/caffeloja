@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, CheckCircle2, ShieldCheck, Globe, Users } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import {
+  ALLOWED_SHIPPING_COUNTRY,
+  ALLOWED_SHIPPING_COUNTRY_CODE,
+} from '@/lib/shipping';
 
 export default function CartDrawer() {
   const {
@@ -28,6 +32,7 @@ export default function CartDrawer() {
     phone: '',
     street: '',
     city: '',
+    state: '',
     postalCode: '',
   });
   const [orderSummary, setOrderSummary] = useState(null);
@@ -58,8 +63,9 @@ export default function CartDrawer() {
           address: {
             street: formData.street,
             city: formData.city,
+            state: formData.state || '',
             postalCode: formData.postalCode,
-            country: 'United States',
+            country: ALLOWED_SHIPPING_COUNTRY_CODE,
           },
         },
         items: cart,
@@ -103,7 +109,7 @@ export default function CartDrawer() {
         orderNumber: 'CL-' + Math.floor(100000 + Math.random() * 900000),
         customer: formData,
         total: grandTotal,
-        dropshipping: { dropshipOrderId: 'OCC-SIM-' + Date.now() },
+        dropshipping: { dropshipOrderId: 'FULFILL-SIM-' + Date.now() },
       });
       setCheckoutStep('success');
       clearCart();
@@ -207,7 +213,7 @@ export default function CartDrawer() {
                     type="text"
                     name="name"
                     required
-                    placeholder="Maria Silva"
+                    placeholder="John Doe"
                     value={formData.name}
                     onChange={handleInputChange}
                   />
@@ -218,7 +224,7 @@ export default function CartDrawer() {
                     type="tel"
                     name="phone"
                     required
-                    placeholder="+351 912 345 678"
+                    placeholder="+1 (555) 000-0000"
                     value={formData.phone}
                     onChange={handleInputChange}
                   />
@@ -231,7 +237,7 @@ export default function CartDrawer() {
                   type="email"
                   name="email"
                   required
-                  placeholder="maria@example.com"
+                  placeholder="you@example.com"
                   value={formData.email}
                   onChange={handleInputChange}
                 />
@@ -243,7 +249,7 @@ export default function CartDrawer() {
                   type="text"
                   name="street"
                   required
-                  placeholder="Avenida da Liberdade 123, 2º Dto"
+                  placeholder="123 Main Street, Apt 4B"
                   value={formData.street}
                   onChange={handleInputChange}
                 />
@@ -251,25 +257,52 @@ export default function CartDrawer() {
 
               <div className="form-grid-2">
                 <div className="form-field">
-                  <label>Postal Code *</label>
-                  <input
-                    type="text"
-                    name="postalCode"
-                    required
-                    placeholder="1250-142"
-                    value={formData.postalCode}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="form-field">
                   <label>City *</label>
                   <input
                     type="text"
                     name="city"
                     required
-                    placeholder="Lisboa"
+                    placeholder="Chicago"
                     value={formData.city}
                     onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>State *</label>
+                  <input
+                    type="text"
+                    name="state"
+                    required
+                    placeholder="IL"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-grid-2">
+                <div className="form-field">
+                  <label>ZIP Code *</label>
+                  <input
+                    type="text"
+                    name="postalCode"
+                    required
+                    placeholder="60601"
+                    value={formData.postalCode}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>Country</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={ALLOWED_SHIPPING_COUNTRY}
+                    style={{
+                      background: '#0d0907',
+                      color: 'var(--text-secondary)',
+                      cursor: 'not-allowed',
+                    }}
                   />
                 </div>
               </div>
@@ -342,14 +375,14 @@ export default function CartDrawer() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--amber-light)', fontWeight: '600', fontSize: '0.88rem', marginBottom: '4px' }}>
                   <Globe size={16} />
-                  <span>Dropship Synced (oldchicagocoffee.com)</span>
+                  <span>Fulfillment Order Dispatched</span>
                 </div>
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                  Dropship Tracking Reference: <strong>{orderSummary.dropshipping?.dropshipOrderId || 'OCC-DISPATCHED'}</strong>
+                  Dropship Tracking Reference: <strong>{orderSummary.dropshipping?.dropshipOrderId || 'ROAST-DISPATCHED'}</strong>
                 </p>
               </div>
 
-              {/* MLM Commission Notification */}
+              {/* Commission Notification */}
               {orderSummary.mlmCommission?.success && (
                 <div
                   style={{
@@ -395,7 +428,7 @@ export default function CartDrawer() {
               <span>${subtotal.toFixed(2)}</span>
             </div>
             <div className="summary-row">
-              <span>Shipping (US & Global)</span>
+              <span>Shipping (United States Only)</span>
               <span>{shippingFee === 0 ? <span className="text-green">FREE</span> : `$${shippingFee.toFixed(2)}`}</span>
             </div>
             <div className="summary-row total-row">

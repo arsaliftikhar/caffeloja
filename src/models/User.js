@@ -133,6 +133,18 @@ const UserSchema = new mongoose.Schema(
       enum: ['active', 'suspended'],
       default: 'active',
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -143,7 +155,8 @@ if (
   mongoose.models.User &&
   (!mongoose.models.User.schema.path('shippingAddress.street') ||
     !mongoose.models.User.schema.path('twoFactorEnabled') ||
-    !mongoose.models.User.schema.path('stripeSubscriptionId'))
+    !mongoose.models.User.schema.path('stripeSubscriptionId') ||
+    !mongoose.models.User.schema.path('isEmailVerified'))
 ) {
   delete mongoose.models.User;
 }

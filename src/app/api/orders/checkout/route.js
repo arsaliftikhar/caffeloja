@@ -3,6 +3,11 @@ import connectToDatabase from '@/lib/mongoose';
 import Order from '@/models/Order';
 import { distribute4LevelCommissions } from '@/lib/mlmEngine';
 import { forwardOrderToWordPress } from '@/lib/dropshipService';
+import {
+  isUnitedStatesCountry,
+  normalizeCustomerShipping,
+  US_ONLY_SHIPPING_ERROR,
+} from '@/lib/shipping';
 
 export async function POST(request) {
   try {
@@ -17,12 +22,20 @@ export async function POST(request) {
       );
     }
 
+    if (!isUnitedStatesCountry(customer?.address?.country)) {
+      return NextResponse.json(
+        { success: false, message: US_ONLY_SHIPPING_ERROR },
+        { status: 400 }
+      );
+    }
+
+    const normalizedCustomer = normalizeCustomerShipping(customer);
     const orderNumber = 'CL-' + Math.floor(100000 + Math.random() * 900000);
 
     // 1. Create order in MongoDB
     const order = await Order.create({
       orderNumber,
-      customer,
+      customer: normalizedCustomer,
       items,
       subtotal: Number(subtotal) || 0,
       shippingFee: Number(shippingFee) || 0,
@@ -32,7 +45,7 @@ export async function POST(request) {
       status: 'processing',
     });
 
-    // 2. Trigger 4-Level MLM Commission Distribution
+    // 2. Trigger 4-Level Commission Distribution
     let commissionResult = null;
     if (referralCode) {
       commissionResult = await distribute4LevelCommissions(order, referralCode);
@@ -44,12 +57,12 @@ export async function POST(request) {
       }
     }
 
-    // 3. Forward Order to WordPress Dropshipper (https://oldchicagocoffee.com)
+    // 3. Forward Order to WordPress Fulfillment Partner
     const dropshipResult = await forwardOrderToWordPress(order);
 
     return NextResponse.json({
       success: true,
-      message: 'Coffee order placed successfully! Forwarded to dropshipper and MLM commissions calculated.',
+      message: 'Coffee order placed successfully! Forwarded to fulfillment partner and commissions calculated.',
       order: {
         id: order._id,
         orderNumber: order.orderNumber,

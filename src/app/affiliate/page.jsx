@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import {
+  ALLOWED_SHIPPING_COUNTRY,
+  isUnitedStatesCountry,
+  US_ONLY_SHIPPING_ERROR,
+} from '@/lib/shipping';
+import {
   Users,
   Copy,
   Check,
@@ -33,6 +38,7 @@ import {
   Building,
   Smartphone,
   Lock,
+  Mail,
   RefreshCw,
   ShoppingBag,
   HelpCircle,
@@ -81,6 +87,9 @@ export default function AffiliatePage() {
   // Form states
   const [loginForm, setLoginForm] = useState({ email: '', password: '', totpCode: '' });
   const [requiresTwoFactor, setRequiresTwoFactor] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
+  const [regVerificationSent, setRegVerificationSent] = useState(null);
   const [regForm, setRegForm] = useState({
     name: '',
     email: '',
@@ -107,7 +116,7 @@ export default function AffiliatePage() {
     city: cachedUser?.shippingAddress?.city || '',
     state: cachedUser?.shippingAddress?.state || '',
     postalCode: cachedUser?.shippingAddress?.postalCode || '',
-    country: cachedUser?.shippingAddress?.country || 'United States',
+    country: ALLOWED_SHIPPING_COUNTRY,
   });
   const [isSavingShipping, setIsSavingShipping] = useState(false);
   const [confirmCancelSub, setConfirmCancelSub] = useState(false);
@@ -121,7 +130,7 @@ export default function AffiliatePage() {
         city: prev.city || user.shippingAddress?.city || '',
         state: prev.state || user.shippingAddress?.state || '',
         postalCode: prev.postalCode || user.shippingAddress?.postalCode || '',
-        country: prev.country || user.shippingAddress?.country || 'United States',
+        country: ALLOWED_SHIPPING_COUNTRY,
       }));
     }
   }, [user]);
@@ -160,10 +169,16 @@ export default function AffiliatePage() {
       setToken(savedToken);
       try {
         const savedUser = localStorage.getItem('caffeloja_user');
-        if (savedUser && !cachedUser) {
+        if (savedUser) {
           const parsed = JSON.parse(savedUser);
-          cachedUser = parsed;
-          setUser(parsed);
+          if (parsed?.role === 'admin') {
+            router.replace('/admin/dashboard');
+            return;
+          }
+          if (!cachedUser) {
+            cachedUser = parsed;
+            setUser(parsed);
+          }
         }
       } catch {}
       fetchUserProfile(savedToken);
@@ -176,6 +191,13 @@ export default function AffiliatePage() {
     }
   }, []);
 
+  // Disallow admin role from opening member portal - safely navigate in effect
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      router.replace('/admin/dashboard');
+    }
+  }, [user?.role, router]);
+
   const fetchUserProfile = async (authToken) => {
     try {
       const res = await fetch('/api/auth/me', {
@@ -185,6 +207,11 @@ export default function AffiliatePage() {
       if (res.ok && data.success) {
         cachedUser = data.user;
         localStorage.setItem('caffeloja_user', JSON.stringify(data.user));
+        // Disallow admin role from accessing member portal
+        if (data.user?.role === 'admin') {
+          router.replace('/admin/dashboard');
+          return;
+        }
         setUser(data.user);
         setAuthChecking(false);
         fetchDownlineAndCommissions(authToken);
@@ -272,13 +299,23 @@ export default function AffiliatePage() {
         setAuthChecking(false);
         window.dispatchEvent(new Event('caffeloja_auth_change'));
         fetchDownlineAndCommissions(data.token);
-        toast.success(`Welcome back, ${data.user.name || 'Member'}!`);
-        router.push('/user/dashboard');
+        if (data.user?.role === 'admin') {
+          toast.success(`Welcome to Admin Portal, ${data.user.name || 'Admin'}!`);
+          router.push('/admin/dashboard');
+        } else {
+          toast.success(`Welcome back, ${data.user.name || 'Member'}!`);
+          router.push('/user/dashboard');
+        }
       } else if (data.requiresTwoFactor) {
         setRequiresTwoFactor(true);
         const msg = data.message || 'Enter the 6-digit code from Google Authenticator.';
         setAuthError(msg);
         toast(msg);
+      } else if (data.requiresEmailVerification) {
+        setUnverifiedEmail(loginForm.email.trim());
+        const msg = data.message || 'Please verify your email address before logging in.';
+        setAuthError(msg);
+        toast.error(msg);
       } else {
         const msg = data.message || data.error || 'Login failed. Please verify credentials.';
         setAuthError(msg);
@@ -290,6 +327,32 @@ export default function AffiliatePage() {
       toast.error(msg);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    const targetEmail = unverifiedEmail || loginForm.email.trim() || regForm.email.trim();
+    if (!targetEmail) {
+      toast.error('Please enter your email address.');
+      return;
+    }
+    setIsResendingVerification(true);
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: targetEmail }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(data.message || 'Verification link sent! Check your inbox.');
+      } else {
+        toast.error(data.message || 'Unable to send verification link.');
+      }
+    } catch {
+      toast.error('Connection error while sending verification email.');
+    } finally {
+      setIsResendingVerification(false);
     }
   };
 
@@ -318,16 +381,21 @@ export default function AffiliatePage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        cachedUser = data.user;
-        localStorage.setItem('caffeloja_token', data.token);
-        localStorage.setItem('caffeloja_user', JSON.stringify(data.user));
-        setToken(data.token);
-        setUser(data.user);
-        setAuthChecking(false);
-        window.dispatchEvent(new Event('caffeloja_auth_change'));
-        fetchDownlineAndCommissions(data.token);
-        toast.success('Account created successfully!');
-        router.push('/user/dashboard');
+        if (data.requiresVerification) {
+          setRegVerificationSent({ email: regForm.email.trim(), name: regForm.name.trim() });
+          toast.success(data.message || 'Verification email sent! Please check your inbox.');
+        } else {
+          cachedUser = data.user;
+          localStorage.setItem('caffeloja_token', data.token);
+          localStorage.setItem('caffeloja_user', JSON.stringify(data.user));
+          setToken(data.token);
+          setUser(data.user);
+          setAuthChecking(false);
+          window.dispatchEvent(new Event('caffeloja_auth_change'));
+          fetchDownlineAndCommissions(data.token);
+          toast.success('Account created successfully!');
+          router.push('/user/dashboard');
+        }
       } else {
         const msg = data.message || data.error || 'Registration failed. Please check your details.';
         setAuthError(msg);
@@ -368,6 +436,10 @@ export default function AffiliatePage() {
       toast.error('Please fill in your phone number, street address, city, and ZIP code.');
       return false;
     }
+    if (!isUnitedStatesCountry(subShippingForm.country)) {
+      toast.error(US_ONLY_SHIPPING_ERROR);
+      return false;
+    }
 
     setIsSavingShipping(true);
     try {
@@ -380,7 +452,10 @@ export default function AffiliatePage() {
         },
         body: JSON.stringify({
           action: 'save_shipping',
-          shipping: subShippingForm,
+          shipping: {
+            ...subShippingForm,
+            country: ALLOWED_SHIPPING_COUNTRY,
+          },
         }),
       });
       const data = await res.json();
@@ -480,22 +555,20 @@ export default function AffiliatePage() {
     }, 1000);
   };
 
-  const getRankProgress = () => {
-    const volume = user?.totalSalesVolume || 0;
-    if (volume >= 10000) return { current: 'Diamond Founder', next: 'Max Level Reached', percent: 100, remaining: 0 };
-    if (volume >= 5000) return { current: 'Platinum Master', next: 'Diamond Founder', percent: ((volume - 5000) / 5000) * 100, remaining: 10000 - volume };
-    if (volume >= 2000) return { current: 'Gold Sommelier', next: 'Platinum Master', percent: ((volume - 2000) / 3000) * 100, remaining: 5000 - volume };
-    if (volume >= 500) return { current: 'Silver Roaster', next: 'Gold Sommelier', percent: ((volume - 500) / 1500) * 100, remaining: 2000 - volume };
-    return { current: 'Bronze Barista', next: 'Silver Roaster', percent: (volume / 500) * 100, remaining: 500 - volume };
-  };
-
-  const rankInfo = getRankProgress();
-
   // Downline member filtering
   const currentLevelMembers = downline ? downline[`level${expandedLevel}`] || [] : [];
   const filteredMembers = currentLevelMembers.filter((m) =>
     networkSearch ? (m.name?.toLowerCase().includes(networkSearch.toLowerCase()) || m.referralCode?.toLowerCase().includes(networkSearch.toLowerCase()) || m.email?.toLowerCase().includes(networkSearch.toLowerCase())) : true
   );
+
+  if (user?.role === 'admin') {
+    return (
+      <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+        <RefreshCw size={32} className="spin-icon" style={{ color: 'var(--amber-primary)' }} />
+        <p style={{ color: 'var(--text-secondary)' }}>Redirecting to Executive Admin Portal...</p>
+      </div>
+    );
+  }
 
   const isUserRoute = pathname?.startsWith('/user') || Boolean(user);
 
@@ -504,7 +577,24 @@ export default function AffiliatePage() {
       className="affiliate-dashboard-wrap"
       style={isUserRoute ? { paddingTop: '32px' } : undefined}
     >
-      <div className="container">
+      {isUserRoute && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundImage: 'url("https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1920&q=85")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            opacity: 0.07,
+            filter: 'blur(1px) saturate(0.85)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+      )}
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* If user is NOT logged in: Show Clean Login / Register Card (never flash on /user/* routes) */}
         {!user ? (
           pathname?.startsWith('/user') || authChecking ? (
@@ -579,7 +669,19 @@ export default function AffiliatePage() {
 
             {authError && (
               <div style={{ background: 'rgba(239, 68, 68, 0.14)', border: '1px solid #ef4444', color: '#ef4444', padding: '12px 14px', borderRadius: '10px', fontSize: '0.86rem', marginBottom: '18px' }}>
-                {authError}
+                <div>{authError}</div>
+                {unverifiedEmail && (
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={isResendingVerification}
+                    className="btn-secondary btn-sm"
+                    style={{ marginTop: '10px', width: '100%', justifyContent: 'center', fontSize: '0.82rem' }}
+                  >
+                    <Mail size={14} />
+                    <span>{isResendingVerification ? 'Sending...' : 'Resend Verification Link'}</span>
+                  </button>
+                )}
               </div>
             )}
 
@@ -659,6 +761,64 @@ export default function AffiliatePage() {
                   </button>
                 </div>
               </form>
+            ) : regVerificationSent ? (
+              <div className="animate-fadeIn" style={{ textAlign: 'center', padding: '10px 0' }}>
+                <div
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: 'rgba(212, 163, 115, 0.15)',
+                    border: '1px solid var(--amber-glow)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px',
+                    color: 'var(--amber-light)',
+                  }}
+                >
+                  <Mail size={32} />
+                </div>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.45rem', marginBottom: '8px' }}>
+                  Verification Email Sent!
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '22px' }}>
+                  We sent a confirmation link to <strong style={{ color: 'var(--text-primary)' }}>{regVerificationSent.email}</strong>. Please check your inbox and click the button to activate your account.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={isResendingVerification}
+                  className="btn-secondary"
+                  style={{ width: '100%', justifyContent: 'center', marginBottom: '14px' }}
+                >
+                  <Mail size={16} />
+                  <span>{isResendingVerification ? 'Sending...' : 'Resend Verification Link'}</span>
+                </button>
+
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRegVerificationSent(null);
+                      setActiveTab('login');
+                      setAuthError('');
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--amber-light)',
+                      fontSize: '0.86rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    Back to Member Sign In
+                  </button>
+                </div>
+              </div>
             ) : (
               <form onSubmit={handleRegister} className="checkout-form">
                 <div className="form-field">

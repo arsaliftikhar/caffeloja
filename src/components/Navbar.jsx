@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Menu as MenuIcon, X, LogIn, LayoutDashboard } from 'lucide-react';
+import { ShoppingBag, Menu as MenuIcon, X, LogIn, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { totalItems, setIsDrawerOpen } = useCart();
   const pathname = usePathname();
 
@@ -28,6 +29,13 @@ export default function Navbar() {
       if (typeof window !== 'undefined') {
         const token = localStorage.getItem('caffeloja_token');
         setIsLoggedIn(Boolean(token));
+        try {
+          const userStr = localStorage.getItem('caffeloja_user');
+          const user = userStr ? JSON.parse(userStr) : null;
+          setIsAdmin(user?.role === 'admin');
+        } catch {
+          setIsAdmin(false);
+        }
       }
     };
 
@@ -52,7 +60,7 @@ export default function Navbar() {
     { name: 'Contact', href: '/contact' },
   ];
 
-  if (pathname?.startsWith('/user')) {
+  if (pathname?.startsWith('/user') || pathname?.startsWith('/admin')) {
     return null;
   }
 
@@ -89,19 +97,26 @@ export default function Navbar() {
           {/* Action Buttons */}
           <div className="navbar-actions">
             <Link
-              href={isLoggedIn ? '/user/dashboard' : '/login'}
+              href={isLoggedIn ? (isAdmin ? '/admin/dashboard' : '/user/dashboard') : '/login'}
               className="btn-reserve-nav"
               style={{
-                borderColor: 'var(--amber-primary)',
-                color: 'var(--amber-light)',
-                background: isLoggedIn ? 'rgba(230, 157, 69, 0.12)' : 'transparent',
+                borderColor: isAdmin ? 'rgba(245, 158, 11, 0.6)' : 'var(--amber-primary)',
+                color: isAdmin ? '#fbbf24' : 'var(--amber-light)',
+                background: isLoggedIn ? (isAdmin ? 'rgba(245, 158, 11, 0.16)' : 'rgba(230, 157, 69, 0.12)') : 'transparent',
               }}
             >
               {isLoggedIn ? (
-                <>
-                  <LayoutDashboard size={15} />
-                  <span>Dashboard</span>
-                </>
+                isAdmin ? (
+                  <>
+                    <ShieldCheck size={15} />
+                    <span>Admin Portal</span>
+                  </>
+                ) : (
+                  <>
+                    <LayoutDashboard size={15} />
+                    <span>Dashboard</span>
+                  </>
+                )
               ) : (
                 <>
                   <LogIn size={15} />
@@ -148,15 +163,22 @@ export default function Navbar() {
               ))}
               <div className="mobile-menu-divider" />
               <Link
-                href={isLoggedIn ? '/user/dashboard' : '/login'}
+                href={isLoggedIn ? (isAdmin ? '/admin/dashboard' : '/user/dashboard') : '/login'}
                 className="btn-primary mobile-menu-reserve"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {isLoggedIn ? (
-                  <>
-                    <LayoutDashboard size={18} />
-                    <span>Dashboard</span>
-                  </>
+                  isAdmin ? (
+                    <>
+                      <ShieldCheck size={18} />
+                      <span>Admin Executive Portal</span>
+                    </>
+                  ) : (
+                    <>
+                      <LayoutDashboard size={18} />
+                      <span>Dashboard</span>
+                    </>
+                  )
                 ) : (
                   <>
                     <LogIn size={18} />

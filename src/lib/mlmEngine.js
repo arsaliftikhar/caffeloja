@@ -4,7 +4,7 @@ import Commission from '@/models/Commission';
 import MLMSettings from '@/models/MLMSettings';
 
 /**
- * Get or create current MLM Commission Settings
+ * Get or create current Affiliate Commission Settings
  */
 export async function getMLMSettings() {
   await connectToDatabase();
@@ -13,14 +13,14 @@ export async function getMLMSettings() {
     settings = await MLMSettings.create({
       settingKey: 'default_mlm_config',
       levels: [
-        { level: 1, percentage: 10, label: 'Direct Sponsor (Level 1)' },
-        { level: 2, percentage: 5, label: 'Sub-tier 1 (Level 2)' },
-        { level: 3, percentage: 3, label: 'Sub-tier 2 (Level 3)' },
-        { level: 4, percentage: 2, label: 'Sub-tier 3 (Level 4)' },
+        { level: 1, amount: 10, percentage: 10, label: 'Direct Sponsor (Level 1)' },
+        { level: 2, amount: 8, percentage: 8, label: 'Sub-tier 1 (Level 2)' },
+        { level: 3, amount: 6, percentage: 6, label: 'Sub-tier 2 (Level 3)' },
+        { level: 4, amount: 6, percentage: 6, label: 'Sub-tier 3 (Level 4)' },
       ],
       isMLMActive: true,
       dropshipSettings: {
-        targetUrl: 'https://oldchicagocoffee.com',
+        targetUrl: '',
         autoForward: true,
       },
     });
@@ -29,7 +29,7 @@ export async function getMLMSettings() {
 }
 
 /**
- * Distribute 4-Level MLM Commissions for an Order
+ * Distribute 4-Level Commissions for an Order
  * @param {Object} order - The saved order document
  * @param {String} referralCode - Referral code used by customer (if any)
  * @returns {Array} - List of commissions created
@@ -43,7 +43,7 @@ export async function distribute4LevelCommissions(order, referralCode) {
   const settings = await getMLMSettings();
 
   if (!settings.isMLMActive) {
-    return { success: false, message: 'MLM system is currently paused in settings' };
+    return { success: false, message: 'Affiliate commission system is currently paused in settings' };
   }
 
   // Find the direct sponsor (Level 1)
@@ -64,10 +64,11 @@ export async function distribute4LevelCommissions(order, referralCode) {
   for (let currentLevel = 1; currentLevel <= 4; currentLevel++) {
     if (!currentSponsor) break;
 
-    // Fixed dollar commission per box for each level: L1=$10, L2=$8, L3=$6, L4=$6
-    const fixedByLevel = { 1: 10, 2: 8, 3: 6, 4: 6 };
+    // Fixed dollar commission per box for each level: L1=$10, L2=$8, L3=$6, L4=$6 (defined on website & configurable in Admin)
+    const levelSetting = (settings.levels || []).find((l) => l.level === currentLevel);
+    const fallbackFixed = currentLevel === 1 ? 10 : currentLevel === 2 ? 8 : 6;
+    const perBoxCommission = Number(levelSetting?.amount ?? levelSetting?.percentage ?? fallbackFixed);
     const totalBoxes = (order.items || []).reduce((sum, item) => sum + (Number(item.quantity) || 1), 0) || 1;
-    const perBoxCommission = fixedByLevel[currentLevel] || 6;
     const percentage = perBoxCommission;
     const commissionAmount = parseFloat((perBoxCommission * totalBoxes).toFixed(2));
 
@@ -125,7 +126,7 @@ export async function distribute4LevelCommissions(order, referralCode) {
 export const distribute5LevelCommissions = distribute4LevelCommissions;
 
 /**
- * Check & Upgrade MLM Rank based on volume
+ * Check & Upgrade Member Rank based on volume
  */
 async function checkAndUpgradeRank(userId) {
   const user = await User.findById(userId);

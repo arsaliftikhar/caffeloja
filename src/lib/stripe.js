@@ -3,6 +3,7 @@
  * Direct REST integration supporting Checkout Sessions, Recurring Subscriptions, Webhooks, and Payment Verification
  */
 import crypto from 'crypto';
+import { ALLOWED_SHIPPING_COUNTRY_CODE } from '@/lib/shipping';
 
 const STRIPE_API_BASE = 'https://api.stripe.com/v1';
 
@@ -122,12 +123,13 @@ export async function createStripePaymentIntent({
   customer,
   orderNumber,
   referralCode,
+  description,
 }) {
   const params = new URLSearchParams();
   params.append('amount', String(Math.round(Number(amount) * 100)));
   params.append('currency', 'usd');
   params.append('payment_method_types[0]', 'card');
-  params.append('description', `Caffeloja Monthly Coffee Box Subscription (${orderNumber})`);
+  params.append('description', description || `Caffeloja Coffee Order (${orderNumber})`);
 
   if (customer?.email) {
     params.append('receipt_email', customer.email);
@@ -190,7 +192,7 @@ export async function createOrGetStripeCustomer({
     if (shipping.city) params.append('shipping[address][city]', shipping.city);
     if (shipping.state) params.append('shipping[address][state]', shipping.state);
     if (shipping.postalCode) params.append('shipping[address][postal_code]', shipping.postalCode);
-    params.append('shipping[address][country]', shipping.country || 'US');
+    params.append('shipping[address][country]', ALLOWED_SHIPPING_COUNTRY_CODE);
   }
 
   return await stripeRequest('/customers', {

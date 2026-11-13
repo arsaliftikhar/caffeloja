@@ -9,15 +9,25 @@ function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const orderId = searchParams.get('order_id');
-  const orderNumber = searchParams.get('order_number') || 'CL-' + Math.floor(100000 + Math.random() * 900000);
-  const [copied, setCopied] = useState(false);
+  const orderNumberParam = searchParams.get('order_number');
+  const [orderNumber, setOrderNumber] = useState(orderNumberParam || '');
 
   useEffect(() => {
     // Clear cart on successful checkout
     try {
       localStorage.removeItem('caffeloja_cart');
     } catch (e) {}
-  }, []);
+
+    if (!orderNumberParam) {
+      if (sessionId) {
+        setOrderNumber('CL-' + sessionId.slice(-6).toUpperCase());
+      } else if (orderId) {
+        setOrderNumber('CL-' + orderId.slice(-6).toUpperCase());
+      } else {
+        setOrderNumber('CL-' + Math.floor(100000 + Math.random() * 900000));
+      }
+    }
+  }, [orderNumberParam, sessionId, orderId]);
 
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
@@ -60,8 +70,11 @@ function SuccessContent() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--mocha-border)', paddingBottom: '16px', marginBottom: '20px' }}>
           <div>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>Order Reference</span>
-            <strong style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--amber-light)' }}>
-              {orderNumber}
+            <strong
+              suppressHydrationWarning
+              style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--amber-light)' }}
+            >
+              {orderNumber || 'CL-CONFIRMED'}
             </strong>
           </div>
           <span
@@ -89,8 +102,8 @@ function SuccessContent() {
             <span style={{ fontWeight: '600' }}>2 - 4 Business Days</span>
           </div>
           <div>
-            <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.78rem' }}>Fulfillment Partner</span>
-            <span style={{ fontWeight: '600' }}>Old Chicago Coffee Co.</span>
+            <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.78rem' }}>Fulfillment</span>
+            <span style={{ fontWeight: '600' }}>Artisan Roastery Partner</span>
           </div>
           <div>
             <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.78rem' }}>Tracking Notification</span>

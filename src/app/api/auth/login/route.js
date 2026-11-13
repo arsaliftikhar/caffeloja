@@ -34,6 +34,18 @@ export async function POST(request) {
       );
     }
 
+    if (user.isEmailVerified === false) {
+      return NextResponse.json(
+        {
+          success: false,
+          requiresEmailVerification: true,
+          message: 'Please verify your email address before logging in. Check your inbox for the verification link.',
+          email: user.email,
+        },
+        { status: 403 }
+      );
+    }
+
     if (user.twoFactorEnabled && user.twoFactorSecret) {
       if (!totpCode) {
         return NextResponse.json({

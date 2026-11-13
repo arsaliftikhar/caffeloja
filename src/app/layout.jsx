@@ -8,14 +8,14 @@ import ReferralTracker from '@/components/ReferralTracker';
 import CookieConsent from '@/components/CookieConsent';
 
 export const metadata = {
-  title: 'Caffeloja | Artisan Coffee Roasters & 4-Level MLM Network',
+  title: 'Caffeloja | Artisan Coffee Roasters & 4-Level Affiliate Network',
   description:
-    'Experience rare single-origin coffees, small-batch roasted blends, Portuguese delicacies, and our 4-Level MLM affiliate program. Direct dropshipping via oldchicagocoffee.com.',
+    'Experience rare single-origin coffees, small-batch roasted blends, Portuguese delicacies, and our 4-Level partner affiliate program. Direct artisan roastery fulfillment.',
   keywords: [
     'Specialty Coffee Lisbon',
     'Artisan Coffee Roasters',
-    'Coffee MLM 4 Levels',
-    'Dropshipping Coffee oldchicagocoffee',
+    'Coffee Affiliate 4 Levels',
+    'Direct Roastery Shipping',
     'Single Origin Beans',
     'Caffeloja',
   ],

@@ -5,6 +5,7 @@ import User from '@/models/User';
 import { distribute4LevelCommissions } from '@/lib/mlmEngine';
 import { forwardOrderToWordPress } from '@/lib/dropshipService';
 import { verifyStripeWebhookSignature, retrieveStripeSubscription } from '@/lib/stripe';
+import { ALLOWED_SHIPPING_COUNTRY_CODE } from '@/lib/shipping';
 
 export async function POST(request) {
   try {
@@ -36,6 +37,26 @@ export async function POST(request) {
         order.paymentStatus = 'paid';
         order.status = 'processing';
         order.stripePaymentIntentId = paymentIntentId;
+        order.paymentLog = {
+          provider: 'stripe',
+          eventType: 'webhook.checkout.session.completed',
+          status: session.payment_status || 'paid',
+          transactionId: paymentIntentId || session.id,
+          amount: Number(session.amount_total || order.total * 100) / 100,
+          currency: session.currency || 'usd',
+          rawResponse: JSON.stringify(
+            {
+              eventId: event.id,
+              sessionId: session.id,
+              paymentIntentId,
+              payment_status: session.payment_status,
+              amount_total: session.amount_total,
+            },
+            null,
+            2
+          ),
+          loggedAt: new Date(),
+        };
         await order.save();
 
         const code = referralCode || order.referralCode;
@@ -127,8 +148,9 @@ export async function POST(request) {
                 address: {
                   street: user.shippingAddress?.street || 'On File',
                   city: user.shippingAddress?.city || 'On File',
+                  state: user.shippingAddress?.state || '',
                   postalCode: user.shippingAddress?.postalCode || '00000',
-                  country: user.shippingAddress?.country || 'United States',
+                  country: ALLOWED_SHIPPING_COUNTRY_CODE,
                 },
               },
               items: [
@@ -138,7 +160,7 @@ export async function POST(request) {
                   quantity: 1,
                   grind: 'Coffee Box (20 Pods)',
                   imageUrl: '/images/coffee-box-60-pods.png',
-                  sku: 'CB-20PODS',
+                  sku: '20PK',
                 },
               ],
               subtotal: amountPaid,
@@ -153,6 +175,27 @@ export async function POST(request) {
               stripePaymentIntentId: paymentIntentId || null,
               stripeInvoiceId: invoice.id,
               stripeSubscriptionId: subscriptionId || null,
+              paymentLog: {
+                provider: 'stripe',
+                eventType: `webhook.${event.type}`,
+                status: invoice.status || 'paid',
+                transactionId: paymentIntentId || invoice.id,
+                amount: amountPaid,
+                currency: invoice.currency || 'usd',
+                rawResponse: JSON.stringify(
+                  {
+                    eventId: event.id,
+                    invoiceId: invoice.id,
+                    subscriptionId,
+                    billing_reason: invoice.billing_reason,
+                    amount_paid: invoice.amount_paid,
+                    status: invoice.status,
+                  },
+                  null,
+                  2
+                ),
+                loggedAt: new Date(),
+              },
             });
 
             if (user.sponsorCode) {

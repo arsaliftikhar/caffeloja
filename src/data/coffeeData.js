@@ -2,7 +2,7 @@ export const initialProducts = [
   {
     name: 'Coffee Box (20 Pods)',
     slug: 'coffee-box-20-pods',
-    sku: 'CB-20PODS',
+    sku: '20PK',
     category: 'coffee-pods',
     tagline: '20 Premium Single Serve Artisan Coffee Pods (Keurig K-Cup Compatible)',
     description: 'Our flagship Coffee Box containing 20 artisan roasted single-serve coffee pods. Hand-selected premium high-elevation Arabica beans roasted to perfection, delivering rich notes of chocolate, caramel, and toasted hazelnut with a smooth crema in every cup. 100% recyclable, compatible with all Keurig K-Cup machines and single-serve brewers.',

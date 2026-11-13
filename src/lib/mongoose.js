@@ -1,6 +1,15 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+import { normalizeMongoUri } from './mongoUri.js';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/caffeloja';
+// Ensure MongoDB SRV queries resolve reliably on all platforms
+if (dns && typeof dns.setServers === 'function') {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch {}
+}
+
+const MONGODB_URI = normalizeMongoUri(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/caffeloja');
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');

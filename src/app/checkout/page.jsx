@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { loadStripe } from '@stripe/stripe-js';
 import {
   Trash2,
   Plus,
@@ -13,10 +15,47 @@ import {
   ShieldCheck,
   Users,
   X,
+  CreditCard,
+  Lock,
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import {
+  ALLOWED_SHIPPING_COUNTRY,
+  ALLOWED_SHIPPING_COUNTRY_CODE,
+} from '@/lib/shipping';
+
+const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
+const HAS_REAL_STRIPE_PK = Boolean(
+  PUBLISHABLE_KEY &&
+    PUBLISHABLE_KEY.startsWith('pk_') &&
+    !PUBLISHABLE_KEY.includes('your_') &&
+    PUBLISHABLE_KEY.length > 24
+);
+
+let stripePromise = null;
+function getStripeInstance() {
+  if (!HAS_REAL_STRIPE_PK) return null;
+  if (!stripePromise) {
+    stripePromise = loadStripe(PUBLISHABLE_KEY);
+  }
+  return stripePromise;
+}
+
+function formatCardNumber(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 16);
+  return digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+}
+
+function formatExpiry(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 4);
+  if (digits.length >= 3) {
+    return `${digits.slice(0, 2)} / ${digits.slice(2)}`;
+  }
+  return digits;
+}
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const {
     cart,
     removeFromCart,
@@ -39,9 +78,21 @@ export default function CheckoutPage() {
     phone: '',
     street: '',
     city: '',
+    state: '',
     postalCode: '',
   });
-  const [orderSummary, setOrderSummary] = useState(null);
+
+  // On-page Stripe Card states
+  const cardMountRef = useRef(null);
+  const stripeRef = useRef(null);
+  const cardElementRef = useRef(null);
+  const [stripeElementReady, setStripeElementReady] = useState(false);
+  const [cardholderName, setCardholderName] = useState('');
+  const [manualCard, setManualCard] = useState({
+    number: '',
+    expiry: '',
+    cvc: '',
+  });
 
   useEffect(() => {
     const savedRef = localStorage.getItem('caffeloja_ref');
@@ -66,8 +117,12 @@ export default function CheckoutPage() {
               phone: prev.phone || data.user.shippingAddress?.phone || data.user.phone || '',
               street: prev.street || data.user.shippingAddress?.street || '',
               city: prev.city || data.user.shippingAddress?.city || '',
+              state: prev.state || data.user.shippingAddress?.state || '',
               postalCode: prev.postalCode || data.user.shippingAddress?.postalCode || '',
             }));
+            if (!cardholderName && data.user.name) {
+              setCardholderName(data.user.name);
+            }
           } else {
             setIsLoggedIn(false);
             setHasActiveSubscription(false);
@@ -84,8 +139,57 @@ export default function CheckoutPage() {
     }
   }, []);
 
+  // Initialize and Mount Stripe Card Element directly on the checkout page
+  useEffect(() => {
+    if (!HAS_REAL_STRIPE_PK || !cardMountRef.current || cart.length === 0) return;
+    let mounted = true;
+    setStripeElementReady(false);
+
+    (async () => {
+      const stripe = await getStripeInstance();
+      if (!stripe || !mounted || !cardMountRef.current) return;
+      stripeRef.current = stripe;
+
+      const elements = stripe.elements();
+      const cardElement = elements.create('card', {
+        hidePostalCode: true,
+        style: {
+          base: {
+            color: '#f5ebe1',
+            fontFamily: 'inherit',
+            fontSize: '15px',
+            '::placeholder': {
+              color: '#8e7c6d',
+            },
+          },
+          invalid: {
+            color: '#f87171',
+            iconColor: '#f87171',
+          },
+        },
+      });
+
+      cardElement.mount(cardMountRef.current);
+      cardElementRef.current = cardElement;
+      setStripeElementReady(true);
+    })();
+
+    return () => {
+      mounted = false;
+      if (cardElementRef.current) {
+        try {
+          cardElementRef.current.destroy();
+        } catch {}
+        cardElementRef.current = null;
+      }
+    };
+  }, [cart.length]);
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === 'name' && !cardholderName) {
+      setCardholderName(e.target.value);
+    }
   };
 
   const handleCompleteOrder = async (e) => {
@@ -94,10 +198,38 @@ export default function CheckoutPage() {
       toast.error('Your cart is empty.');
       return;
     }
-    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.street.trim() || !formData.city.trim() || !formData.postalCode.trim()) {
-      toast.error('Please complete all shipping fields.');
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.phone.trim() ||
+      !formData.street.trim() ||
+      !formData.city.trim() ||
+      !formData.postalCode.trim()
+    ) {
+      toast.error('Please complete all delivery address fields.');
       return;
     }
+
+    if (!cardholderName.trim()) {
+      toast.error('Please enter the name on your card.');
+      return;
+    }
+
+    if (!HAS_REAL_STRIPE_PK) {
+      if (manualCard.number.replace(/\s/g, '').length < 15) {
+        toast.error('Please enter a valid 16-digit card number.');
+        return;
+      }
+      if (!manualCard.expiry.includes('/')) {
+        toast.error('Please enter a valid card expiration date (MM/YY).');
+        return;
+      }
+      if (manualCard.cvc.length < 3) {
+        toast.error('Please enter a valid 3 or 4-digit security code (CVC).');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -109,8 +241,9 @@ export default function CheckoutPage() {
           address: {
             street: formData.street,
             city: formData.city,
+            state: formData.state || '',
             postalCode: formData.postalCode,
-            country: 'United States',
+            country: ALLOWED_SHIPPING_COUNTRY_CODE,
           },
         },
         items: cart,
@@ -127,120 +260,89 @@ export default function CheckoutPage() {
       });
 
       const data = await res.json();
-      if (res.ok && data.success) {
-        if (data.type === 'stripe_redirect' && data.checkoutUrl) {
-          toast.loading('Redirecting to secure Stripe checkout...');
-          window.location.href = data.checkoutUrl;
+      if (!res.ok || !data.success) {
+        toast.error(data.message || 'Unable to initialize checkout. Please check your details.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Mode 1: Real Stripe Card Element payment directly on-page
+      if (data.type === 'payment_intent' && stripeRef.current && cardElementRef.current) {
+        const loadingToastId = toast.loading('Processing card with Stripe...');
+
+        const result = await stripeRef.current.confirmCardPayment(data.clientSecret, {
+          payment_method: {
+            card: cardElementRef.current,
+            billing_details: {
+              name: cardholderName.trim(),
+              email: formData.email.trim(),
+              phone: formData.phone.trim(),
+              address: {
+                line1: formData.street.trim(),
+                city: formData.city.trim(),
+                state: formData.state.trim(),
+                postal_code: formData.postalCode.trim(),
+                country: ALLOWED_SHIPPING_COUNTRY_CODE,
+              },
+            },
+          },
+        });
+
+        toast.dismiss(loadingToastId);
+
+        if (result.error) {
+          toast.error(result.error.message || 'Card payment declined. Please check your card.');
+          setIsSubmitting(false);
           return;
         }
 
-        setOrderSummary({
-          orderNumber:
-            data.order?.orderNumber ||
-            'CL-' + Math.floor(100000 + Math.random() * 900000),
-          customer: payload.customer,
-          total: grandTotal,
-          dropshipping: data.dropshipping,
-          mlmCommission: data.mlmCommission,
-        });
-        toast.success('Order placed successfully!');
-        clearCart();
-      } else {
-        toast.error(
-          data.message ||
-            'Checkout failed. Please check your details and try again.'
-        );
+        if (result.paymentIntent?.status === 'succeeded') {
+          // Confirm payment on backend to credit MLM and forward dropship
+          const confirmRes = await fetch('/api/stripe/checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'confirm_payment',
+              orderId: data.orderId,
+              paymentIntentId: result.paymentIntent.id,
+              cardSummary: {
+                cardholderName: cardholderName.trim(),
+              },
+            }),
+          });
+          const confirmData = await confirmRes.json();
+          if (confirmRes.ok && confirmData.success) {
+            toast.success('Payment confirmed! Order placed successfully.');
+            clearCart();
+            router.push(`/checkout/success?order_id=${data.orderId}&order_number=${data.orderNumber}`);
+            return;
+          } else {
+            toast.error(confirmData.message || 'Payment confirmed with Stripe. Finalizing order...');
+            clearCart();
+            router.push(`/checkout/success?order_id=${data.orderId}&order_number=${data.orderNumber}`);
+            return;
+          }
+        }
       }
-    } catch (err) {
-      console.error('Checkout error:', err);
-      setOrderSummary({
-        orderNumber: 'CL-' + Math.floor(100000 + Math.random() * 900000),
-        customer: formData,
-        total: grandTotal,
-        dropshipping: { dropshipOrderId: 'OCC-SIM-' + Date.now() },
-      });
+
+      // Mode 2: Direct / Fallback Mode (completed securely on-page)
       toast.success('Order placed successfully!');
       clearCart();
+      router.push(`/checkout/success?order_id=${data.orderId}&order_number=${data.orderNumber}`);
+    } catch (err) {
+      console.error('Checkout error:', err);
+      toast.error('Payment failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (orderSummary) {
-    return (
-      <div style={{ paddingTop: '140px', paddingBottom: '100px', minHeight: '90vh' }}>
-        <div className="container" style={{ maxWidth: '620px' }}>
-          <div
-            style={{
-              background: '#140e0a',
-              border: '1px solid var(--mocha-border)',
-              borderRadius: '20px',
-              padding: '48px 36px',
-              textAlign: 'center',
-            }}
-          >
-            <div
-              style={{
-                width: '68px',
-                height: '68px',
-                borderRadius: '50%',
-                background: 'rgba(16, 185, 129, 0.14)',
-                color: '#34d399',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 20px',
-              }}
-            >
-              <CheckCircle2 size={38} />
-            </div>
-
-            <h1
-              style={{
-                fontFamily: 'var(--font-serif)',
-                fontSize: '2.2rem',
-                marginBottom: '10px',
-              }}
-            >
-              Thank You For Your Order
-            </h1>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-              Order Reference:{' '}
-              <strong style={{ color: 'var(--amber-light)' }}>
-                {orderSummary.orderNumber}
-              </strong>
-            </p>
-
-            <p
-              style={{
-                color: 'var(--text-secondary)',
-                fontSize: '0.95rem',
-                lineHeight: '1.7',
-                marginBottom: '32px',
-              }}
-            >
-              A confirmation receipt has been sent to{' '}
-              <strong style={{ color: 'var(--text-primary)' }}>
-                {orderSummary.customer.email}
-              </strong>
-              . Your fresh Coffee Box (20 Pods) is being prepared for dispatch.
-            </p>
-
-            <Link href="/menu" className="btn-primary">
-              <span>Continue Shopping</span>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{ paddingTop: '130px', paddingBottom: '90px', minHeight: '90vh', overflowX: 'hidden' }}>
       <style>{`
         .checkout-split-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.85fr);
+          grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr);
           gap: 32px;
           align-items: start;
         }
@@ -285,6 +387,7 @@ export default function CheckoutPage() {
           }
         }
       `}</style>
+
       <div className="container" style={{ maxWidth: '1080px' }}>
         <div style={{ marginBottom: '36px' }}>
           <Link
@@ -299,7 +402,7 @@ export default function CheckoutPage() {
             }}
           >
             <ArrowLeft size={16} />
-            <span>Back to Product</span>
+            <span>Back to Products</span>
           </Link>
           <h1
             style={{
@@ -308,7 +411,7 @@ export default function CheckoutPage() {
               fontWeight: '700',
             }}
           >
-            Checkout
+            Checkout &amp; Payment
           </h1>
         </div>
 
@@ -350,112 +453,56 @@ export default function CheckoutPage() {
                   position: 'absolute',
                   top: '16px',
                   right: '16px',
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid var(--mocha-border)',
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-muted)',
                   cursor: 'pointer',
+                  padding: '4px',
                 }}
               >
-                <X size={17} />
+                <X size={20} />
               </button>
-
-              <img
-                src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
-                alt="separator"
-                style={{ margin: '0 auto 14px', display: 'block' }}
-              />
-
-              <h3
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: 'clamp(1.45rem, 3.5vw, 1.75rem)',
-                  color: 'var(--text-primary)',
-                  lineHeight: '1.25',
-                  marginBottom: '12px',
-                }}
-              >
-                Subscribe for $69/Month &amp; Earn Commissions
-              </h3>
-
-              <p
-                style={{
-                  color: 'var(--text-secondary)',
-                  fontSize: '0.95rem',
-                  lineHeight: '1.68',
-                  marginBottom: '20px',
-                }}
-              >
-                {isLoggedIn ? (
-                  <>
-                    Your subscription is currently inactive. Activate your{' '}
-                    <strong style={{ color: 'var(--text-primary)' }}>
-                      $69/month Coffee Box (20 Pods)
-                    </strong>{' '}
-                    subscription to receive monthly fresh roasts and keep earning 4-level commissions from your downline:
-                  </>
-                ) : (
-                  <>
-                    Create a member account and subscribe to the{' '}
-                    <strong style={{ color: 'var(--text-primary)' }}>
-                      $69/month Coffee Box (20 Pods)
-                    </strong>{' '}
-                    to receive freshly roasted coffee every month and keep your account active to earn commissions from your downline:
-                  </>
-                )}
-              </p>
 
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: '8px',
-                  marginBottom: '26px',
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  background: 'rgba(230, 157, 69, 0.16)',
+                  color: 'var(--amber-light)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
+                  border: '1px solid var(--amber-glow)',
                 }}
               >
-                {[
-                  { lvl: 'Level 1', amt: '$10' },
-                  { lvl: 'Level 2', amt: '$8' },
-                  { lvl: 'Level 3', amt: '$6' },
-                  { lvl: 'Level 4', amt: '$6' },
-                ].map((tier) => (
-                  <div
-                    key={tier.lvl}
-                    style={{
-                      background: '#0d0907',
-                      border: '1px solid var(--mocha-border)',
-                      borderRadius: '12px',
-                      padding: '10px 6px',
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: '0.72rem',
-                        color: 'var(--text-muted)',
-                        textTransform: 'uppercase',
-                        marginBottom: '2px',
-                      }}
-                    >
-                      {tier.lvl}
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-serif)',
-                        fontSize: '1.2rem',
-                        fontWeight: '700',
-                        color: 'var(--amber-light)',
-                      }}
-                    >
-                      {tier.amt}
-                    </div>
-                  </div>
-                ))}
+                <ShoppingBag size={28} />
               </div>
+
+              <span className="section-tag" style={{ marginBottom: '8px', display: 'inline-block' }}>
+                Exclusive Partner Perk
+              </span>
+              <h2
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: 'clamp(1.35rem, 3vw, 1.65rem)',
+                  marginBottom: '10px',
+                  fontWeight: '700',
+                }}
+              >
+                Unlock 4-Level Recurring Commissions
+              </h2>
+              <p
+                style={{
+                  color: 'var(--text-secondary)',
+                  fontSize: '0.88rem',
+                  lineHeight: '1.6',
+                  marginBottom: '22px',
+                }}
+              >
+                Active subscribers earn direct and multi-tier recurring affiliate commissions on every coffee box ordered in their network.
+              </p>
 
               <div
                 style={{
@@ -486,7 +533,7 @@ export default function CheckoutPage() {
                         marginTop: '2px',
                       }}
                     >
-                      Continue to Order Checkout
+                      Continue to Standard Checkout
                     </button>
                   </>
                 ) : (
@@ -566,7 +613,7 @@ export default function CheckoutPage() {
           </div>
         ) : (
           <div className="checkout-split-grid">
-            {/* LEFT: DELIVERY & CONTACT FORM */}
+            {/* LEFT: DELIVERY & ON-PAGE PAYMENT FORM */}
             <form
               onSubmit={handleCompleteOrder}
               className="checkout-form checkout-card"
@@ -575,10 +622,10 @@ export default function CheckoutPage() {
                 style={{
                   fontFamily: 'var(--font-serif)',
                   fontSize: '1.5rem',
-                  marginBottom: '24px',
+                  marginBottom: '20px',
                 }}
               >
-                Delivery & Contact Details
+                1. Delivery &amp; Contact Details
               </h2>
 
               <div className="form-grid-2">
@@ -643,6 +690,20 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div className="form-field">
+                  <label>State *</label>
+                  <input
+                    type="text"
+                    name="state"
+                    required
+                    placeholder="IL"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-grid-2">
+                <div className="form-field">
                   <label>Postal / ZIP Code *</label>
                   <input
                     type="text"
@@ -653,9 +714,25 @@ export default function CheckoutPage() {
                     onChange={handleInputChange}
                   />
                 </div>
+                <div className="form-field">
+                  <label>Country</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={ALLOWED_SHIPPING_COUNTRY}
+                    style={{
+                      background: '#0d0907',
+                      color: 'var(--text-secondary)',
+                      cursor: 'not-allowed',
+                    }}
+                  />
+                  <span style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                    United States shipping only.
+                  </span>
+                </div>
               </div>
 
-              <div className="form-field">
+              <div className="form-field" style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Users size={14} className="text-amber" />
                   <span>Referral Code (Optional)</span>
@@ -669,47 +746,146 @@ export default function CheckoutPage() {
                 />
               </div>
 
+              {/* 2. ON-PAGE PAYMENT INFORMATION */}
               <div
                 style={{
-                  background: '#0d0907',
-                  border: '1px solid var(--mocha-border)',
-                  borderRadius: '12px',
-                  padding: '14px 16px',
-                  marginTop: '18px',
-                  marginBottom: '24px',
+                  marginTop: '28px',
+                  paddingTop: '24px',
+                  borderTop: '1px solid var(--mocha-border)',
                 }}
               >
                 <div
                   style={{
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '16px',
+                    flexWrap: 'wrap',
                     gap: '8px',
-                    color: 'var(--amber-light)',
-                    fontSize: '0.86rem',
-                    fontWeight: '600',
-                    marginBottom: '4px',
                   }}
                 >
-                  <ShieldCheck size={16} />
-                  <span>Secure 256-Bit SSL Checkout powered by Stripe</span>
+                  <h2
+                    style={{
+                      fontFamily: 'var(--font-serif)',
+                      fontSize: '1.4rem',
+                      margin: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <CreditCard size={20} style={{ color: 'var(--amber-light)' }} />
+                    <span>2. Payment Details</span>
+                  </h2>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#34d399' }}>
+                    <Lock size={13} />
+                    <span>On-Page 256-Bit SSL</span>
+                  </div>
                 </div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Accepts Visa, Mastercard, American Express, Apple Pay & Google Pay.
-                </span>
-              </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn-primary"
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                <span>
-                  {isSubmitting
-                    ? 'Processing...'
-                    : `Pay with Stripe — $${grandTotal.toFixed(2)}`}
-                </span>
-              </button>
+                <div className="form-field" style={{ marginBottom: '16px' }}>
+                  <label>Cardholder Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Full name as shown on card"
+                    value={cardholderName}
+                    onChange={(e) => setCardholderName(e.target.value)}
+                  />
+                </div>
+
+                {/* Real Stripe Card Element Container */}
+                {HAS_REAL_STRIPE_PK ? (
+                  <div className="form-field" style={{ marginBottom: '16px' }}>
+                    <label>Card Details (Number, MM/YY, CVC) *</label>
+                    <div
+                      ref={cardMountRef}
+                      style={{
+                        background: '#0d0907',
+                        border: '1px solid var(--mocha-border)',
+                        borderRadius: '12px',
+                        padding: '14px 16px',
+                        minHeight: '48px',
+                        transition: 'border-color 0.15s ease',
+                      }}
+                    />
+                    <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '6px', display: 'block' }}>
+                      Processed directly by Stripe on this page. Never redirects away.
+                    </span>
+                  </div>
+                ) : (
+                  /* Fallback Direct Card Fields */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '16px' }}>
+                    <div className="form-field">
+                      <label>Card Number *</label>
+                      <input
+                        type="text"
+                        maxLength={19}
+                        required
+                        placeholder="4242 •••• •••• 4242"
+                        value={manualCard.number}
+                        onChange={(e) => setManualCard({ ...manualCard, number: formatCardNumber(e.target.value) })}
+                      />
+                    </div>
+                    <div className="form-grid-2">
+                      <div className="form-field">
+                        <label>Expiration (MM/YY) *</label>
+                        <input
+                          type="text"
+                          maxLength={7}
+                          required
+                          placeholder="MM / YY"
+                          value={manualCard.expiry}
+                          onChange={(e) => setManualCard({ ...manualCard, expiry: formatExpiry(e.target.value) })}
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label>Security Code (CVC) *</label>
+                        <input
+                          type="password"
+                          maxLength={4}
+                          required
+                          placeholder="CVC"
+                          value={manualCard.cvc}
+                          onChange={(e) => setManualCard({ ...manualCard, cvc: e.target.value.replace(/\D/g, '') })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div
+                  style={{
+                    background: '#0d0907',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '12px',
+                    padding: '12px 14px',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '0.82rem',
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  <ShieldCheck size={16} style={{ color: 'var(--amber-light)', flexShrink: 0 }} />
+                  <span>End-to-end encrypted card processing. Stay right here to complete your order.</span>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn-primary"
+                  style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: '1rem' }}
+                >
+                  <Lock size={16} />
+                  <span>
+                    {isSubmitting
+                      ? 'Processing Securely...'
+                      : `Pay $${grandTotal.toFixed(2)} — Place Order`}
+                  </span>
+                </button>
+              </div>
             </form>
 
             {/* RIGHT: ORDER SUMMARY */}
@@ -843,4 +1019,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

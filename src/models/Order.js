@@ -28,8 +28,9 @@ const OrderSchema = new mongoose.Schema(
       address: {
         street: { type: String, required: true },
         city: { type: String, required: true },
+        state: { type: String, default: '' },
         postalCode: { type: String, required: true },
-        country: { type: String, default: 'Portugal' },
+        country: { type: String, default: 'US' },
       },
     },
     items: [OrderItemSchema],
@@ -66,7 +67,17 @@ const OrderSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    // MLM Referral & Commission Details
+    paymentLog: {
+      provider: { type: String, default: 'stripe' },
+      eventType: { type: String, default: '' },
+      status: { type: String, default: '' },
+      transactionId: { type: String, default: '' },
+      amount: { type: Number, default: 0 },
+      currency: { type: String, default: 'usd' },
+      rawResponse: { type: String, default: '' },
+      loggedAt: { type: Date, default: null },
+    },
+    // Referral & Commission Details
     referralCode: {
       type: String,
       default: null,
@@ -84,17 +95,19 @@ const OrderSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // Dropshipping Integration Details (WordPress / oldchicagocoffee.com)
+    // Dropshipping Integration Details (WordPress / Roastery Partner)
     dropshipping: {
       isForwarded: { type: Boolean, default: false },
       dropshipOrderId: { type: String, default: '' },
-      targetUrl: { type: String, default: 'https://oldchicagocoffee.com' },
+      targetUrl: { type: String, default: '' },
       status: {
         type: String,
         enum: ['pending', 'forwarded', 'confirmed', 'failed', 'simulated'],
         default: 'pending',
       },
       forwardedAt: { type: Date, default: null },
+      httpStatus: { type: Number, default: null },
+      requestPayload: { type: String, default: '' },
       responseLog: { type: String, default: '' },
       trackingCode: { type: String, default: '' },
     },
@@ -104,7 +117,13 @@ const OrderSchema = new mongoose.Schema(
   }
 );
 
-if (mongoose.models.Order && !mongoose.models.Order.schema.path('stripeInvoiceId')) {
+if (
+  mongoose.models.Order &&
+  (!mongoose.models.Order.schema.path('stripeInvoiceId') ||
+    !mongoose.models.Order.schema.path('customer.address.state') ||
+    !mongoose.models.Order.schema.path('paymentLog.rawResponse') ||
+    !mongoose.models.Order.schema.path('dropshipping.requestPayload'))
+) {
   delete mongoose.models.Order;
 }
 
