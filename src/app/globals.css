@@ -2077,30 +2077,30 @@ input, textarea, select {
 }
 
 /* RESPONSIVENESS */
-/* Medium Tablet / Compact Laptop (769px to 1024px): Keep sidebar visible and side-by-side */
-@media (min-width: 769px) and (max-width: 1024px) {
+/* Medium Tablet / Compact Laptop / Half-Screen (641px to 1024px): Keep sidebar visible and side-by-side */
+@media (min-width: 641px) and (max-width: 1024px) {
   .affiliate-layout {
     display: flex !important;
     flex-direction: row !important;
-    gap: 18px !important;
+    gap: 16px !important;
     align-items: flex-start !important;
     width: 100% !important;
   }
   .affiliate-sidebar {
-    width: 240px !important;
-    min-width: 240px !important;
-    max-width: 240px !important;
+    width: 230px !important;
+    min-width: 230px !important;
+    max-width: 230px !important;
     flex-shrink: 0 !important;
     position: sticky !important;
     transform: none !important;
     display: flex !important;
-    padding: 20px 14px !important;
+    padding: 18px 12px !important;
   }
   .affiliate-main-content {
     flex: 1 1 0% !important;
     min-width: 0 !important;
     width: 100% !important;
-    padding: 24px 20px !important;
+    padding: 20px 16px !important;
   }
   .user-sidebar-toggle-btn {
     display: none !important;
@@ -2118,8 +2118,8 @@ input, textarea, select {
   }
 }
 
-/* Mobile Screens (<= 768px): Off-canvas sliding drawer with toggle button */
-@media (max-width: 768px) {
+/* Mobile Screens Only (<= 640px): Off-canvas sliding drawer with toggle button */
+@media (max-width: 640px) {
   .affiliate-layout {
     display: block !important;
     width: 100% !important;
