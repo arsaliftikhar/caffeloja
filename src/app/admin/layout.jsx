@@ -163,127 +163,18 @@ export default function AdminLayout({ children }) {
       />
 
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+        {/* Mobile Backdrop */}
+        <div
+          className={`user-sidebar-backdrop ${mobileSidebarOpen ? 'open' : ''}`}
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+
         <div className="affiliate-layout animate-fadeIn">
-          {/* Responsive CSS for mobile sidebar & cards */}
-          <style>{`
-            .user-sidebar-toggle-btn {
-              display: none;
-              width: 40px;
-              height: 40px;
-              border-radius: 10px;
-              background: #1c130e;
-              border: 1px solid var(--mocha-border);
-              color: var(--amber-light);
-              align-items: center;
-              justify-content: center;
-              cursor: pointer;
-              flex-shrink: 0;
-            }
-            .user-sidebar-close-btn {
-              display: none;
-              margin-left: auto;
-              width: 32px;
-              height: 32px;
-              border-radius: 50%;
-              background: rgba(255, 255, 255, 0.06);
-              border: 1px solid var(--mocha-border);
-              color: var(--text-secondary);
-              align-items: center;
-              justify-content: center;
-              cursor: pointer;
-              flex-shrink: 0;
-            }
-            .user-sidebar-backdrop {
-              display: none;
-            }
-            .user-kpi-grid {
-              display: grid;
-              grid-template-columns: repeat(4, minmax(0, 1fr));
-              gap: 16px;
-              margin-bottom: 24px;
-            }
-            .user-kpi-card {
-              background: #1a120d;
-              border: 1px solid var(--mocha-border);
-              border-radius: 14px;
-              padding: 18px 16px;
-              min-width: 0;
-            }
-            .user-cards-grid-2 {
-              display: grid;
-              grid-template-columns: repeat(2, minmax(0, 1fr));
-              gap: 20px;
-            }
-            @media (max-width: 1024px) {
-              .user-sidebar-toggle-btn {
-                display: inline-flex !important;
-              }
-              .user-sidebar-close-btn {
-                display: inline-flex !important;
-              }
-              .user-sidebar-backdrop.open {
-                display: block !important;
-                position: fixed;
-                inset: 0;
-                z-index: 1240;
-                background: rgba(10, 7, 5, 0.78);
-                backdrop-filter: blur(5px);
-              }
-              .affiliate-sidebar {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                bottom: 0 !important;
-                width: 280px !important;
-                max-width: 84vw !important;
-                z-index: 1250 !important;
-                border-radius: 0 20px 20px 0 !important;
-                padding: 24px 18px !important;
-                overflow-y: auto !important;
-                transform: translateX(-105%);
-                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-              }
-              .affiliate-sidebar.sidebar-open {
-                transform: translateX(0) !important;
-              }
-              .affiliate-sidebar .affiliate-nav-menu {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 6px !important;
-              }
-              .user-kpi-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                gap: 12px !important;
-              }
-              .user-cards-grid-2 {
-                grid-template-columns: minmax(0, 1fr) !important;
-              }
-            }
-            @media (max-width: 600px) {
-              .affiliate-main-content {
-                padding: 18px 14px !important;
-                border-radius: 16px !important;
-                min-height: auto !important;
-              }
-              .user-kpi-card {
-                padding: 14px 12px !important;
-              }
-              .affiliate-top-bar {
-                flex-direction: row !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-              }
-            }
-          `}</style>
-
-          {/* Mobile Backdrop */}
-          <div
-            className={`user-sidebar-backdrop ${mobileSidebarOpen ? 'open' : ''}`}
-            onClick={() => setMobileSidebarOpen(false)}
-          />
-
           {/* LEFT SIDEBAR NAVIGATION */}
-          <aside className={`affiliate-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}>
+          <aside
+            className={`affiliate-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}
+            style={{ top: '32px' }}
+          >
             {/* Profile Card */}
             <div className="affiliate-profile-card">
               <div
