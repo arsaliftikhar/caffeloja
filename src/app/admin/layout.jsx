@@ -345,7 +345,8 @@ export default function AdminLayout({ children }) {
                   onClick={() => setMobileSidebarOpen(true)}
                   aria-label="Open menu"
                 >
-                  <Menu size={20} />
+                  <Menu size={18} />
+                  <span>Menu</span>
                 </button>
                 <div>
                   <h1

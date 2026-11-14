@@ -1123,7 +1123,8 @@ export default function AffiliatePage() {
                     onClick={() => setMobileSidebarOpen(true)}
                     aria-label="Open menu"
                   >
-                    <Menu size={20} />
+                    <Menu size={18} />
+                    <span>Menu</span>
                   </button>
                   <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.25rem, 3vw, 1.65rem)', fontWeight: '700', color: 'var(--text-primary)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {sidebarTab === 'overview' && 'Dashboard'}

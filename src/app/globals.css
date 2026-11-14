@@ -2077,13 +2077,67 @@ input, textarea, select {
 }
 
 /* RESPONSIVENESS */
-@media (max-width: 1024px) {
+/* Medium Tablet / Compact Laptop (769px to 1024px): Keep sidebar visible and side-by-side */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .affiliate-layout {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 18px !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+  }
+  .affiliate-sidebar {
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    transform: none !important;
+    display: flex !important;
+    padding: 20px 14px !important;
+  }
+  .affiliate-main-content {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 24px 20px !important;
+  }
+  .user-sidebar-toggle-btn {
+    display: none !important;
+  }
+  .user-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Mobile Screens (<= 768px): Off-canvas sliding drawer with toggle button */
+@media (max-width: 768px) {
   .affiliate-layout {
     display: block !important;
     width: 100% !important;
   }
   .user-sidebar-toggle-btn {
     display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 6px 14px !important;
+    width: auto !important;
+    height: 38px !important;
+    background: rgba(230, 157, 69, 0.16) !important;
+    border: 1px solid var(--amber-primary) !important;
+    border-radius: 8px !important;
+    color: var(--amber-light) !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    cursor: pointer !important;
   }
   .user-sidebar-close-btn {
     display: inline-flex !important;
@@ -2122,7 +2176,7 @@ input, textarea, select {
     width: 100% !important;
     max-width: 100% !important;
     display: block !important;
-    padding: 20px 16px !important;
+    padding: 20px 14px !important;
     border-radius: 16px !important;
   }
   .user-kpi-grid {
@@ -2132,13 +2186,6 @@ input, textarea, select {
   .user-cards-grid-2,
   .user-cards-grid-3 {
     grid-template-columns: minmax(0, 1fr) !important;
-  }
-  .hero-grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
   }
 }
 
