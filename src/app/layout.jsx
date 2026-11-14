@@ -38,12 +38,39 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{
             __html: `
               if (typeof window !== 'undefined') {
+                // Auto-heal stale chunk load errors caused by new deployments
+                function handleChunkError(raw) {
+                  var str = String(raw || '').toLowerCase();
+                  if (str.indexOf('loading chunk') !== -1 ||
+                      str.indexOf('chunkloaderror') !== -1 ||
+                      str.indexOf('failed to load chunk') !== -1 ||
+                      str.indexOf('dynamically imported module') !== -1) {
+                    var lockKey = 'caffeloja_chunk_reload_lock';
+                    var last = sessionStorage.getItem(lockKey);
+                    var now = Date.now();
+                    if (!last || (now - Number(last) > 15000)) {
+                      sessionStorage.setItem(lockKey, String(now));
+                      window.location.reload();
+                    }
+                  }
+                }
+
+                window.addEventListener('error', function(event) {
+                  var msg = (event && (event.message || (event.error && event.error.message))) || '';
+                  handleChunkError(msg);
+                });
+
                 window.addEventListener('unhandledrejection', function(event) {
                   var reason = event && event.reason;
                   var msg = (reason && (reason.message || reason.stack || String(reason))) || '';
-                  if (typeof msg === 'string' && (msg.includes('MetaMask') || msg.includes('chrome-extension://') || msg.includes('Failed to connect to MetaMask'))) {
-                    event.stopImmediatePropagation();
-                    event.preventDefault();
+                  if (typeof msg === 'string') {
+                    // Suppress noisy browser crypto wallet extensions
+                    if (msg.includes('MetaMask') || msg.includes('chrome-extension://') || msg.includes('Failed to connect to MetaMask')) {
+                      event.stopImmediatePropagation();
+                      event.preventDefault();
+                      return;
+                    }
+                    handleChunkError(msg);
                   }
                 });
               }
