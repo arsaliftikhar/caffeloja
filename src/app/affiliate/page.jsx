@@ -951,11 +951,33 @@ export default function AffiliatePage() {
               onClick={() => setMobileSidebarOpen(false)}
             />
 
-            <div className="affiliate-layout animate-fadeIn">
+            <div
+              className="affiliate-layout animate-fadeIn"
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                gap: '24px',
+                width: '100%',
+              }}
+            >
               {/* LEFT SIDEBAR NAVIGATION */}
               <aside
                 className={`affiliate-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}
-                style={{ top: '24px' }}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '280px',
+                  minWidth: '280px',
+                  maxWidth: '280px',
+                  flexShrink: 0,
+                  position: 'sticky',
+                  top: '115px',
+                  transform: 'none',
+                  visibility: 'visible',
+                  opacity: 1,
+                  zIndex: 10,
+                }}
               >
               {/* Profile Card */}
               <div className="affiliate-profile-card">
@@ -1113,7 +1135,14 @@ export default function AffiliatePage() {
             </aside>
 
             {/* MAIN CONTENT AREA */}
-            <main className="affiliate-main-content">
+            <main
+              className="affiliate-main-content"
+              style={{
+                flex: '1 1 0%',
+                minWidth: 0,
+                width: '100%',
+              }}
+            >
               {/* Clean Top Header Bar */}
               <div className="affiliate-top-bar">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
