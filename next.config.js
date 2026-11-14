@@ -9,6 +9,14 @@ const nextConfig = {
       { protocol: 'https', hostname: 'i0.wp.com' },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/wp-content/uploads/2018/04/title-separator.png',
+        destination: '/images/title-separator.svg',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

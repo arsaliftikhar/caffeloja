@@ -31,7 +31,7 @@ export default function HomePage() {
       title: 'Distinct Aroma',
       subtitle: 'The World’s Best Coffee',
       desc: 'Small batch specialty roasts, directly sourced from high elevation volcanic slopes and fresh roasted continuously.',
-      image: 'https://caffeloja.com/wp-content/uploads/2018/04/home-1-slider-image-1.jpg',
+      image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1920&q=85',
       ctaText: 'Explore Coffee',
       ctaLink: '/menu',
     },
@@ -39,7 +39,7 @@ export default function HomePage() {
       title: 'Coffee Box (20 Pods)',
       subtitle: 'Premium Single-Serve Artisan Pods',
       desc: '20 hermetically sealed Keurig-compatible pods. Rich chocolate, toasted hazelnut, and warm caramel with smooth crema in every brew.',
-      image: 'https://caffeloja.com/wp-content/uploads/2018/04/home-1-slider-image-2.jpg',
+      image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1920&q=85',
       ctaText: 'Order Coffee Box',
       ctaLink: '/menu',
     },
@@ -47,7 +47,7 @@ export default function HomePage() {
       title: '4-Level Affiliate Network',
       subtitle: 'Earn An Income with Coffee',
       desc: 'Join our revolutionary 4-tier affiliate partner program. Earn recurring commissions on every cup sold through your network.',
-      image: 'https://caffeloja.com/wp-content/uploads/2018/04/home-1-slider-image-3.jpg',
+      image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1920&q=85',
       ctaText: 'View Compensation Plan',
       ctaLink: '/earn-an-income',
     },
@@ -72,14 +72,14 @@ export default function HomePage() {
   };
 
   const galleryImages = [
-    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-1.jpg',
-    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-2.jpg',
-    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-3.jpg',
-    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-4.jpg',
-    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-5.jpg',
-    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-6.jpg',
-    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-7.jpg',
-    'https://caffeloja.com/wp-content/uploads/2018/04/port-1-img-8.jpg',
+    'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1518832553480-cd0e625ed3e6?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1507133750040-4a8f57021571?auto=format&fit=crop&w=600&q=80',
   ];
 
   return (
@@ -193,9 +193,9 @@ export default function HomePage() {
 
         <div style={{ maxWidth: '850px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
           <img
-            src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
+            src="/images/title-separator.svg"
             alt="separator"
-            style={{ margin: '0 auto 16px', display: 'block' }}
+            style={{ margin: '0 auto 16px', display: 'block', height: '16px' }}
           />
 
           <span style={{ fontSize: '0.88rem', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--amber-light)', fontWeight: '600' }}>
@@ -244,9 +244,9 @@ export default function HomePage() {
         <div className="container">
           <div className="section-header" style={{ marginBottom: '50px' }}>
             <img
-              src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
+              src="/images/title-separator.svg"
               alt="separator"
-              style={{ margin: '0 auto 12px', display: 'block' }}
+              style={{ margin: '0 auto 12px', display: 'block', height: '16px' }}
             />
             <span className="section-tag">What We Serve</span>
             <h2 className="section-title">Our Delicious Offer</h2>
@@ -256,12 +256,10 @@ export default function HomePage() {
           </div>
 
           <div className="home-offer-grid">
-            <div style={{ background: '#19110c', border: '1px solid var(--mocha-border)', borderRadius: '20px', padding: '32px 24px', textAlign: 'center' }}>
-              <img
-                src="https://caffeloja.com/wp-content/uploads/2018/04/h2-custom-icon-5.png"
-                alt="Types of Coffee"
-                style={{ margin: '0 auto 20px', display: 'block' }}
-              />
+            <div style={{ background: '#19110c', border: '1px solid var(--mocha-border)', borderRadius: '20px', padding: '36px 28px', textAlign: 'center' }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(230,157,69,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--amber-light)', margin: '0 auto 20px' }}>
+                <Coffee size={30} />
+              </div>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '12px' }}>Types of Coffee</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '20px' }}>
                 From smooth French presses and dense espresso shots to single-serve K-Cup pods, we dial in perfection for every brewing style.
@@ -272,11 +270,9 @@ export default function HomePage() {
             </div>
 
             <div style={{ background: '#19110c', border: '1px solid var(--mocha-border)', borderRadius: '20px', padding: '36px 28px', textAlign: 'center' }}>
-              <img
-                src="https://caffeloja.com/wp-content/uploads/2018/04/h2-custom-icon-6.png"
-                alt="Bean Varieties"
-                style={{ margin: '0 auto 20px', display: 'block' }}
-              />
+              <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(230,157,69,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--amber-light)', margin: '0 auto 20px' }}>
+                <Flame size={30} />
+              </div>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '12px' }}>Bean Varieties</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '20px' }}>
                 High-altitude Arabica lots from Central & South America, naturally processed and wet mill washed for rich cocoa and citrus undertones.
@@ -308,9 +304,9 @@ export default function HomePage() {
           <div className="home-split-grid">
             <div className="home-split-col">
               <img
-                src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
+                src="/images/title-separator.svg"
                 alt="separator"
-                style={{ marginBottom: '12px', display: 'block' }}
+                style={{ marginBottom: '12px', display: 'block', height: '16px' }}
               />
               <span className="section-tag">Quality In Every Cup</span>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.65rem, 4vw, 2.5rem)', lineHeight: '1.25', marginBottom: '18px' }}>
@@ -337,7 +333,7 @@ export default function HomePage() {
             <div className="home-split-col">
               <div className="home-split-img-wrap">
                 <img
-                  src="https://caffeloja.com/wp-content/uploads/2025/10/1.jpg"
+                  src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=85"
                   alt="Caffeloja Barista Brew"
                   className="home-split-img"
                 />
@@ -365,9 +361,9 @@ export default function HomePage() {
 
             <div className="home-split-col">
               <img
-                src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
+                src="/images/title-separator.svg"
                 alt="separator"
-                style={{ marginBottom: '14px', display: 'block' }}
+                style={{ marginBottom: '14px', display: 'block', height: '16px' }}
               />
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.65rem, 4vw, 2.35rem)', lineHeight: '1.25', marginBottom: '18px' }}>
                 Experience True Freshly Roast Coffee
@@ -424,9 +420,9 @@ export default function HomePage() {
       >
         <div className="container" style={{ maxWidth: '680px' }}>
           <img
-            src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
+            src="/images/title-separator.svg"
             alt="separator"
-            style={{ margin: '0 auto 16px', display: 'block' }}
+            style={{ margin: '0 auto 16px', display: 'block', height: '16px' }}
           />
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.85rem, 3.5vw, 2.5rem)', lineHeight: '1.25', marginBottom: '16px' }}>
             150 Years of Roasting Tradition

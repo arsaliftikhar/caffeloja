@@ -78,9 +78,9 @@ export default function EarnAnIncomePage() {
         {/* 1. HEADER */}
         <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 52px' }}>
           <img
-            src="https://caffeloja.com/wp-content/uploads/2018/04/title-separator.png"
+            src="/images/title-separator.svg"
             alt="separator"
-            style={{ margin: '0 auto 14px', display: 'block' }}
+            style={{ margin: '0 auto 14px', display: 'block', height: '16px' }}
           />
           <h1
             style={{
