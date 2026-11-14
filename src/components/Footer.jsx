@@ -1,12 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2 } from 'lucide-react';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState({ loading: false, success: false, message: '' });
+  const [contactInfo, setContactInfo] = useState({
+    email: 'caffeloja77@gmail.com',
+    phone: '(+1) 504 327 9670',
+  });
+
+  const loadContactInfo = () => {
+    fetch('/api/contact')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setContactInfo({
+            email: data.contactEmail || 'caffeloja77@gmail.com',
+            phone: data.supportPhone || '(+1) 504 327 9670',
+          });
+        }
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    loadContactInfo();
+    window.addEventListener('caffeloja_settings_updated', loadContactInfo);
+    return () => {
+      window.removeEventListener('caffeloja_settings_updated', loadContactInfo);
+    };
+  }, []);
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -80,11 +106,21 @@ export default function Footer() {
               </li>
               <li>
                 <Phone size={18} className="contact-icon" />
-                <span>(+1) 504 327 9670</span>
+                <a
+                  href={`tel:${contactInfo.phone.replace(/[^+\d]/g, '')}`}
+                  style={{ color: 'inherit', textDecoration: 'none' }}
+                >
+                  {contactInfo.phone}
+                </a>
               </li>
               <li>
                 <Mail size={18} className="contact-icon" />
-                <span>caffeloja77@gmail.com</span>
+                <a
+                  href={`mailto:${contactInfo.email}`}
+                  style={{ color: 'inherit', textDecoration: 'none' }}
+                >
+                  {contactInfo.email}
+                </a>
               </li>
               <li>
                 <Clock size={18} className="contact-icon" />

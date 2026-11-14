@@ -32,6 +32,15 @@ const MLMSettingsSchema = new mongoose.Schema(
       type: Number,
       default: 20,
     },
+    // Store & Contact Settings
+    contactEmail: {
+      type: String,
+      default: 'caffeloja77@gmail.com',
+    },
+    supportPhone: {
+      type: String,
+      default: '(+1) 504 327 9670',
+    },
     // WordPress Dropshipper Configuration (Fulfillment Partner)
     dropshipSettings: {
       targetUrl: {
@@ -67,7 +76,13 @@ const MLMSettingsSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    strict: false,
   }
 );
+
+// Delete existing compiled model in dev environment to allow hot reloads to pick up schema updates
+if (mongoose.models && mongoose.models.MLMSettings) {
+  delete mongoose.models.MLMSettings;
+}
 
 export default mongoose.models.MLMSettings || mongoose.model('MLMSettings', MLMSettingsSchema);

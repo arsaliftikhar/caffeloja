@@ -99,6 +99,7 @@ export default function AdminLayout({ children }) {
   const isUsers = pathname?.startsWith('/admin/users');
   const isCommissions = pathname?.startsWith('/admin/commissions') || pathname?.startsWith('/admin/commission');
   const isOrders = pathname?.startsWith('/admin/orders');
+  const isSettings = pathname?.startsWith('/admin/settings');
 
   const getPageHeader = () => {
     if (isUsers) {
@@ -117,6 +118,12 @@ export default function AdminLayout({ children }) {
       return {
         title: 'Dropship Orders & API Logs',
         subtitle: 'Inspect raw Stripe payment events and WooCommerce fulfillment responses',
+      };
+    }
+    if (isSettings) {
+      return {
+        title: 'Settings & Security',
+        subtitle: 'Configure contact form email routing, change admin password, and set up Google Authenticator (2FA)',
       };
     }
     return {
@@ -386,6 +393,19 @@ export default function AdminLayout({ children }) {
                   <span>Orders & Logs</span>
                 </div>
                 <ChevronRight size={14} style={{ opacity: isOrders ? 1 : 0.4 }} />
+              </Link>
+
+              <Link
+                href="/admin/settings"
+                onClick={() => setMobileSidebarOpen(false)}
+                className={`affiliate-nav-btn ${isSettings ? 'active' : ''}`}
+                style={{ textDecoration: 'none' }}
+              >
+                <div className="affiliate-nav-btn-left">
+                  <ShieldCheck size={18} />
+                  <span>Settings & Security</span>
+                </div>
+                <ChevronRight size={14} style={{ opacity: isSettings ? 1 : 0.4 }} />
               </Link>
             </nav>
 

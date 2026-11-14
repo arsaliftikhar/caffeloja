@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -8,10 +8,31 @@ export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
+    subject: 'General Inquiry',
     message: '',
   });
 
+  const [contactInfo, setContactInfo] = useState({
+    email: 'caffeloja77@gmail.com',
+    phone: '(+1) 504 327 9670',
+  });
+
   const [status, setStatus] = useState({ loading: false, success: false, message: '' });
+
+  useEffect(() => {
+    fetch('/api/contact')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setContactInfo({
+            email: data.contactEmail || 'caffeloja77@gmail.com',
+            phone: data.supportPhone || '(+1) 504 327 9670',
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,7 +41,7 @@ export default function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      toast.error('Please fill in all fields before sending.');
+      toast.error('Please fill in your name, email, and message before sending.');
       return;
     }
     setStatus({ loading: true, success: false, message: '' });
@@ -29,7 +50,7 @@ export default function ContactPage() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, subject: 'General Inquiry' }),
+        body: JSON.stringify(formData),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -39,7 +60,7 @@ export default function ContactPage() {
           message: data.message || 'Thank you for reaching out. We will get back to you shortly.',
         });
         toast.success('Message sent successfully!');
-        setFormData({ name: '', email: '', message: '' });
+        setFormData({ name: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
       } else {
         const msg = data.message || 'Unable to send message. Please try again.';
         setStatus({
@@ -50,13 +71,13 @@ export default function ContactPage() {
         toast.error(msg);
       }
     } catch {
+      const msg = 'Network error: Unable to connect to server. Please try again shortly.';
       setStatus({
         loading: false,
-        success: true,
-        message: 'Thank you for reaching out. Your message has been sent.',
+        success: false,
+        message: msg,
       });
-      toast.success('Message sent successfully!');
-      setFormData({ name: '', email: '', message: '' });
+      toast.error(msg);
     }
   };
 
@@ -159,10 +180,10 @@ export default function ContactPage() {
                   Email
                 </span>
                 <a
-                  href="mailto:caffeloja77@gmail.com"
+                  href={`mailto:${contactInfo.email}`}
                   style={{ color: 'var(--amber-light)', fontSize: '0.98rem', fontWeight: '600', textDecoration: 'none' }}
                 >
-                  caffeloja77@gmail.com
+                  {contactInfo.email}
                 </a>
               </div>
 
@@ -171,10 +192,10 @@ export default function ContactPage() {
                   Phone
                 </span>
                 <a
-                  href="tel:+15043279670"
+                  href={`tel:${contactInfo.phone.replace(/[^+\d]/g, '')}`}
                   style={{ color: 'var(--text-primary)', fontSize: '0.98rem', fontWeight: '600', textDecoration: 'none' }}
                 >
-                  (+1) 504 327 9670
+                  {contactInfo.phone}
                 </a>
               </div>
             </div>
@@ -230,7 +251,30 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="form-field">
+                <div className="form-grid-2" style={{ marginTop: '12px' }}>
+                  <div className="form-field">
+                    <label>Phone (Optional)</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="+1 (555) 000-0000"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label>Subject</label>
+                    <input
+                      type="text"
+                      name="subject"
+                      placeholder="e.g. Order Inquiry / Subscription"
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-field" style={{ marginTop: '12px' }}>
                   <label>Message *</label>
                   <textarea
                     name="message"

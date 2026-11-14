@@ -34,6 +34,22 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined') {
+                window.addEventListener('unhandledrejection', function(event) {
+                  var reason = event && event.reason;
+                  var msg = (reason && (reason.message || reason.stack || String(reason))) || '';
+                  if (typeof msg === 'string' && (msg.includes('MetaMask') || msg.includes('chrome-extension://') || msg.includes('Failed to connect to MetaMask'))) {
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                  }
+                });
+              }
+            `,
+          }}
+        />
       </head>
       <body>
         <Toaster

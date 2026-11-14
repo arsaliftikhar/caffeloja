@@ -51,17 +51,21 @@ export default function AdminCommissionsPage() {
     if (e) e.preventDefault();
     setSaveStatus({ loading: true, success: false, message: '' });
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('caffeloja_token') : null;
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify(settings),
       });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setSaveStatus({ loading: false, success: true, message: 'Fixed commission rates saved to database!' });
         setTimeout(() => setSaveStatus({ loading: false, success: false, message: '' }), 4000);
       } else {
-        setSaveStatus({ loading: false, success: false, message: data.message || 'Failed to update commission rates' });
+        setSaveStatus({ loading: false, success: false, message: data.message || data.error || 'Failed to update commission rates' });
       }
     } catch (err) {
       setSaveStatus({ loading: false, success: false, message: 'Server communication error' });
