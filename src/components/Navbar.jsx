@@ -60,7 +60,7 @@ export default function Navbar() {
     { name: 'Contact', href: '/contact' },
   ];
 
-  if (pathname?.startsWith('/user') || pathname?.startsWith('/admin')) {
+  if (pathname?.startsWith('/user') || pathname?.startsWith('/admin') || (isLoggedIn && pathname === '/affiliate')) {
     return null;
   }
 

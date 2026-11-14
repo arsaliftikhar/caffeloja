@@ -2,8 +2,8 @@ import { MongoClient } from 'mongodb';
 import dns from 'dns';
 import { normalizeMongoUri } from './mongoUri.js';
 
-// Ensure MongoDB SRV queries resolve reliably on all platforms
-if (dns && typeof dns.setServers === 'function') {
+// Ensure MongoDB SRV queries resolve reliably on local environments without affecting Vercel serverless DNS
+if (!process.env.VERCEL && dns && typeof dns.setServers === 'function') {
   try {
     dns.setServers(['8.8.8.8', '1.1.1.1']);
   } catch {}

@@ -1547,9 +1547,10 @@ input, textarea, select {
 
 .affiliate-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 280px minmax(0, 1fr);
   gap: 28px;
   align-items: start;
+  width: 100%;
 }
 
 .affiliate-sidebar {
@@ -1640,6 +1641,9 @@ input, textarea, select {
   padding: 32px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
   min-height: 600px;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 .affiliate-top-bar {
@@ -2006,9 +2010,41 @@ input, textarea, select {
     grid-template-columns: 1fr;
     gap: 20px;
   }
+  .user-sidebar-toggle-btn {
+    display: inline-flex !important;
+  }
+  .user-sidebar-close-btn {
+    display: inline-flex !important;
+  }
+  .user-sidebar-backdrop.open {
+    display: block !important;
+    position: fixed;
+    inset: 0;
+    z-index: 1240;
+    background: rgba(10, 7, 5, 0.78);
+    backdrop-filter: blur(5px);
+  }
   .affiliate-sidebar {
-    position: static;
-    top: 0;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 280px !important;
+    max-width: 84vw !important;
+    z-index: 1250 !important;
+    border-radius: 0 20px 20px 0 !important;
+    padding: 24px 18px !important;
+    overflow-y: auto !important;
+    transform: translateX(-105%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .affiliate-sidebar.sidebar-open {
+    transform: translateX(0) !important;
+  }
+  .affiliate-sidebar .affiliate-nav-menu {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
   }
   .hero-grid {
     grid-template-columns: 1fr;
@@ -2048,34 +2084,6 @@ input, textarea, select {
     padding: 24px 18px;
     border-radius: 18px;
     margin: 10px auto 40px;
-  }
-
-  .affiliate-sidebar {
-    padding: 16px 14px;
-    border-radius: 16px;
-    gap: 14px;
-  }
-
-  .affiliate-nav-menu {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .affiliate-nav-btn {
-    padding: 10px 12px;
-    font-size: 0.84rem;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .affiliate-nav-btn-left {
-    gap: 8px;
-  }
-
-  .affiliate-nav-btn svg {
-    flex-shrink: 0;
   }
 
   .affiliate-main-content {

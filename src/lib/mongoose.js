@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import dns from 'dns';
 import { normalizeMongoUri } from './mongoUri.js';
 
-// Ensure MongoDB SRV queries resolve reliably on all platforms
-if (dns && typeof dns.setServers === 'function') {
+// Ensure MongoDB SRV queries resolve reliably on local environments without affecting Vercel serverless DNS
+if (!process.env.VERCEL && dns && typeof dns.setServers === 'function') {
   try {
     dns.setServers(['8.8.8.8', '1.1.1.1']);
   } catch {}
@@ -17,8 +17,7 @@ if (!MONGODB_URI) {
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections growing exponentially
- * during API Route usage.
+ * in development and serverless invocations in production.
  */
 let cached = global.mongoose;
 
@@ -34,6 +33,9 @@ async function connectToDatabase() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 8000,
+      socketTimeoutMS: 45000,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {

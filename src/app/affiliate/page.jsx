@@ -76,8 +76,8 @@ export default function AffiliatePage() {
 
   const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
   const [sidebarTab, setSidebarTab] = useState(() => getTabFromPath(pathname)); // 'overview' | 'subscription' | 'network' | 'commissions' | 'payouts' | 'settings'
-  const [user, setUser] = useState(() => cachedUser);
-  const [authChecking, setAuthChecking] = useState(() => !cachedUser);
+  const [user, setUser] = useState(() => (typeof window !== 'undefined' ? cachedUser : null));
+  const [authChecking, setAuthChecking] = useState(true);
   const [token, setToken] = useState(null);
   const [copied, setCopied] = useState(false);
   const [showQr, setShowQr] = useState(false);
@@ -175,9 +175,11 @@ export default function AffiliatePage() {
             router.replace('/admin/dashboard');
             return;
           }
-          if (!cachedUser) {
-            cachedUser = parsed;
-            setUser(parsed);
+          cachedUser = parsed;
+          setUser(parsed);
+          setAuthChecking(false);
+          if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/user')) {
+            router.replace('/user/dashboard');
           }
         }
       } catch {}

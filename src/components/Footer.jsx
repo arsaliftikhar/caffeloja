@@ -2,11 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2 } from 'lucide-react';
 
 export default function Footer() {
+  const pathname = usePathname();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState({ loading: false, success: false, message: '' });
+
+  // Hide public store footer inside user and admin dashboards
+  if (pathname?.startsWith('/user') || pathname?.startsWith('/admin')) {
+    return null;
+  }
   const [contactInfo, setContactInfo] = useState({
     email: 'caffeloja77@gmail.com',
     phone: '(+1) 504 327 9670',
