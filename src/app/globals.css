@@ -1555,6 +1555,75 @@ input, textarea, select {
   box-sizing: border-box !important;
 }
 
+/* DEDICATED ADMIN DASHBOARD LAYOUT & SIDEBAR (IMMUNE TO ALL MOBILE HIDING) */
+.admin-dashboard-layout {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 24px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.admin-dashboard-sidebar {
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+  background: linear-gradient(180deg, #18110c 0%, #120c09 100%) !important;
+  border: 1px solid var(--mocha-border) !important;
+  border-radius: 20px !important;
+  padding: 24px 18px !important;
+  position: sticky !important;
+  top: 32px !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(12px) !important;
+  transform: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 20 !important;
+  box-sizing: border-box !important;
+}
+
+.admin-dashboard-content {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  background: #150e0a !important;
+  border: 1px solid var(--mocha-border) !important;
+  border-radius: 20px !important;
+  padding: 32px !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+  min-height: 600px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 900px) {
+  .admin-dashboard-sidebar {
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+    padding: 18px 14px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-dashboard-layout {
+    flex-direction: column !important;
+  }
+  .admin-dashboard-sidebar {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    position: static !important;
+  }
+}
+
 .affiliate-sidebar {
   width: 280px !important;
   min-width: 280px !important;

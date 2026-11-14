@@ -170,7 +170,7 @@ export default function AdminLayout({ children }) {
         />
 
         <div
-          className="affiliate-layout animate-fadeIn"
+          className="admin-dashboard-layout animate-fadeIn"
           style={{
             display: 'flex',
             flexDirection: 'row',
@@ -181,7 +181,7 @@ export default function AdminLayout({ children }) {
         >
           {/* LEFT SIDEBAR NAVIGATION */}
           <aside
-            className={`affiliate-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}
+            className={`admin-dashboard-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -195,6 +195,12 @@ export default function AdminLayout({ children }) {
               visibility: 'visible',
               opacity: 1,
               zIndex: 10,
+              background: 'linear-gradient(180deg, #18110c 0%, #120c09 100%)',
+              border: '1px solid var(--mocha-border, #3a2a20)',
+              borderRadius: '20px',
+              padding: '24px 18px',
+              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
+              boxSizing: 'border-box',
             }}
           >
             {/* Profile Card */}
@@ -358,11 +364,19 @@ export default function AdminLayout({ children }) {
 
           {/* MAIN CONTENT AREA */}
           <main
-            className="affiliate-main-content"
+            className="affiliate-main-content admin-dashboard-content"
             style={{
               flex: '1 1 0%',
               minWidth: 0,
               width: '100%',
+              background: '#150e0a',
+              border: '1px solid var(--mocha-border, #3a2a20)',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
+              minHeight: '600px',
+              overflow: 'hidden',
+              boxSizing: 'border-box',
             }}
           >
             {/* Clean Top Header Bar */}
