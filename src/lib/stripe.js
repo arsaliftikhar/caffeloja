@@ -121,9 +121,12 @@ export async function retrieveStripeCheckoutSession(sessionId) {
 export async function createStripePaymentIntent({
   amount,
   customer,
+  customerId,
   orderNumber,
   referralCode,
   description,
+  setup_future_usage,
+  metadata = {},
 }) {
   const params = new URLSearchParams();
   params.append('amount', String(Math.round(Number(amount) * 100)));
@@ -131,21 +134,97 @@ export async function createStripePaymentIntent({
   params.append('payment_method_types[0]', 'card');
   params.append('description', description || `Caffeloja Coffee Order (${orderNumber})`);
 
+  if (customerId) {
+    params.append('customer', customerId);
+  }
+  if (setup_future_usage) {
+    params.append('setup_future_usage', setup_future_usage);
+  }
+
   if (customer?.email) {
     params.append('receipt_email', customer.email);
   }
 
-  params.append('metadata[orderNumber]', orderNumber);
-  params.append('metadata[customerName]', customer?.name || '');
-  params.append('metadata[customerEmail]', customer?.email || '');
+  if (orderNumber) params.append('metadata[orderNumber]', orderNumber);
+  if (customer?.name) params.append('metadata[customerName]', customer.name);
+  if (customer?.email) params.append('metadata[customerEmail]', customer.email);
   if (referralCode) {
     params.append('metadata[referralCode]', referralCode.toUpperCase());
   }
+
+  Object.entries(metadata).forEach(([k, v]) => {
+    if (v) params.append(`metadata[${k}]`, String(v));
+  });
 
   return await stripeRequest('/payment_intents', {
     method: 'POST',
     body: params.toString(),
   });
+}
+
+/**
+ * Finds the latest incomplete PaymentIntent for a customer / subscription invoice
+ */
+export async function getSubscriptionPaymentIntent({ customerId, invoiceId, subscriptionId }) {
+  if (!customerId) return null;
+  const listRes = await stripeRequest(`/payment_intents?customer=${encodeURIComponent(customerId)}&limit=5`, {
+    method: 'GET',
+  });
+
+  if (listRes?.data?.length > 0) {
+    const matched = listRes.data.find(
+      (pi) =>
+        (invoiceId && (pi.payment_details?.order_reference === invoiceId || pi.invoice === invoiceId)) ||
+        (subscriptionId && pi.metadata?.subscriptionId === subscriptionId) ||
+        pi.status === 'requires_payment_method' ||
+        pi.status === 'requires_action' ||
+        pi.status === 'requires_confirmation'
+    );
+    return matched || listRes.data[0];
+  }
+  return null;
+}
+
+/**
+ * Retrieves a Stripe PaymentMethod by ID
+ */
+export async function retrieveStripePaymentMethod(paymentMethodId) {
+  if (!paymentMethodId) return null;
+  return await stripeRequest(`/payment_methods/${encodeURIComponent(paymentMethodId)}`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * Attaches a PaymentMethod to a Customer and sets it as the invoice default
+ */
+export async function attachPaymentMethodToCustomer(paymentMethodId, customerId) {
+  try {
+    await stripeRequest(`/payment_methods/${encodeURIComponent(paymentMethodId)}/attach`, {
+      method: 'POST',
+      body: `customer=${encodeURIComponent(customerId)}`,
+    });
+  } catch {
+    // Already attached
+  }
+  try {
+    await stripeRequest(`/customers/${encodeURIComponent(customerId)}`, {
+      method: 'POST',
+      body: `invoice_settings[default_payment_method]=${encodeURIComponent(paymentMethodId)}`,
+    });
+  } catch {}
+}
+
+/**
+ * Sets the default payment method on a subscription
+ */
+export async function setDefaultSubscriptionPaymentMethod(subscriptionId, paymentMethodId) {
+  try {
+    await stripeRequest(`/subscriptions/${encodeURIComponent(subscriptionId)}`, {
+      method: 'POST',
+      body: `default_payment_method=${encodeURIComponent(paymentMethodId)}`,
+    });
+  } catch {}
 }
 
 /**
@@ -261,7 +340,7 @@ export async function createStripeMonthlySubscription({
     params.append('metadata[referralCode]', referralCode.toUpperCase());
   }
 
-  return await stripeRequest('/subscriptions', {
+  return await stripeRequest('/subscriptions?expand[0]=latest_invoice.payment_intent', {
     method: 'POST',
     body: params.toString(),
   });
