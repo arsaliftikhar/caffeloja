@@ -179,7 +179,18 @@ export default function AdminDashboardPage() {
               <tbody>
                 {orders.slice(0, 5).map((ord) => (
                   <tr key={ord._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <td style={{ padding: '10px 10px', fontWeight: '700' }}>{ord.orderNumber}</td>
+                    <td style={{ padding: '10px 10px' }}>
+                      <div style={{ fontWeight: '700' }}>{ord.orderNumber}</div>
+                      {ord.orderType === 'subscription' || (ord.orderNumber || '').startsWith('SUB-') || (ord.orderNumber || '').startsWith('REN-') ? (
+                        <span style={{ fontSize: '0.66rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(52, 211, 153, 0.15)', color: '#34d399', fontWeight: '700', textTransform: 'uppercase' }}>
+                          Subscription
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.66rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.08)', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                          Guest Order
+                        </span>
+                      )}
+                    </td>
                     <td style={{ padding: '10px 10px' }}>{ord.customer?.name}</td>
                     <td style={{ padding: '10px 10px', fontWeight: '600' }}>${(ord.total || 0).toFixed(2)}</td>
                     <td style={{ padding: '10px 10px' }}>

@@ -14,19 +14,23 @@ export default function SubscriptionRevenueChart({ orders = [], users = [] }) {
 
   const mrr = activeSubsCount * 69;
 
-  // Filter subscription orders
+  // Filter STRICTLY subscription orders only (no guest checkouts, no regular store purchases)
   const subscriptionOrders = useMemo(() => {
     return orders.filter((o) => {
+      // Must not be a guest or one-time store checkout
+      if (o.isGuest || o.orderType === 'guest' || o.orderType === 'standard') {
+        return false;
+      }
+
+      // Must be an explicit subscription order
       const isSub =
-        Boolean(o.stripeSubscriptionId) ||
-        o.items?.some(
-          (item) =>
-            item.name?.toLowerCase().includes('subscription') ||
-            item.sku === '20PK' ||
-            item.sku === 'CB-20PODS' ||
-            item.price === 69
-        );
-      return isSub && o.paymentStatus !== 'failed' && o.status !== 'cancelled';
+        o.orderType === 'subscription' ||
+        (o.orderNumber || '').startsWith('SUB-') ||
+        (o.orderNumber || '').startsWith('REN-') ||
+        Boolean(o.stripeSubscriptionId);
+
+      // Must be a successfully paid order
+      return isSub && o.paymentStatus === 'paid' && o.status !== 'cancelled';
     });
   }, [orders]);
 
@@ -99,19 +103,8 @@ export default function SubscriptionRevenueChart({ orders = [], users = [] }) {
       });
     }
 
-    // If there is active MRR and no historical orders recorded yet, simulate progressive baseline
-    const hasRealPoints = points.some((p) => p.revenue > 0);
-    if (!hasRealPoints && activeSubsCount > 0 && points.length > 0) {
-      const len = points.length;
-      points.forEach((p, idx) => {
-        const factor = Math.min(1, 0.4 + (idx / (len - 1 || 1)) * 0.6);
-        p.revenue = Number((mrr * factor).toFixed(2));
-        p.count = Math.max(1, Math.round(activeSubsCount * factor));
-      });
-    }
-
     return points;
-  }, [timeRange, subscriptionOrders, activeSubsCount, mrr]);
+  }, [timeRange, subscriptionOrders]);
 
   // Overall total revenue from points
   const totalRevenue = useMemo(() => {
@@ -491,6 +484,12 @@ export default function SubscriptionRevenueChart({ orders = [], users = [] }) {
           </div>
         )}
       </div>
+
+      {subscriptionOrders.length === 0 && (
+        <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          No subscription box orders recorded yet. Guest checkouts and one-time store orders are excluded.
+        </div>
+      )}
     </div>
   );
 }

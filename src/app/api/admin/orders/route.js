@@ -7,8 +7,8 @@ import { forwardOrderToWordPress } from '@/lib/dropshipService';
 export async function GET() {
   try {
     await connectToDatabase();
-    const orders = await Order.find({}).sort({ createdAt: -1 }).limit(50).lean();
-    const commissions = await Commission.find({}).sort({ createdAt: -1 }).limit(50).lean();
+    const orders = await Order.find({}).sort({ createdAt: -1 }).limit(500).lean();
+    const commissions = await Commission.find({}).sort({ createdAt: -1 }).limit(500).lean();
 
     return NextResponse.json({
       success: true,
