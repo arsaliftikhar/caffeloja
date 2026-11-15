@@ -2321,56 +2321,6 @@ input, textarea, select {
     border-radius: 18px;
     margin: 10px auto 40px;
   }
-}
-
-/* Extra Small Phones (<= 480px) */
-@media (max-width: 480px) {
-  .user-kpi-grid,
-  .affiliate-stat-grid-4,
-  .affiliate-stat-grid-5 {
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-  }
-
-  .affiliate-main-content,
-  .admin-dashboard-content {
-    padding: 16px 12px !important;
-    border-radius: 14px !important;
-  }
-}
-
-  .affiliate-top-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-  }
-
-  .affiliate-stat-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .affiliate-stat-card {
-    padding: 16px 14px;
-  }
-
-  .affiliate-stat-card div[style*="font-size: 2rem"] {
-    font-size: 1.45rem !important;
-  }
-
-  .affiliate-tier-selector-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 18px;
-  }
-
-  .affiliate-settings-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
 
   .affiliate-quick-share {
     padding: 18px 16px;
@@ -2393,12 +2343,20 @@ input, textarea, select {
   }
 }
 
+/* Extra Small Phones (<= 480px) */
 @media (max-width: 480px) {
-  .affiliate-nav-menu {
-    grid-template-columns: 1fr;
+  .user-kpi-grid,
+  .affiliate-stat-grid,
+  .affiliate-stat-grid-4,
+  .affiliate-stat-grid-5 {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
   }
-  .affiliate-stat-grid {
-    grid-template-columns: 1fr;
+
+  .affiliate-main-content,
+  .admin-dashboard-content {
+    padding: 16px 12px !important;
+    border-radius: 14px !important;
   }
 }
 
