@@ -1,82 +1,34 @@
 import Link from 'next/link';
-import { ArrowRight, ArrowDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import CommissionCalculator from '@/components/CommissionCalculator';
 
 export const metadata = {
   title: 'Earn An Income | Caffeloja',
   description:
-    'Learn how Caffeloja’s $69 monthly Coffee Box subscription keeps your account active to earn commissions across 4 levels ($10, $8, $6, $6).',
+    'Learn how Caffeloja’s $69 monthly Coffee Box subscription keeps your account active to earn recurring commissions across 4 levels ($10, $8, $6, $6).',
 };
 
 export default function EarnAnIncomePage() {
-  const levels = [
-    {
-      level: 1,
-      name: 'Level 1',
-      who: 'Direct members you invite',
-      amount: 10,
-      barWidth: '100%',
-    },
-    {
-      level: 2,
-      name: 'Level 2',
-      who: 'Members invited by your Level 1',
-      amount: 8,
-      barWidth: '80%',
-    },
-    {
-      level: 3,
-      name: 'Level 3',
-      who: 'Members invited by your Level 2',
-      amount: 6,
-      barWidth: '60%',
-    },
-    {
-      level: 4,
-      name: 'Level 4',
-      who: 'Members invited by your Level 3',
-      amount: 6,
-      barWidth: '60%',
-    },
-  ];
-
   return (
     <div style={{ paddingTop: '130px', paddingBottom: '90px', minHeight: '90vh', overflowX: 'hidden' }}>
       <style>{`
         .income-steps-grid {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 24px;
-          margin-bottom: 56px;
-        }
-        .income-level-row {
-          width: 100%;
-          background: #1a120d;
-          border: 1px solid var(--mocha-border);
-          border-radius: 16px;
-          padding: 20px 26px;
-          display: grid;
-          grid-template-columns: 1.3fr 1fr auto;
-          align-items: center;
           gap: 20px;
+          margin-bottom: 48px;
         }
-        @media (max-width: 820px) {
+        @media (max-width: 768px) {
           .income-steps-grid {
-            grid-template-columns: minmax(0, 1fr) !important;
-            gap: 16px !important;
-          }
-          .income-level-row {
-            grid-template-columns: 1fr auto !important;
-            padding: 18px 20px !important;
-          }
-          .income-level-bar {
-            display: none !important;
+            grid-template-columns: 1fr !important;
+            gap: 14px !important;
           }
         }
       `}</style>
 
-      <div className="container" style={{ maxWidth: '880px' }}>
-        {/* 1. HEADER */}
-        <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 52px' }}>
+      <div className="container" style={{ maxWidth: '860px' }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 48px' }}>
           <img
             src="/images/title-separator.svg"
             alt="separator"
@@ -88,34 +40,34 @@ export default function EarnAnIncomePage() {
               fontSize: 'clamp(2rem, 4vw, 2.8rem)',
               fontWeight: '700',
               lineHeight: '1.2',
-              marginBottom: '16px',
+              marginBottom: '14px',
             }}
           >
             Earn An Income With Coffee
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.75' }}>
-            Your <strong>$69 monthly subscription</strong> sends you a fresh box of <strong>20 gourmet coffee pods</strong> every month and keeps your account active to earn commissions from your downline.
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.7' }}>
+            Your <strong>$69 monthly subscription</strong> delivers a fresh box of <strong>20 gourmet coffee pods</strong> every month and keeps your account active to earn recurring commissions from your network.
           </p>
         </div>
 
-        {/* 2. THREE SIMPLE STEPS */}
+        {/* Three Steps */}
         <div className="income-steps-grid">
           <div
             style={{
               background: '#140e0a',
               border: '1px solid var(--mocha-border)',
               borderRadius: '16px',
-              padding: '28px 24px',
+              padding: '24px 20px',
             }}
           >
-            <div style={{ fontSize: '0.8rem', color: 'var(--amber-light)', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+            <div style={{ fontSize: '0.78rem', color: 'var(--amber-light)', fontWeight: '700', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: '8px' }}>
               Step 01
             </div>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', marginBottom: '8px' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.18rem', marginBottom: '8px' }}>
               $69 Monthly Box
             </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.94rem', lineHeight: '1.65' }}>
-              Subscribe for $69/month and receive 20 freshly roasted single-serve Arabica coffee pods delivered to your door.
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6' }}>
+              Subscribe for $69/month to receive 20 freshly roasted Arabica coffee pods delivered to your door.
             </p>
           </div>
 
@@ -124,17 +76,17 @@ export default function EarnAnIncomePage() {
               background: '#140e0a',
               border: '1px solid var(--mocha-border)',
               borderRadius: '16px',
-              padding: '28px 24px',
+              padding: '24px 20px',
             }}
           >
-            <div style={{ fontSize: '0.8rem', color: 'var(--amber-light)', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+            <div style={{ fontSize: '0.78rem', color: 'var(--amber-light)', fontWeight: '700', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: '8px' }}>
               Step 02
             </div>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', marginBottom: '8px' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.18rem', marginBottom: '8px' }}>
               Active Account
             </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.94rem', lineHeight: '1.65' }}>
-              Your active monthly subscription qualifies your account to receive commissions on every order placed in your network.
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6' }}>
+              Your active subscription qualifies your account to earn commissions on every box ordered in your downline.
             </p>
           </div>
 
@@ -143,122 +95,59 @@ export default function EarnAnIncomePage() {
               background: '#140e0a',
               border: '1px solid var(--mocha-border)',
               borderRadius: '16px',
-              padding: '28px 24px',
+              padding: '24px 20px',
             }}
           >
-            <div style={{ fontSize: '0.8rem', color: 'var(--amber-light)', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+            <div style={{ fontSize: '0.78rem', color: 'var(--amber-light)', fontWeight: '700', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: '8px' }}>
               Step 03
             </div>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', marginBottom: '8px' }}>
-              4-Level Commissions
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.18rem', marginBottom: '8px' }}>
+              4-Tier Commissions
             </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.94rem', lineHeight: '1.65' }}>
-              Every time a direct or downline member purchases their $69 Coffee Box, your commission is credited automatically.
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6' }}>
+              Earn $10, $8, $6, and $6 per box across 4 tiers whenever your network purchases their monthly coffee.
             </p>
           </div>
         </div>
 
-        {/* 3. GRAPHICAL 4-LEVEL COMPENSATION PLAN */}
+        {/* Section Title for Plan & Calculator */}
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <h2
+            style={{
+              fontFamily: 'var(--font-serif)',
+              fontSize: 'clamp(1.5rem, 3vw, 2rem)',
+              marginBottom: '8px',
+            }}
+          >
+            Compensation Plan & Calculator
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '600px', margin: '0 auto' }}>
+            Out of every $69 box, $30 is shared back with active members. Adjust the subscribers in each tier to calculate your monthly recurring income:
+          </p>
+        </div>
+
+        {/* Interactive Calculator */}
+        <div style={{ marginBottom: '32px' }}>
+          <CommissionCalculator />
+        </div>
+
+        {/* Qualification Note */}
         <div
           style={{
             background: '#140e0a',
             border: '1px solid var(--mocha-border)',
-            borderRadius: '20px',
-            padding: 'clamp(24px, 4vw, 44px)',
-            marginBottom: '48px',
+            borderRadius: '14px',
+            padding: '16px 20px',
+            textAlign: 'center',
+            marginBottom: '44px',
+            fontSize: '0.88rem',
+            color: 'var(--text-secondary)',
           }}
         >
-          <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.6rem, 3vw, 2.1rem)', marginBottom: '8px' }}>
-              4-Level Compensation Plan
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.96rem' }}>
-              Commission paid to you on every $69 Coffee Box purchased across 4 levels:
-            </p>
-          </div>
-
-          <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-            {/* YOU Node */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div
-                style={{
-                  background: 'var(--amber-primary)',
-                  color: '#0d0907',
-                  padding: '12px 28px',
-                  borderRadius: '999px',
-                  fontWeight: '700',
-                  fontSize: '0.95rem',
-                }}
-              >
-                YOU &mdash; Active $69/mo Member
-              </div>
-              <div style={{ width: '2px', height: '24px', background: 'var(--mocha-border-light)' }} />
-            </div>
-
-            {/* 4 Levels */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              {levels.map((item, idx) => (
-                <div key={item.level} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <div className="income-level-row">
-                    <div>
-                      <div style={{ fontFamily: 'var(--font-serif)', fontWeight: '700', fontSize: '1.2rem', color: 'var(--text-primary)' }}>
-                        {item.name}
-                      </div>
-                      <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                        {item.who}
-                      </div>
-                    </div>
-
-                    {/* Visual Progress Bar */}
-                    <div className="income-level-bar" style={{ width: '100%' }}>
-                      <div
-                        style={{
-                          height: '8px',
-                          background: 'rgba(255, 255, 255, 0.06)',
-                          borderRadius: '999px',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: item.barWidth,
-                            height: '100%',
-                            background: 'var(--amber-primary)',
-                            borderRadius: '999px',
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Commission Amount */}
-                    <div style={{ textAlign: 'right' }}>
-                      <div
-                        style={{
-                          fontFamily: 'var(--font-serif)',
-                          fontSize: '1.85rem',
-                          fontWeight: '700',
-                          color: 'var(--amber-light)',
-                          lineHeight: '1',
-                        }}
-                      >
-                        ${item.amount}
-                      </div>
-                      <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>per box</span>
-                    </div>
-                  </div>
-
-                  {idx < levels.length - 1 && (
-                    <div style={{ padding: '6px 0', color: 'var(--text-muted)' }}>
-                      <ArrowDown size={18} />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          <strong style={{ color: 'var(--text-primary)' }}>Qualification:</strong> An active $69/month Coffee Box subscription is required to receive downline commissions.
         </div>
 
-        {/* 4. SIMPLE CTA */}
+        {/* Call to Action */}
         <div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
           <Link href="/register" className="btn-primary">
             <span>Get Started</span>
