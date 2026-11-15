@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   RefreshCw,
   ExternalLink,
+  ChevronDown,
+  X,
 } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
@@ -19,10 +21,15 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const [authChecking, setAuthChecking] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     checkAdminAuth();
   }, []);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
 
   const checkAdminAuth = async () => {
@@ -93,6 +100,17 @@ export default function AdminLayout({ children }) {
   const isCommissions = pathname?.startsWith('/admin/commissions') || pathname?.startsWith('/admin/commission');
   const isOrders = pathname?.startsWith('/admin/orders');
   const isSettings = pathname?.startsWith('/admin/settings');
+
+  const currentTab = isUsers
+    ? { name: 'Registered Users', icon: Users }
+    : isCommissions
+    ? { name: 'Commission Rates', icon: Sliders }
+    : isOrders
+    ? { name: 'Orders & Logs', icon: ShoppingBag }
+    : isSettings
+    ? { name: 'Settings & Security', icon: ShieldCheck }
+    : { name: 'Overview', icon: LayoutDashboard };
+  const CurrentTabIcon = currentTab.icon;
 
   const getPageHeader = () => {
     if (isUsers) {
@@ -272,48 +290,78 @@ export default function AdminLayout({ children }) {
             </div>
           </div>
 
-          {/* Lower Tier: Horizontal Navigation Menu Tabs on Top */}
-          <nav className="portal-top-nav-tabs">
-            <Link
-              href="/admin/dashboard"
-              className={`portal-nav-tab ${isDashboard ? 'active' : ''}`}
+          {/* Lower Tier: Navigation Menu Tabs on Top with Mobile Non-Scrolling Menu Bar */}
+          <div className="portal-nav-section">
+            {/* Mobile Active Header & Toggle Button (Shown on mobile screens) */}
+            <div
+              className="portal-mobile-menu-bar"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              <LayoutDashboard size={16} />
-              <span>Overview</span>
-            </Link>
+              <div className="portal-mobile-active-info">
+                <span className="portal-mobile-active-label">SECTION</span>
+                <div className="portal-mobile-active-title">
+                  <CurrentTabIcon size={16} />
+                  <span>{currentTab.name}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="portal-mobile-menu-toggle-btn"
+                aria-label="Toggle Navigation Menu"
+              >
+                <span>{mobileMenuOpen ? 'Close Menu' : 'Menu Options'}</span>
+                {mobileMenuOpen ? <X size={15} /> : <ChevronDown size={15} />}
+              </button>
+            </div>
 
-            <Link
-              href="/admin/users"
-              className={`portal-nav-tab ${isUsers ? 'active' : ''}`}
-            >
-              <Users size={16} />
-              <span>Registered Users</span>
-            </Link>
+            {/* Navigation Tabs (Horizontal on desktop, Non-scrolling 2-col grid on mobile when open) */}
+            <nav className={`portal-top-nav-tabs ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+              <Link
+                href="/admin/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`portal-nav-tab ${isDashboard ? 'active' : ''}`}
+              >
+                <LayoutDashboard size={16} />
+                <span>Overview</span>
+              </Link>
 
-            <Link
-              href="/admin/commissions"
-              className={`portal-nav-tab ${isCommissions ? 'active' : ''}`}
-            >
-              <Sliders size={16} />
-              <span>Commission Rates</span>
-            </Link>
+              <Link
+                href="/admin/users"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`portal-nav-tab ${isUsers ? 'active' : ''}`}
+              >
+                <Users size={16} />
+                <span>Registered Users</span>
+              </Link>
 
-            <Link
-              href="/admin/orders"
-              className={`portal-nav-tab ${isOrders ? 'active' : ''}`}
-            >
-              <ShoppingBag size={16} />
-              <span>Orders & Logs</span>
-            </Link>
+              <Link
+                href="/admin/commissions"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`portal-nav-tab ${isCommissions ? 'active' : ''}`}
+              >
+                <Sliders size={16} />
+                <span>Commission Rates</span>
+              </Link>
 
-            <Link
-              href="/admin/settings"
-              className={`portal-nav-tab ${isSettings ? 'active' : ''}`}
-            >
-              <ShieldCheck size={16} />
-              <span>Settings & Security</span>
-            </Link>
-          </nav>
+              <Link
+                href="/admin/orders"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`portal-nav-tab ${isOrders ? 'active' : ''}`}
+              >
+                <ShoppingBag size={16} />
+                <span>Orders & Logs</span>
+              </Link>
+
+              <Link
+                href="/admin/settings"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`portal-nav-tab ${isSettings ? 'active' : ''}`}
+              >
+                <ShieldCheck size={16} />
+                <span>Settings & Security</span>
+              </Link>
+            </nav>
+          </div>
         </header>
 
         {/* FULL-WIDTH MAIN CONTENT AREA */}

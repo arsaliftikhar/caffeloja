@@ -48,6 +48,7 @@ import {
   Menu,
   X,
   Package,
+  ChevronDown,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AffiliateLineChart from '@/components/AffiliateLineChart';
@@ -83,6 +84,7 @@ export default function AffiliatePage() {
   const [showQr, setShowQr] = useState(false);
   const [networkSearch, setNetworkSearch] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Form states
   const [loginForm, setLoginForm] = useState({ email: '', password: '', totpCode: '' });
@@ -138,6 +140,7 @@ export default function AffiliatePage() {
   useEffect(() => {
     setSidebarTab(getTabFromPath(pathname));
     setMobileSidebarOpen(false);
+    setMobileMenuOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -573,6 +576,21 @@ export default function AffiliatePage() {
   }
 
   const isUserRoute = pathname?.startsWith('/user') || Boolean(user);
+
+  const currentTab = sidebarTab === 'subscription'
+    ? { name: 'Coffee Box Subscription', icon: ShoppingBag }
+    : sidebarTab === 'orders'
+    ? { name: 'Orders History', icon: Package }
+    : sidebarTab === 'network'
+    ? { name: 'My Network', icon: Users }
+    : sidebarTab === 'commissions'
+    ? { name: 'Commissions', icon: TrendingUp }
+    : sidebarTab === 'payouts'
+    ? { name: 'Payouts', icon: CreditCard }
+    : sidebarTab === 'settings'
+    ? { name: 'Settings', icon: Settings }
+    : { name: 'Dashboard', icon: LayoutDashboard };
+  const CurrentTabIcon = currentTab.icon;
 
   return (
     <div
@@ -1101,64 +1119,96 @@ export default function AffiliatePage() {
                 </div>
               </div>
 
-              {/* Lower Tier: Horizontal Navigation Menu Tabs on Top */}
-              <nav className="portal-top-nav-tabs">
-                <Link
-                  href="/user/dashboard"
-                  className={`portal-nav-tab ${sidebarTab === 'overview' ? 'active' : ''}`}
+              {/* Lower Tier: Navigation Menu Tabs on Top with Mobile Non-Scrolling Menu Bar */}
+              <div className="portal-nav-section">
+                {/* Mobile Active Header & Toggle Button (Shown on mobile screens) */}
+                <div
+                  className="portal-mobile-menu-bar"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 >
-                  <LayoutDashboard size={16} />
-                  <span>Dashboard</span>
-                </Link>
+                  <div className="portal-mobile-active-info">
+                    <span className="portal-mobile-active-label">SECTION</span>
+                    <div className="portal-mobile-active-title">
+                      <CurrentTabIcon size={16} />
+                      <span>{currentTab.name}</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="portal-mobile-menu-toggle-btn"
+                    aria-label="Toggle Navigation Menu"
+                  >
+                    <span>{mobileMenuOpen ? 'Close Menu' : 'Menu Options'}</span>
+                    {mobileMenuOpen ? <X size={15} /> : <ChevronDown size={15} />}
+                  </button>
+                </div>
 
-                <Link
-                  href="/user/subscription"
-                  className={`portal-nav-tab ${sidebarTab === 'subscription' ? 'active' : ''}`}
-                >
-                  <ShoppingBag size={16} />
-                  <span>Coffee Box Subscription</span>
-                </Link>
+                {/* Navigation Tabs (Horizontal on desktop, Non-scrolling 2-col grid on mobile when open) */}
+                <nav className={`portal-top-nav-tabs ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+                  <Link
+                    href="/user/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`portal-nav-tab ${sidebarTab === 'overview' ? 'active' : ''}`}
+                  >
+                    <LayoutDashboard size={16} />
+                    <span>Dashboard</span>
+                  </Link>
 
-                <Link
-                  href="/user/orders"
-                  className={`portal-nav-tab ${sidebarTab === 'orders' ? 'active' : ''}`}
-                >
-                  <Package size={16} />
-                  <span>Orders History</span>
-                </Link>
+                  <Link
+                    href="/user/subscription"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`portal-nav-tab ${sidebarTab === 'subscription' ? 'active' : ''}`}
+                  >
+                    <ShoppingBag size={16} />
+                    <span>Coffee Box Subscription</span>
+                  </Link>
 
-                <Link
-                  href="/user/network"
-                  className={`portal-nav-tab ${sidebarTab === 'network' ? 'active' : ''}`}
-                >
-                  <Users size={16} />
-                  <span>My Network</span>
-                </Link>
+                  <Link
+                    href="/user/orders"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`portal-nav-tab ${sidebarTab === 'orders' ? 'active' : ''}`}
+                  >
+                    <Package size={16} />
+                    <span>Orders History</span>
+                  </Link>
 
-                <Link
-                  href="/user/commissions"
-                  className={`portal-nav-tab ${sidebarTab === 'commissions' ? 'active' : ''}`}
-                >
-                  <TrendingUp size={16} />
-                  <span>Commissions</span>
-                </Link>
+                  <Link
+                    href="/user/network"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`portal-nav-tab ${sidebarTab === 'network' ? 'active' : ''}`}
+                  >
+                    <Users size={16} />
+                    <span>My Network</span>
+                  </Link>
 
-                <Link
-                  href="/user/payouts"
-                  className={`portal-nav-tab ${sidebarTab === 'payouts' ? 'active' : ''}`}
-                >
-                  <CreditCard size={16} />
-                  <span>Payouts</span>
-                </Link>
+                  <Link
+                    href="/user/commissions"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`portal-nav-tab ${sidebarTab === 'commissions' ? 'active' : ''}`}
+                  >
+                    <TrendingUp size={16} />
+                    <span>Commissions</span>
+                  </Link>
 
-                <Link
-                  href="/user/settings"
-                  className={`portal-nav-tab ${sidebarTab === 'settings' ? 'active' : ''}`}
-                >
-                  <Settings size={16} />
-                  <span>Settings</span>
-                </Link>
-              </nav>
+                  <Link
+                    href="/user/payouts"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`portal-nav-tab ${sidebarTab === 'payouts' ? 'active' : ''}`}
+                  >
+                    <CreditCard size={16} />
+                    <span>Payouts</span>
+                  </Link>
+
+                  <Link
+                    href="/user/settings"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`portal-nav-tab ${sidebarTab === 'settings' ? 'active' : ''}`}
+                  >
+                    <Settings size={16} />
+                    <span>Settings</span>
+                  </Link>
+                </nav>
+              </div>
             </header>
 
             {/* FULL-WIDTH MAIN CONTENT AREA */}
