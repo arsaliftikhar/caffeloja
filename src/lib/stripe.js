@@ -317,3 +317,102 @@ export function verifyStripeWebhookSignature(rawBody, signatureHeader) {
     return false;
   }
 }
+
+/**
+ * -------------------------------------------------------------
+ * Stripe Connect API Helpers (Affiliate & Member Payouts)
+ * -------------------------------------------------------------
+ */
+
+/**
+ * Creates a Stripe Connect Express account for an affiliate
+ */
+export async function createStripeConnectAccount({ email, name, country = 'US', metadata = {} }) {
+  const params = new URLSearchParams();
+  params.append('type', 'express');
+  params.append('country', country || 'US');
+  if (email) {
+    params.append('email', email);
+  }
+  params.append('capabilities[transfers][requested]', 'true');
+  params.append('business_type', 'individual');
+
+  if (name) {
+    const parts = name.trim().split(/\s+/);
+    const firstName = parts[0] || '';
+    const lastName = parts.slice(1).join(' ') || parts[0] || '';
+    params.append('individual[first_name]', firstName);
+    params.append('individual[last_name]', lastName);
+    if (email) {
+      params.append('individual[email]', email);
+    }
+  }
+
+  Object.entries(metadata).forEach(([k, v]) => {
+    if (v) params.append(`metadata[${k}]`, String(v));
+  });
+
+  return await stripeRequest('/accounts', {
+    method: 'POST',
+    body: params.toString(),
+  });
+}
+
+/**
+ * Generates an onboarding Account Link for a Stripe Connect Express account
+ */
+export async function createStripeAccountLink({ accountId, refreshUrl, returnUrl, type = 'account_onboarding' }) {
+  const params = new URLSearchParams();
+  params.append('account', accountId);
+  params.append('refresh_url', refreshUrl);
+  params.append('return_url', returnUrl);
+  params.append('type', type);
+
+  return await stripeRequest('/account_links', {
+    method: 'POST',
+    body: params.toString(),
+  });
+}
+
+/**
+ * Retrieves a Stripe Connect account to inspect payouts_enabled and requirements
+ */
+export async function retrieveStripeConnectAccount(accountId) {
+  if (!accountId) return null;
+  return await stripeRequest(`/accounts/${encodeURIComponent(accountId)}`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * Generates a single-use login link to the Stripe Express Dashboard
+ */
+export async function createStripeLoginLink(accountId) {
+  if (!accountId) return null;
+  return await stripeRequest(`/accounts/${encodeURIComponent(accountId)}/login_links`, {
+    method: 'POST',
+  });
+}
+
+/**
+ * Transfers funds from the platform balance to a connected Express account
+ */
+export async function createStripeTransfer({ amount, destinationAccountId, description = 'Caffeloja Affiliate Payout', metadata = {} }) {
+  const params = new URLSearchParams();
+  params.append('amount', String(Math.round(Number(amount) * 100)));
+  params.append('currency', 'usd');
+  params.append('destination', destinationAccountId);
+  if (description) {
+    params.append('description', description);
+  }
+
+  Object.entries(metadata).forEach(([k, v]) => {
+    if (v) params.append(`metadata[${k}]`, String(v));
+  });
+
+  return await stripeRequest('/transfers', {
+    method: 'POST',
+    body: params.toString(),
+  });
+}
+

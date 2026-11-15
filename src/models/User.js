@@ -71,11 +71,31 @@ const UserSchema = new mongoose.Schema(
       default: 'Bronze Barista',
     },
     payoutDetails: {
-      method: { type: String, default: 'Bank Transfer / IBAN' },
+      method: { type: String, default: 'Stripe Connect' },
       accountNumber: { type: String, default: '' },
       accountName: { type: String, default: '' },
       mbwayPhone: { type: String, default: '' },
       cryptoWallet: { type: String, default: '' },
+    },
+    stripeConnectAccountId: {
+      type: String,
+      default: '',
+    },
+    stripeConnectPayoutsEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    stripeConnectDetailsSubmitted: {
+      type: Boolean,
+      default: false,
+    },
+    stripeConnectChargesEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    stripeConnectOnboardingUrl: {
+      type: String,
+      default: '',
     },
     shippingAddress: {
       phone: { type: String, default: '' },
