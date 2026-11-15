@@ -155,17 +155,17 @@ export default function AdminLayout({ children }) {
         }}
       />
 
-      <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1440px' }}>
+      <div className="container portal-container" style={{ position: 'relative', zIndex: 1 }}>
         {/* TOP DASHBOARD HEADER & NAVIGATION CARD */}
         <header className="portal-top-header">
           {/* Upper Tier: Logo / Brand, Admin Profile, Quick Actions */}
           <div className="portal-header-upper">
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <Link href="/admin/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-                <img src="/logo.png" alt="Caffeloja" style={{ height: '36px', width: 'auto', display: 'block' }} />
+                <img src="/logo.png" alt="Caffeloja" style={{ height: '34px', width: 'auto', display: 'block' }} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '0.5px' }}>
+                    <span className="portal-brand-text">
                       Caffeloja
                     </span>
                     <span
@@ -173,13 +173,13 @@ export default function AdminLayout({ children }) {
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px',
-                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.25))',
-                        border: '1px solid rgba(245, 158, 11, 0.6)',
+                        background: 'rgba(245, 158, 11, 0.15)',
+                        border: '1px solid rgba(245, 158, 11, 0.5)',
                         color: '#fbbf24',
                         fontSize: '0.68rem',
-                        fontWeight: '800',
-                        padding: '2px 8px',
-                        borderRadius: '6px',
+                        fontWeight: '700',
+                        padding: '2px 7px',
+                        borderRadius: '4px',
                         letterSpacing: '0.5px',
                         textTransform: 'uppercase',
                       }}
@@ -188,7 +188,7 @@ export default function AdminLayout({ children }) {
                       ADMIN
                     </span>
                   </div>
-                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '0.74rem', color: '#8e7c72' }}>
                     Executive Control Center
                   </span>
                 </div>
@@ -196,32 +196,34 @@ export default function AdminLayout({ children }) {
             </div>
 
             {/* Right: Admin Profile, Visit Store, Log Out */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '10px',
+                  gap: '9px',
                   background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid var(--mocha-border)',
-                  padding: '6px 12px 6px 8px',
-                  borderRadius: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  padding: '5px 12px 5px 8px',
+                  borderRadius: '8px',
                 }}
               >
                 <div
                   className="affiliate-avatar"
                   style={{
-                    width: '32px',
-                    height: '32px',
-                    fontSize: '0.88rem',
+                    width: '30px',
+                    height: '30px',
+                    fontSize: '0.82rem',
+                    fontWeight: '700',
                     background: 'linear-gradient(135deg, #f59e0b, #b45309)',
                     color: '#0d0907',
+                    borderRadius: '6px',
                   }}
                 >
                   {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
                 </div>
-                <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-                  <div style={{ fontSize: '0.86rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                <div style={{ textAlign: 'left', lineHeight: 1.25 }}>
+                  <div style={{ fontSize: '0.84rem', fontWeight: '600', color: 'var(--text-primary)' }}>
                     {adminUser?.name || 'Admin'}
                   </div>
                   <div style={{ fontSize: '0.70rem', color: 'var(--amber-light)' }}>
@@ -234,12 +236,14 @@ export default function AdminLayout({ children }) {
                 href="/"
                 className="btn-secondary btn-sm"
                 style={{
-                  padding: '7px 14px',
+                  padding: '6px 13px',
                   fontSize: '0.82rem',
                   textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
+                  borderRadius: '6px',
+                  height: '34px',
                 }}
               >
                 <ExternalLink size={14} />
@@ -250,14 +254,16 @@ export default function AdminLayout({ children }) {
                 onClick={handleLogout}
                 className="btn-outline btn-sm"
                 style={{
-                  padding: '7px 14px',
+                  padding: '6px 13px',
                   fontSize: '0.82rem',
-                  borderColor: 'rgba(239, 68, 68, 0.4)',
+                  borderColor: 'rgba(239, 68, 68, 0.35)',
                   color: '#f87171',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
                   cursor: 'pointer',
+                  borderRadius: '6px',
+                  height: '34px',
                 }}
               >
                 <LogOut size={14} />
@@ -315,24 +321,10 @@ export default function AdminLayout({ children }) {
           {/* Header Title inside Content Area */}
           <div className="portal-content-header">
             <div>
-              <h1
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: 'clamp(1.25rem, 2.5vw, 1.65rem)',
-                  fontWeight: '700',
-                  color: 'var(--text-primary)',
-                  margin: 0,
-                }}
-              >
+              <h1 className="portal-content-title">
                 {pageHeader.title}
               </h1>
-              <p
-                style={{
-                  fontSize: '0.84rem',
-                  color: 'var(--text-muted)',
-                  margin: '4px 0 0',
-                }}
-              >
+              <p className="portal-content-subtitle">
                 {pageHeader.subtitle}
               </p>
             </div>

@@ -596,7 +596,7 @@ export default function AffiliatePage() {
           }}
         />
       )}
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="container portal-container" style={{ position: 'relative', zIndex: 1 }}>
         {/* If user is NOT logged in: Show Clean Login / Register Card (never flash on /user/* routes) */}
         {!user ? (
           pathname?.startsWith('/user') || authChecking ? (
@@ -951,10 +951,10 @@ export default function AffiliatePage() {
               <div className="portal-header-upper">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
                   <Link href="/user/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-                    <img src="/logo.png" alt="Caffeloja" style={{ height: '36px', width: 'auto', display: 'block' }} />
+                    <img src="/logo.png" alt="Caffeloja" style={{ height: '34px', width: 'auto', display: 'block' }} />
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '0.5px' }}>
+                        <span className="portal-brand-text">
                           Caffeloja
                         </span>
                         <span
@@ -963,16 +963,16 @@ export default function AffiliatePage() {
                             alignItems: 'center',
                             gap: '4px',
                             background: user.hasActiveSubscription
-                              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.25))'
-                              : 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.25))',
+                              ? 'rgba(16, 185, 129, 0.15)'
+                              : 'rgba(239, 68, 68, 0.15)',
                             border: user.hasActiveSubscription
                               ? '1px solid rgba(16, 185, 129, 0.5)'
                               : '1px solid rgba(239, 68, 68, 0.5)',
                             color: user.hasActiveSubscription ? '#34d399' : '#fca5a5',
                             fontSize: '0.68rem',
-                            fontWeight: '800',
-                            padding: '2px 8px',
-                            borderRadius: '6px',
+                            fontWeight: '700',
+                            padding: '2px 7px',
+                            borderRadius: '4px',
                             letterSpacing: '0.5px',
                             textTransform: 'uppercase',
                           }}
@@ -981,7 +981,7 @@ export default function AffiliatePage() {
                           {user.hasActiveSubscription ? 'Active' : 'Inactive'}
                         </span>
                       </div>
-                      <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                      <span style={{ fontSize: '0.74rem', color: '#8e7c72' }}>
                         Member & Rewards Portal
                       </span>
                     </div>
@@ -1000,7 +1000,7 @@ export default function AffiliatePage() {
                         background: 'rgba(245, 158, 11, 0.08)',
                         border: '1px solid rgba(245, 158, 11, 0.3)',
                         padding: '5px 10px',
-                        borderRadius: '10px',
+                        borderRadius: '6px',
                         fontSize: '0.80rem',
                       }}
                     >
@@ -1030,27 +1030,29 @@ export default function AffiliatePage() {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '10px',
+                      gap: '9px',
                       background: 'rgba(255, 255, 255, 0.04)',
-                      border: '1px solid var(--mocha-border)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
                       padding: '5px 12px 5px 8px',
-                      borderRadius: '12px',
+                      borderRadius: '8px',
                     }}
                   >
                     <div
                       className="affiliate-avatar"
                       style={{
-                        width: '32px',
-                        height: '32px',
-                        fontSize: '0.88rem',
+                        width: '30px',
+                        height: '30px',
+                        fontSize: '0.82rem',
+                        fontWeight: '700',
                         background: 'linear-gradient(135deg, #f59e0b, #b45309)',
                         color: '#0d0907',
+                        borderRadius: '6px',
                       }}
                     >
                       {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
                     </div>
-                    <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-                      <div style={{ fontSize: '0.86rem', fontWeight: '700', color: 'var(--text-primary)', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ textAlign: 'left', lineHeight: 1.25 }}>
+                      <div style={{ fontSize: '0.84rem', fontWeight: '600', color: 'var(--text-primary)', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {user.name}
                       </div>
                       <div style={{ fontSize: '0.70rem', color: user.hasActiveSubscription ? '#34d399' : '#fca5a5' }}>
@@ -1063,12 +1065,14 @@ export default function AffiliatePage() {
                     href="/"
                     className="btn-secondary btn-sm"
                     style={{
-                      padding: '7px 14px',
+                      padding: '6px 13px',
                       fontSize: '0.82rem',
                       textDecoration: 'none',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '6px',
+                      borderRadius: '6px',
+                      height: '34px',
                     }}
                   >
                     <ExternalLink size={14} />
@@ -1079,14 +1083,16 @@ export default function AffiliatePage() {
                     onClick={handleLogout}
                     className="btn-outline btn-sm"
                     style={{
-                      padding: '7px 14px',
+                      padding: '6px 13px',
                       fontSize: '0.82rem',
-                      borderColor: 'rgba(239, 68, 68, 0.4)',
+                      borderColor: 'rgba(239, 68, 68, 0.35)',
                       color: '#f87171',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '6px',
                       cursor: 'pointer',
+                      borderRadius: '6px',
+                      height: '34px',
                     }}
                   >
                     <LogOut size={14} />
@@ -1160,15 +1166,7 @@ export default function AffiliatePage() {
               {/* Content Title Header */}
               <div className="portal-content-header">
                 <div>
-                  <h1
-                    style={{
-                      fontFamily: 'var(--font-serif)',
-                      fontSize: 'clamp(1.25rem, 2.5vw, 1.65rem)',
-                      fontWeight: '700',
-                      color: 'var(--text-primary)',
-                      margin: 0,
-                    }}
-                  >
+                  <h1 className="portal-content-title">
                     {sidebarTab === 'overview' && 'Member Dashboard'}
                     {sidebarTab === 'subscription' && 'Coffee Box Subscription'}
                     {sidebarTab === 'orders' && 'Orders History'}
@@ -1177,13 +1175,7 @@ export default function AffiliatePage() {
                     {sidebarTab === 'payouts' && 'Payout Requests & History'}
                     {sidebarTab === 'settings' && 'Account Settings'}
                   </h1>
-                  <p
-                    style={{
-                      fontSize: '0.84rem',
-                      color: 'var(--text-muted)',
-                      margin: '4px 0 0',
-                    }}
-                  >
+                  <p className="portal-content-subtitle">
                     {sidebarTab === 'overview' && 'Track your network growth, commissions, and monthly coffee subscription'}
                     {sidebarTab === 'subscription' && 'Manage your recurring $69/month specialty coffee box deliveries'}
                     {sidebarTab === 'orders' && 'View fulfilled coffee box orders, receipts, and tracking information'}
