@@ -2159,555 +2159,207 @@ export default function AffiliatePage() {
                 </div>
               )}
 
-              {/* TAB 4: PAYOUTS (STRIPE CONNECT INTEGRATION) */}
+              {/* TAB 4: PAYOUTS (CLEAN & SIMPLE STRIPE CONNECT) */}
               {sidebarTab === 'payouts' && (
-                <div className="animate-fadeIn">
-                  {/* Top Summary Metrics */}
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                      gap: '14px',
-                      marginBottom: '20px',
-                    }}
-                  >
-                    <div
-                      style={{
-                        background: '#140e0a',
-                        border: '1px solid var(--mocha-border)',
-                        borderRadius: '16px',
-                        padding: '18px 20px',
-                      }}
-                    >
-                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Available Balance
-                      </div>
-                      <div
-                        style={{
-                          fontFamily: 'var(--font-serif)',
-                          fontSize: '2rem',
-                          fontWeight: '700',
-                          color: 'var(--amber-light)',
-                          marginTop: '4px',
-                        }}
-                      >
-                        ${(user?.walletBalance || 0).toFixed(2)}
-                      </div>
-                      <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                        Ready for Stripe withdrawal
-                      </div>
+                <div className="animate-fadeIn" style={{ maxWidth: '580px', margin: '0 auto', padding: '10px 0 30px' }}>
+                  {/* Top Minimal Balance Header */}
+                  <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                    <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Available Balance
                     </div>
-
                     <div
                       style={{
-                        background: '#140e0a',
-                        border: '1px solid var(--mocha-border)',
-                        borderRadius: '16px',
-                        padding: '18px 20px',
+                        fontFamily: 'var(--font-serif)',
+                        fontSize: '2.6rem',
+                        fontWeight: '700',
+                        color: 'var(--amber-light)',
+                        margin: '4px 0 6px',
                       }}
                     >
-                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Total Withdrawn
-                      </div>
-                      <div
-                        style={{
-                          fontFamily: 'var(--font-serif)',
-                          fontSize: '2rem',
-                          fontWeight: '700',
-                          color: 'var(--text-primary)',
-                          marginTop: '4px',
-                        }}
-                      >
-                        ${(user?.totalWithdrawn || 0).toFixed(2)}
-                      </div>
-                      <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                        Transferred to connected bank
-                      </div>
+                      ${(user?.walletBalance || 0).toFixed(2)}
                     </div>
-
-                    <div
-                      style={{
-                        background: '#140e0a',
-                        border: '1px solid var(--mocha-border)',
-                        borderRadius: '16px',
-                        padding: '18px 20px',
-                      }}
-                    >
-                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Payout Threshold
-                      </div>
-                      <div
-                        style={{
-                          fontFamily: 'var(--font-serif)',
-                          fontSize: '2rem',
-                          fontWeight: '700',
-                          color: '#d4af37',
-                          marginTop: '4px',
-                        }}
-                      >
-                        ${Number(stripeConnectData.minimumPayout || 20).toFixed(2)}
-                      </div>
-                      <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                        Minimum required per transfer
-                      </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      Total Paid: ${(user?.totalWithdrawn || 0).toFixed(2)} &bull; Min. Payout: ${Number(stripeConnectData.minimumPayout || 20).toFixed(2)}
                     </div>
                   </div>
 
-                  {/* Main Grid: Request Payout & Stripe Connect Status */}
-                  <div className="user-cards-grid-2">
-                    {/* Left: Request Payout Card */}
+                  {/* Main Action Box */}
+                  {!stripeConnectData.payoutsEnabled ? (
                     <div
                       style={{
                         background: '#140e0a',
                         border: '1px solid var(--mocha-border)',
                         borderRadius: '16px',
-                        padding: '22px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
+                        padding: '28px 22px',
+                        textAlign: 'center',
                       }}
                     >
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-                          <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: 0, color: 'var(--text-primary)' }}>
-                            Request Payout
-                          </h3>
-                          <span
-                            style={{
-                              fontSize: '0.72rem',
-                              fontWeight: '600',
-                              padding: '3px 8px',
-                              borderRadius: '999px',
-                              background: stripeConnectData.payoutsEnabled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                              color: stripeConnectData.payoutsEnabled ? 'var(--success)' : '#ef4444',
-                              border: stripeConnectData.payoutsEnabled ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-                            }}
-                          >
-                            {stripeConnectData.payoutsEnabled ? 'Payouts Active' : 'Stripe Required'}
-                          </span>
-                        </div>
-
-                        <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '16px' }}>
-                          Commission payouts are transferred directly to your bank account or debit card via Stripe Connect Express.
-                        </p>
-
-                        {payoutMessage && (
-                          <div
-                            style={{
-                              background: 'rgba(16, 185, 129, 0.14)',
-                              border: '1px solid var(--success)',
-                              color: 'var(--success)',
-                              padding: '12px',
-                              borderRadius: '8px',
-                              fontSize: '0.84rem',
-                              marginBottom: '16px',
-                            }}
-                          >
-                            {payoutMessage}
-                          </div>
-                        )}
-
-                        {!stripeConnectData.payoutsEnabled ? (
-                          <div
-                            style={{
-                              background: 'rgba(245, 158, 11, 0.08)',
-                              border: '1px solid rgba(245, 158, 11, 0.3)',
-                              borderRadius: '10px',
-                              padding: '14px',
-                              marginBottom: '16px',
-                              fontSize: '0.82rem',
-                              color: '#fbbf24',
-                            }}
-                          >
-                            <div style={{ fontWeight: '600', marginBottom: '4px' }}>Stripe Connect Setup Required</div>
-                            <div>Please link and verify your Stripe Express account on the right before requesting a commission transfer.</div>
-                          </div>
-                        ) : (
-                          <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
-                              Amount to Withdraw ($ USD)
-                            </label>
-                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                              <span style={{ position: 'absolute', left: '14px', color: 'var(--amber-light)', fontWeight: '700', fontSize: '1.1rem' }}>
-                                $
-                              </span>
-                              <input
-                                type="number"
-                                min={stripeConnectData.minimumPayout || 20}
-                                max={user?.walletBalance || 0}
-                                step="0.01"
-                                placeholder={(user?.walletBalance || 0).toFixed(2)}
-                                value={payoutWithdrawAmount}
-                                onChange={(e) => setPayoutWithdrawAmount(e.target.value)}
-                                style={{
-                                  width: '100%',
-                                  padding: '12px 14px 12px 30px',
-                                  background: 'rgba(255, 255, 255, 0.04)',
-                                  border: '1px solid var(--mocha-border)',
-                                  borderRadius: '10px',
-                                  color: 'var(--text-primary)',
-                                  fontSize: '1rem',
-                                  fontWeight: '600',
-                                }}
-                              />
-                            </div>
-
-                            {/* Quick Amount Chips */}
-                            <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
-                              {[20, 50, 100].map((amt) => (
-                                <button
-                                  key={amt}
-                                  type="button"
-                                  onClick={() => setPayoutWithdrawAmount(String(amt))}
-                                  disabled={(user?.walletBalance || 0) < amt}
-                                  style={{
-                                    fontSize: '0.75rem',
-                                    padding: '4px 10px',
-                                    borderRadius: '6px',
-                                    background: 'rgba(255, 255, 255, 0.05)',
-                                    border: '1px solid var(--mocha-border)',
-                                    color: (user?.walletBalance || 0) >= amt ? 'var(--text-primary)' : 'var(--text-muted)',
-                                    cursor: (user?.walletBalance || 0) >= amt ? 'pointer' : 'not-allowed',
-                                  }}
-                                >
-                                  ${amt}
-                                </button>
-                              ))}
-                              <button
-                                type="button"
-                                onClick={() => setPayoutWithdrawAmount(String((user?.walletBalance || 0).toFixed(2)))}
-                                disabled={(user?.walletBalance || 0) < (stripeConnectData.minimumPayout || 20)}
-                                style={{
-                                  fontSize: '0.75rem',
-                                  padding: '4px 10px',
-                                  borderRadius: '6px',
-                                  background: 'rgba(196, 143, 59, 0.15)',
-                                  border: '1px solid rgba(196, 143, 59, 0.4)',
-                                  color: '#e4b363',
-                                  cursor: (user?.walletBalance || 0) >= (stripeConnectData.minimumPayout || 20) ? 'pointer' : 'not-allowed',
-                                  fontWeight: '600',
-                                }}
-                              >
-                                Max Available
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: '700', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                        Stripe Direct Payouts
+                      </h3>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 auto 20px', maxWidth: '380px', lineHeight: '1.5' }}>
+                        Connect your bank account or debit card via Stripe to receive your commission payouts.
+                      </p>
                       <button
                         type="button"
-                        onClick={handleRequestPayout}
-                        disabled={
-                          !stripeConnectData.payoutsEnabled ||
-                          (user?.walletBalance || 0) < (stripeConnectData.minimumPayout || 20) ||
-                          isRequestingPayout
-                        }
+                        onClick={handleStartStripeOnboarding}
+                        disabled={isConnectingStripe}
                         className="btn-primary"
-                        style={{
-                          width: '100%',
-                          justifyContent: 'center',
-                          marginTop: '12px',
-                          opacity: !stripeConnectData.payoutsEnabled || (user?.walletBalance || 0) < (stripeConnectData.minimumPayout || 20) ? 0.6 : 1,
-                        }}
+                        style={{ minWidth: '220px', margin: '0 auto', justifyContent: 'center' }}
                       >
                         <span>
-                          {isRequestingPayout
-                            ? 'Processing Stripe Transfer...'
-                            : !stripeConnectData.payoutsEnabled
-                            ? 'Connect Stripe First'
-                            : (user?.walletBalance || 0) < (stripeConnectData.minimumPayout || 20)
-                            ? `Minimum $${(stripeConnectData.minimumPayout || 20).toFixed(2)} Required`
-                            : 'Transfer to Bank via Stripe ⚡'}
+                          {isConnectingStripe
+                            ? 'Connecting...'
+                            : stripeConnectData.stripeConnectAccountId
+                            ? 'Resume Stripe Setup'
+                            : 'Connect with Stripe'}
                         </span>
                       </button>
                     </div>
-
-                    {/* Right: Stripe Connect Status & Management Card */}
+                  ) : (
                     <div
                       style={{
                         background: '#140e0a',
                         border: '1px solid var(--mocha-border)',
                         borderRadius: '16px',
                         padding: '22px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
                       }}
                     >
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-                          <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: 0, color: 'var(--text-primary)' }}>
-                            Stripe Connect Destination
-                          </h3>
-                          <button
-                            type="button"
-                            onClick={handleRefreshStripeStatus}
-                            disabled={isStripeLoading}
-                            style={{
-                              background: 'transparent',
-                              border: 'none',
-                              color: 'var(--text-muted)',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              fontSize: '0.74rem',
-                            }}
-                            title="Refresh status from Stripe"
-                          >
-                            <RefreshCw size={13} className={isStripeLoading ? 'spin-icon' : ''} />
-                            <span>Sync</span>
-                          </button>
-                        </div>
-
-                        {stripeConnectData.payoutsEnabled ? (
-                          <>
-                            <div
-                              style={{
-                                background: 'rgba(16, 185, 129, 0.08)',
-                                border: '1px solid rgba(16, 185, 129, 0.3)',
-                                borderRadius: '12px',
-                                padding: '16px',
-                                marginBottom: '16px',
-                              }}
-                            >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--success)', fontWeight: '700', fontSize: '0.92rem', marginBottom: '6px' }}>
-                                <CheckCircle2 size={18} />
-                                <span>Stripe Connect Active &amp; Verified</span>
-                              </div>
-                              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
-                                Your Stripe Express account is ready to receive instant affiliate transfers. Payouts deposit directly to your connected bank account.
-                              </p>
-                              {stripeConnectData.stripeConnectAccountId && (
-                                <div style={{ marginTop: '10px', fontSize: '0.74rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                                  Stripe ID: {stripeConnectData.stripeConnectAccountId}
-                                </div>
-                              )}
-                            </div>
-
-                            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '14px' }}>
-                              You can manage your connected US bank account, debit card, tax information, and view statements anytime in your Stripe Express dashboard.
-                            </p>
-                          </>
-                        ) : stripeConnectData.stripeConnectAccountId ? (
-                          <>
-                            <div
-                              style={{
-                                background: 'rgba(245, 158, 11, 0.08)',
-                                border: '1px solid rgba(245, 158, 11, 0.3)',
-                                borderRadius: '12px',
-                                padding: '16px',
-                                marginBottom: '16px',
-                              }}
-                            >
-                              <div style={{ color: '#fbbf24', fontWeight: '700', fontSize: '0.92rem', marginBottom: '6px' }}>
-                                ⚠ Onboarding Incomplete
-                              </div>
-                              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
-                                Your Stripe Connect account is registered, but requires verification (bank account or ID) before transfers can be initiated.
-                              </p>
-                            </div>
-                            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '14px' }}>
-                              Click below to finish setting up your bank or debit card on Stripe.
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <div
-                              style={{
-                                background: 'rgba(255, 255, 255, 0.03)',
-                                border: '1px solid var(--mocha-border)',
-                                borderRadius: '12px',
-                                padding: '16px',
-                                marginBottom: '16px',
-                              }}
-                            >
-                              <div style={{ fontWeight: '700', fontSize: '0.92rem', color: 'var(--amber-light)', marginBottom: '6px' }}>
-                                Direct Deposit via Stripe Express
-                              </div>
-                              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
-                                Connect your US checking account (ACH) or debit card securely. Stripe manages identity checks and deposits your earnings automatically.
-                              </p>
-                            </div>
-
-                            <ul style={{ paddingLeft: '18px', margin: '0 0 16px', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
-                              <li>Direct transfer into your local bank or debit card</li>
-                              <li>Zero manual routing errors or hold delays</li>
-                              <li>Bank-grade 256-bit encryption and 2FA protection</li>
-                            </ul>
-                          </>
-                        )}
-                      </div>
-
-                      <div>
-                        {stripeConnectData.payoutsEnabled ? (
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <button
-                              type="button"
-                              onClick={handleOpenStripeDashboard}
-                              disabled={isConnectingStripe}
-                              className="btn-secondary"
-                              style={{ flex: 1, justifyContent: 'center' }}
-                            >
-                              <span>Manage in Stripe ↗</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleRefreshStripeStatus}
-                              disabled={isStripeLoading}
-                              className="btn-secondary"
-                              style={{ padding: '0 14px', justifyContent: 'center' }}
-                              title="Refresh verification status"
-                            >
-                              <RefreshCw size={15} className={isStripeLoading ? 'spin-icon' : ''} />
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={handleStartStripeOnboarding}
-                            disabled={isConnectingStripe}
-                            className="btn-primary"
-                            style={{
-                              width: '100%',
-                              justifyContent: 'center',
-                              background: 'linear-gradient(135deg, #635bff 0%, #4f46e5 100%)',
-                              borderColor: '#635bff',
-                            }}
-                          >
-                            <span>
-                              {isConnectingStripe
-                                ? 'Redirecting to Stripe...'
-                                : stripeConnectData.stripeConnectAccountId
-                                ? 'Resume Stripe Setup ↗'
-                                : 'Connect with Stripe ↗'}
-                            </span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Payout History Section */}
-                  <div
-                    style={{
-                      background: '#140e0a',
-                      border: '1px solid var(--mocha-border)',
-                      borderRadius: '16px',
-                      padding: '22px',
-                      marginTop: '20px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-                      <h3 style={{ fontSize: '1.05rem', fontWeight: '700', margin: 0, color: 'var(--text-primary)' }}>
-                        Payout History &amp; Transfers
-                      </h3>
-                      <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                        {(stripeConnectData.payouts || []).length} transfer{(stripeConnectData.payouts || []).length === 1 ? '' : 's'}
-                      </span>
-                    </div>
-
-                    {stripeConnectData.payouts && stripeConnectData.payouts.length > 0 ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {stripeConnectData.payouts.map((p) => {
-                          const isPaid = p.status === 'paid';
-                          const isFailed = p.status === 'failed';
-                          return (
-                            <div
-                              key={p._id || p.stripeTransferId}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                background: 'rgba(255, 255, 255, 0.02)',
-                                border: '1px solid var(--mocha-border)',
-                                borderRadius: '12px',
-                                padding: '14px 16px',
-                                gap: '12px',
-                                flexWrap: 'wrap',
-                              }}
-                            >
-                              <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                  <span style={{ fontWeight: '700', fontSize: '0.94rem', color: 'var(--text-primary)' }}>
-                                    Stripe Direct Deposit
-                                  </span>
-                                  <span
-                                    style={{
-                                      fontSize: '0.68rem',
-                                      fontWeight: '700',
-                                      textTransform: 'uppercase',
-                                      padding: '2px 8px',
-                                      borderRadius: '999px',
-                                      background: isPaid
-                                        ? 'rgba(16, 185, 129, 0.15)'
-                                        : isFailed
-                                        ? 'rgba(239, 68, 68, 0.15)'
-                                        : 'rgba(59, 130, 246, 0.15)',
-                                      color: isPaid ? 'var(--success)' : isFailed ? '#ef4444' : '#60a5fa',
-                                      border: isPaid
-                                        ? '1px solid rgba(16, 185, 129, 0.3)'
-                                        : isFailed
-                                        ? '1px solid rgba(239, 68, 68, 0.3)'
-                                        : '1px solid rgba(59, 130, 246, 0.3)',
-                                    }}
-                                  >
-                                    {p.status || 'processing'}
-                                  </span>
-                                </div>
-                                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-                                  {new Date(p.createdAt).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  })}
-                                  {p.stripeTransferId ? ` • Transfer ID: ${p.stripeTransferId}` : ''}
-                                  {p.failureReason ? ` • Error: ${p.failureReason}` : ''}
-                                </div>
-                              </div>
-
-                              <div style={{ textAlign: 'right' }}>
-                                <div
-                                  style={{
-                                    fontFamily: 'var(--font-serif)',
-                                    fontSize: '1.25rem',
-                                    fontWeight: '700',
-                                    color: isPaid ? 'var(--amber-light)' : 'var(--text-secondary)',
-                                  }}
-                                >
-                                  ${Number(p.amount || 0).toFixed(2)}
-                                </div>
-                                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                                  USD • Instant Transfer
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
+                      {/* Connection status header */}
                       <div
                         style={{
-                          background: 'rgba(255, 255, 255, 0.02)',
-                          border: '1px dashed var(--mocha-border)',
-                          borderRadius: '12px',
-                          padding: '30px 20px',
-                          textAlign: 'center',
-                          color: 'var(--text-muted)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          paddingBottom: '14px',
+                          borderBottom: '1px solid var(--mocha-border)',
+                          marginBottom: '18px',
                         }}
                       >
-                        <p style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: '600', marginBottom: '4px' }}>
-                          No payouts requested yet
-                        </p>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
-                          Once your balance reaches ${Number(stripeConnectData.minimumPayout || 20).toFixed(2)}, you can transfer your commission balance directly to Stripe.
-                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.86rem' }}>
+                          <span style={{ color: 'var(--success)', fontSize: '0.7rem' }}>●</span>
+                          <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>Stripe Connected</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleOpenStripeDashboard}
+                          disabled={isConnectingStripe}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--amber-light)',
+                            fontSize: '0.8rem',
+                            cursor: 'pointer',
+                            padding: 0,
+                          }}
+                        >
+                          Manage Account &rarr;
+                        </button>
                       </div>
-                    )}
-                  </div>
+
+                      {/* Withdraw Form */}
+                      <form onSubmit={handleRequestPayout}>
+                        <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                          Withdraw Amount (USD)
+                        </label>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <div style={{ position: 'relative', flex: 1 }}>
+                            <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                              $
+                            </span>
+                            <input
+                              type="number"
+                              min={stripeConnectData.minimumPayout || 20}
+                              max={user?.walletBalance || 0}
+                              step="0.01"
+                              placeholder={(user?.walletBalance || 0).toFixed(2)}
+                              value={payoutWithdrawAmount}
+                              onChange={(e) => setPayoutWithdrawAmount(e.target.value)}
+                              style={{
+                                width: '100%',
+                                padding: '11px 14px 11px 28px',
+                                background: 'rgba(255, 255, 255, 0.04)',
+                                border: '1px solid var(--mocha-border)',
+                                borderRadius: '10px',
+                                color: 'var(--text-primary)',
+                                fontSize: '0.95rem',
+                              }}
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            disabled={(user?.walletBalance || 0) < (stripeConnectData.minimumPayout || 20) || isRequestingPayout}
+                            className="btn-primary"
+                            style={{
+                              padding: '0 22px',
+                              whiteSpace: 'nowrap',
+                              opacity: (user?.walletBalance || 0) < (stripeConnectData.minimumPayout || 20) ? 0.6 : 1,
+                            }}
+                          >
+                            <span>{isRequestingPayout ? 'Sending...' : 'Withdraw'}</span>
+                          </button>
+                        </div>
+                      </form>
+
+                      {payoutMessage && (
+                        <div
+                          style={{
+                            marginTop: '14px',
+                            padding: '10px 14px',
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            border: '1px solid var(--success)',
+                            borderRadius: '8px',
+                            color: 'var(--success)',
+                            fontSize: '0.82rem',
+                          }}
+                        >
+                          {payoutMessage}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Minimal Payout History */}
+                  {stripeConnectData.payouts && stripeConnectData.payouts.length > 0 && (
+                    <div style={{ marginTop: '24px' }}>
+                      <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px' }}>
+                        Recent Transfers
+                      </div>
+                      <div style={{ background: '#140e0a', border: '1px solid var(--mocha-border)', borderRadius: '14px', overflow: 'hidden' }}>
+                        {stripeConnectData.payouts.map((p, idx) => (
+                          <div
+                            key={p._id || idx}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '12px 16px',
+                              borderBottom: idx < stripeConnectData.payouts.length - 1 ? '1px solid var(--mocha-border)' : 'none',
+                            }}
+                          >
+                            <div>
+                              <div style={{ fontSize: '0.88rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+                                ${Number(p.amount || 0).toFixed(2)}
+                              </div>
+                              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                                {new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </div>
+                            </div>
+                            <span
+                              style={{
+                                fontSize: '0.72rem',
+                                fontWeight: '600',
+                                textTransform: 'capitalize',
+                                color: p.status === 'paid' ? 'var(--success)' : p.status === 'failed' ? '#ef4444' : 'var(--amber-light)',
+                              }}
+                            >
+                              {p.status === 'paid' ? 'Completed' : p.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
