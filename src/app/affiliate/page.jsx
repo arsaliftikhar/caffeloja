@@ -1411,6 +1411,46 @@ export default function AffiliatePage() {
               </div>
             </header>
 
+            {/* Alert Notification (outside main card) if Account Subscription is Not Active */}
+            {!user.hasActiveSubscription && (
+              <div
+                style={{
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  borderRadius: '14px',
+                  padding: '14px 18px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '14px',
+                  flexWrap: 'wrap',
+                  boxSizing: 'border-box',
+                  width: '100%',
+                }}
+              >
+                <div style={{ flex: 1, minWidth: '220px' }}>
+                  <strong style={{ color: '#fca5a5', fontSize: '0.9rem', display: 'block', marginBottom: '2px' }}>
+                    Subscription Inactive — Commissions at Risk
+                  </strong>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.84rem', lineHeight: '1.5' }}>
+                    Your account status is not active. You will lose commissions from your downline until you subscribe to the $69.00/month Coffee Box.
+                  </span>
+                </div>
+                {sidebarTab !== 'subscription' && (
+                  <button
+                    type="button"
+                    onClick={handleSubscribeNow}
+                    className="btn-primary btn-sm"
+                    style={{ padding: '9px 16px', fontSize: '0.82rem', flexShrink: 0 }}
+                  >
+                    <span>Subscribe Now</span>
+                    <ArrowRight size={14} />
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* FULL-WIDTH MAIN CONTENT AREA */}
             <main className="portal-main-card">
               {/* Content Title Header */}
@@ -1436,44 +1476,6 @@ export default function AffiliatePage() {
                   </p>
                 </div>
               </div>
-
-              {/* Top Alert Notification if Account Subscription is Not Active */}
-              {!user.hasActiveSubscription && (
-                <div
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.12)',
-                    border: '1px solid rgba(239, 68, 68, 0.4)',
-                    borderRadius: '14px',
-                    padding: '14px 18px',
-                    marginBottom: '22px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '14px',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <div style={{ flex: 1, minWidth: '220px' }}>
-                    <strong style={{ color: '#fca5a5', fontSize: '0.9rem', display: 'block', marginBottom: '2px' }}>
-                      Subscription Inactive — Commissions at Risk
-                    </strong>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.84rem', lineHeight: '1.5' }}>
-                      Your account status is not active. You will lose commissions from your downline until you subscribe to the $69.00/month Coffee Box.
-                    </span>
-                  </div>
-                  {sidebarTab !== 'subscription' && (
-                    <button
-                      type="button"
-                      onClick={handleSubscribeNow}
-                      className="btn-primary btn-sm"
-                      style={{ padding: '9px 16px', fontSize: '0.82rem', flexShrink: 0 }}
-                    >
-                      <span>Subscribe Now</span>
-                      <ArrowRight size={14} />
-                    </button>
-                  )}
-                </div>
-              )}
 
               {/* TAB: SUBSCRIPTION & SHIPPING */}
               {sidebarTab === 'subscription' && (
