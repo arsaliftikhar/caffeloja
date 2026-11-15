@@ -945,13 +945,101 @@ export default function AffiliatePage() {
         ) : (
           /* Logged In: SIMPLE, RESPONSIVE USER PORTAL */
           <>
+            <style>{`
+              @media (min-width: 641px) {
+                .affiliate-layout {
+                  display: flex !important;
+                  flex-direction: row !important;
+                  align-items: flex-start !important;
+                  gap: 24px !important;
+                  width: 100% !important;
+                }
+                .affiliate-sidebar {
+                  display: flex !important;
+                  flex-direction: column !important;
+                  width: 275px !important;
+                  min-width: 275px !important;
+                  max-width: 275px !important;
+                  flex-shrink: 0 !important;
+                  position: sticky !important;
+                  top: 24px !important;
+                  transform: none !important;
+                  visibility: visible !important;
+                  opacity: 1 !important;
+                  z-index: 20 !important;
+                  background: linear-gradient(180deg, #18110c 0%, #120c09 100%) !important;
+                  border: 1px solid var(--mocha-border, #3a2a20) !important;
+                  border-radius: 20px !important;
+                  padding: 24px 18px !important;
+                  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+                  box-sizing: border-box !important;
+                }
+                .affiliate-main-content {
+                  flex: 1 1 0% !important;
+                  min-width: 0 !important;
+                  width: 100% !important;
+                  background: #150e0a !important;
+                  border: 1px solid var(--mocha-border, #3a2a20) !important;
+                  border-radius: 20px !important;
+                  padding: 30px !important;
+                  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+                  box-sizing: border-box !important;
+                }
+                .user-sidebar-toggle-btn,
+                .user-sidebar-close-btn,
+                .user-sidebar-backdrop {
+                  display: none !important;
+                }
+              }
+              @media (max-width: 640px) {
+                .affiliate-layout {
+                  display: block !important;
+                  width: 100% !important;
+                }
+                .affiliate-main-content {
+                  width: 100% !important;
+                  display: block !important;
+                  padding: 18px 14px !important;
+                }
+                .user-sidebar-toggle-btn {
+                  display: inline-flex !important;
+                }
+                .affiliate-sidebar {
+                  position: fixed !important;
+                  top: 0 !important;
+                  left: 0 !important;
+                  bottom: 0 !important;
+                  width: 285px !important;
+                  max-width: 86vw !important;
+                  height: 100vh !important;
+                  height: 100dvh !important;
+                  z-index: 1250 !important;
+                  border-radius: 0 20px 20px 0 !important;
+                  padding: 24px 18px !important;
+                  overflow-y: auto !important;
+                  transform: translateX(-105%) !important;
+                  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                }
+                .affiliate-sidebar.sidebar-open {
+                  transform: translateX(0) !important;
+                  box-shadow: 15px 0 50px rgba(0, 0, 0, 0.85) !important;
+                }
+                .user-sidebar-close-btn {
+                  display: inline-flex !important;
+                }
+                .user-sidebar-backdrop.open {
+                  display: block !important;
+                }
+              }
+            `}</style>
+
             {/* Mobile Backdrop */}
             <div
               className={`user-sidebar-backdrop ${mobileSidebarOpen ? 'open' : ''}`}
               onClick={() => setMobileSidebarOpen(false)}
             />
 
-            <div className="affiliate-layout animate-fadeIn">
+            <div className="affiliate-layout">
               {/* LEFT SIDEBAR NAVIGATION */}
               <aside
                 className={`affiliate-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}

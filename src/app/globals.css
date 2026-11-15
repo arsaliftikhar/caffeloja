@@ -2102,8 +2102,8 @@ input, textarea, select {
 }
 
 /* RESPONSIVENESS */
-/* Medium Tablet / Compact Laptop / Half-Screen (769px to 1024px): Keep sidebar visible and compact side-by-side */
-@media (min-width: 769px) and (max-width: 1024px) {
+/* Medium Tablet / Compact Laptop / Half-Screen (641px to 1024px): Keep sidebar visible and compact side-by-side */
+@media (min-width: 641px) and (max-width: 1024px) {
   .affiliate-layout,
   .admin-dashboard-layout {
     display: flex !important;
@@ -2156,8 +2156,8 @@ input, textarea, select {
   }
 }
 
-/* Mobile & Small Tablet Screens (<= 768px): Full-Width Right Section + Off-Canvas Sliding Drawer */
-@media (max-width: 768px) {
+/* Mobile Screens (<= 640px): Full-Width Right Section + Off-Canvas Sliding Drawer */
+@media (max-width: 640px) {
   .navbar-links, .btn-reserve-nav {
     display: none;
   }
