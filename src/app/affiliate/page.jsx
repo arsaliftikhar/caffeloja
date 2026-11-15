@@ -1841,10 +1841,56 @@ export default function AffiliatePage() {
                           }}
                         >
                           <div style={{ minWidth: '200px', flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
                               <strong style={{ fontSize: '0.98rem', color: 'var(--text-primary)' }}>
                                 {ord.orderNumber}
                               </strong>
+                              {ord.orderType === 'subscription' || ord.orderNumber?.startsWith('SUB-') || ord.orderNumber?.startsWith('REN-') ? (
+                                <span
+                                  style={{
+                                    fontSize: '0.66rem',
+                                    fontWeight: '800',
+                                    textTransform: 'uppercase',
+                                    padding: '1px 7px',
+                                    borderRadius: '5px',
+                                    background: 'rgba(245, 158, 11, 0.18)',
+                                    border: '1px solid rgba(245, 158, 11, 0.5)',
+                                    color: '#fbbf24',
+                                  }}
+                                >
+                                  Subscription
+                                </span>
+                              ) : ord.orderType === 'guest' || ord.isGuest ? (
+                                <span
+                                  style={{
+                                    fontSize: '0.66rem',
+                                    fontWeight: '700',
+                                    textTransform: 'uppercase',
+                                    padding: '1px 7px',
+                                    borderRadius: '5px',
+                                    background: 'rgba(147, 197, 253, 0.14)',
+                                    border: '1px solid rgba(147, 197, 253, 0.4)',
+                                    color: '#93c5fd',
+                                  }}
+                                >
+                                  Guest Order
+                                </span>
+                              ) : (
+                                <span
+                                  style={{
+                                    fontSize: '0.66rem',
+                                    fontWeight: '700',
+                                    textTransform: 'uppercase',
+                                    padding: '1px 7px',
+                                    borderRadius: '5px',
+                                    background: 'rgba(52, 211, 153, 0.14)',
+                                    border: '1px solid rgba(52, 211, 153, 0.4)',
+                                    color: '#34d399',
+                                  }}
+                                >
+                                  Store Order
+                                </span>
+                              )}
                               <span
                                 style={{
                                   fontSize: '0.7rem',

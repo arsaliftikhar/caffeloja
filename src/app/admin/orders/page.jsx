@@ -56,6 +56,16 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const isSubscriptionOrder = (o) =>
+    o.orderType === 'subscription' ||
+    (o.orderNumber || '').startsWith('SUB-') ||
+    (o.orderNumber || '').startsWith('REN-');
+
+  const isGuestOrder = (o) =>
+    o.orderType === 'guest' ||
+    o.isGuest === true ||
+    (!isSubscriptionOrder(o) && !o.userId);
+
   const filteredOrders = orders.filter((o) => {
     const matchesSearch = orderSearch
       ? (o.orderNumber || '').toLowerCase().includes(orderSearch.toLowerCase()) ||
@@ -64,7 +74,11 @@ export default function AdminOrdersPage() {
       : true;
 
     const matchesStatus =
-      statusFilter === 'paid'
+      statusFilter === 'subscription'
+        ? isSubscriptionOrder(o)
+        : statusFilter === 'guest'
+        ? isGuestOrder(o)
+        : statusFilter === 'paid'
         ? o.paymentStatus === 'paid'
         : statusFilter === 'unpaid'
         ? o.paymentStatus !== 'paid'
@@ -77,6 +91,8 @@ export default function AdminOrdersPage() {
 
   const totalRevenue = orders.reduce((acc, o) => acc + (Number(o.total) || 0), 0);
   const paidOrdersCount = orders.filter((o) => o.paymentStatus === 'paid').length;
+  const subscriptionOrdersCount = orders.filter(isSubscriptionOrder).length;
+  const guestOrdersCount = orders.filter(isGuestOrder).length;
 
   return (
     <div
@@ -213,6 +229,8 @@ export default function AdminOrdersPage() {
             }}
           >
             <option value="all">All Orders ({orders.length})</option>
+            <option value="subscription">Subscriptions ({subscriptionOrdersCount})</option>
+            <option value="guest">Guest Checkouts ({guestOrdersCount})</option>
             <option value="paid">Paid Orders ({paidOrdersCount})</option>
             <option value="unpaid">Unpaid / Failed ({orders.length - paidOrdersCount})</option>
             <option value="synced">WooCommerce Synced</option>
@@ -226,7 +244,7 @@ export default function AdminOrdersPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.86rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--mocha-border)', color: 'var(--text-muted)' }}>
-                <th style={{ padding: '10px 12px' }}>Order #</th>
+                <th style={{ padding: '10px 12px' }}>Order # &amp; Type</th>
                 <th style={{ padding: '10px 12px' }}>Customer</th>
                 <th style={{ padding: '10px 12px' }}>Total</th>
                 <th style={{ padding: '10px 12px' }}>Payment</th>
@@ -239,7 +257,64 @@ export default function AdminOrdersPage() {
               {filteredOrders.map((ord) => (
                 <tr key={ord._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                   <td style={{ padding: '12px 12px' }}>
-                    <div style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{ord.orderNumber}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '2px' }}>
+                      <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{ord.orderNumber}</span>
+                      {ord.orderType === 'subscription' || ord.orderNumber?.startsWith('SUB-') || ord.orderNumber?.startsWith('REN-') ? (
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '1px 7px',
+                            borderRadius: '5px',
+                            fontSize: '0.64rem',
+                            fontWeight: '800',
+                            letterSpacing: '0.3px',
+                            background: 'rgba(245, 158, 11, 0.18)',
+                            border: '1px solid rgba(245, 158, 11, 0.55)',
+                            color: '#fbbf24',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          Subscription
+                        </span>
+                      ) : ord.orderType === 'guest' || ord.isGuest || !ord.userId ? (
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '1px 7px',
+                            borderRadius: '5px',
+                            fontSize: '0.64rem',
+                            fontWeight: '700',
+                            letterSpacing: '0.3px',
+                            background: 'rgba(147, 197, 253, 0.14)',
+                            border: '1px solid rgba(147, 197, 253, 0.4)',
+                            color: '#93c5fd',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          Guest Checkout
+                        </span>
+                      ) : (
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '1px 7px',
+                            borderRadius: '5px',
+                            fontSize: '0.64rem',
+                            fontWeight: '700',
+                            letterSpacing: '0.3px',
+                            background: 'rgba(52, 211, 153, 0.14)',
+                            border: '1px solid rgba(52, 211, 153, 0.4)',
+                            color: '#34d399',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          Member
+                        </span>
+                      )}
+                    </div>
                     <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
                       {new Date(ord.createdAt).toLocaleDateString()} {new Date(ord.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>

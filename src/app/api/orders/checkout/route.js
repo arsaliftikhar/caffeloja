@@ -41,6 +41,9 @@ export async function POST(request) {
       shippingFee: Number(shippingFee) || 0,
       total: Number(total) || 0,
       referralCode: referralCode ? referralCode.toUpperCase().trim() : null,
+      orderType: body.orderType || 'guest',
+      isGuest: body.isGuest !== undefined ? body.isGuest : true,
+      userId: body.userId || null,
       paymentMethod: paymentMethod || 'Credit Card / MBWay',
       status: 'processing',
     });

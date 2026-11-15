@@ -113,7 +113,7 @@ export async function POST(request) {
     // -------------------------------------------------------------
     // DEFAULT: INITIALIZE ON-PAGE PAYMENT (CREATE PAYMENT INTENT)
     // -------------------------------------------------------------
-    const { customer, items, subtotal, shippingFee, total, referralCode } = body;
+    const { customer, items, subtotal, shippingFee, total, referralCode, orderType, isGuest, userId } = body;
 
     if (!customer?.name || !customer?.email || !customer?.phone || !items || items.length === 0) {
       return NextResponse.json(
@@ -132,6 +132,17 @@ export async function POST(request) {
     const normalizedCustomer = normalizeCustomerShipping(customer);
     const orderNumber = 'CL-' + Math.floor(100000 + Math.random() * 900000);
 
+    // Check if any cart item is a subscription item
+    const hasSubscription = items.some(
+      (it) =>
+        (it.name || '').toLowerCase().includes('subscription') ||
+        (it.name || '').toLowerCase().includes('monthly') ||
+        it.isSubscription
+    );
+
+    const resolvedOrderType = hasSubscription ? 'subscription' : (orderType || (isGuest ? 'guest' : 'standard'));
+    const resolvedIsGuest = Boolean(isGuest !== undefined ? isGuest : resolvedOrderType === 'guest');
+
     // 1. If Stripe is configured: Create Pending Order + Stripe PaymentIntent for On-Page Card Entry
     if (isStripeConfigured()) {
       const order = await Order.create({
@@ -142,6 +153,9 @@ export async function POST(request) {
         shippingFee: Number(shippingFee) || 0,
         total: Number(total) || 0,
         referralCode: referralCode ? referralCode.toUpperCase().trim() : null,
+        orderType: resolvedOrderType,
+        isGuest: resolvedIsGuest,
+        userId: userId || null,
         paymentMethod: 'Stripe (Credit / Debit Card)',
         paymentStatus: 'unpaid',
         status: 'pending',
@@ -189,6 +203,9 @@ export async function POST(request) {
       shippingFee: Number(shippingFee) || 0,
       total: Number(total) || 0,
       referralCode: referralCode ? referralCode.toUpperCase().trim() : null,
+      orderType: resolvedOrderType,
+      isGuest: resolvedIsGuest,
+      userId: userId || null,
       paymentMethod: 'Stripe (Card Direct)',
       paymentStatus: 'paid',
       status: 'processing',

@@ -37,6 +37,20 @@ const OrderSchema = new mongoose.Schema(
     subtotal: { type: Number, required: true },
     shippingFee: { type: Number, default: 0 },
     total: { type: Number, required: true },
+    orderType: {
+      type: String,
+      enum: ['guest', 'standard', 'subscription'],
+      default: 'guest',
+    },
+    isGuest: {
+      type: Boolean,
+      default: false,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
     status: {
       type: String,
       enum: ['pending', 'processing', 'forwarded_to_dropshipper', 'shipped', 'delivered', 'cancelled'],
@@ -122,7 +136,8 @@ if (
   (!mongoose.models.Order.schema.path('stripeInvoiceId') ||
     !mongoose.models.Order.schema.path('customer.address.state') ||
     !mongoose.models.Order.schema.path('paymentLog.rawResponse') ||
-    !mongoose.models.Order.schema.path('dropshipping.requestPayload'))
+    !mongoose.models.Order.schema.path('dropshipping.requestPayload') ||
+    !mongoose.models.Order.schema.path('orderType'))
 ) {
   delete mongoose.models.Order;
 }

@@ -167,6 +167,9 @@ export async function POST(request) {
               shippingFee: 0,
               total: amountPaid,
               referralCode: user.sponsorCode || null,
+              orderType: 'subscription',
+              isGuest: false,
+              userId: user._id,
               paymentMethod: user.paymentMethodSummary?.last4
                 ? `Stripe Auto-Renew (${user.paymentMethodSummary.brand || 'Card'} •••• ${user.paymentMethodSummary.last4})`
                 : 'Stripe Auto-Renew',

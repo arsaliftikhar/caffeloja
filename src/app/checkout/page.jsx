@@ -68,9 +68,9 @@ export default function CheckoutPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [showSubPrompt, setShowSubPrompt] = useState(true);
   const [referralCode, setReferralCode] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -109,6 +109,7 @@ export default function CheckoutPage() {
         .then((data) => {
           if (data?.success && data?.user) {
             setIsLoggedIn(true);
+            setCurrentUser(data.user);
             setHasActiveSubscription(Boolean(data.user.hasActiveSubscription));
             setFormData((prev) => ({
               ...prev,
@@ -233,6 +234,15 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
+      const hasSubscriptionItem = cart.some(
+        (it) =>
+          (it.name || '').toLowerCase().includes('subscription') ||
+          (it.name || '').toLowerCase().includes('monthly') ||
+          it.isSubscription
+      );
+
+      const resolvedOrderType = hasSubscriptionItem ? 'subscription' : (!isLoggedIn ? 'guest' : 'standard');
+
       const payload = {
         customer: {
           name: formData.name,
@@ -251,6 +261,9 @@ export default function CheckoutPage() {
         shippingFee,
         total: grandTotal,
         referralCode: referralCode ? referralCode.toUpperCase().trim() : null,
+        orderType: resolvedOrderType,
+        isGuest: !isLoggedIn,
+        userId: currentUser?._id || null,
       };
 
       const res = await fetch('/api/stripe/checkout-session', {
@@ -415,164 +428,68 @@ export default function CheckoutPage() {
           </h1>
         </div>
 
-        {!checkingAuth && !hasActiveSubscription && showSubPrompt && (
-          <div
-            onClick={() => setShowSubPrompt(false)}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 1200,
-              background: 'rgba(10, 7, 5, 0.82)',
-              backdropFilter: 'blur(6px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '20px',
-            }}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="animate-fadeIn"
+        {/* Checkout Mode Banner: Displays Guest Checkout or Member Checkout */}
+        <div
+          style={{
+            background: isLoggedIn ? 'rgba(16, 185, 129, 0.08)' : 'rgba(245, 158, 11, 0.08)',
+            border: isLoggedIn ? '1px solid rgba(16, 185, 129, 0.28)' : '1px solid rgba(245, 158, 11, 0.28)',
+            borderRadius: '14px',
+            padding: '14px 18px',
+            marginBottom: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <span
               style={{
-                position: 'relative',
-                width: '100%',
-                maxWidth: '480px',
-                background: '#140e0a',
-                border: '1px solid var(--amber-primary)',
-                borderRadius: '22px',
-                padding: 'clamp(26px, 5vw, 38px)',
-                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85)',
-                textAlign: 'center',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '3px 10px',
+                borderRadius: '6px',
+                fontSize: '0.72rem',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                letterSpacing: '0.3px',
+                background: isLoggedIn ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                color: isLoggedIn ? '#34d399' : '#fbbf24',
+                border: isLoggedIn ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(245, 158, 11, 0.4)',
               }}
             >
-              <button
-                type="button"
-                onClick={() => setShowSubPrompt(false)}
-                aria-label="Close modal"
-                style={{
-                  position: 'absolute',
-                  top: '16px',
-                  right: '16px',
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--text-muted)',
-                  cursor: 'pointer',
-                  padding: '4px',
-                }}
-              >
-                <X size={20} />
-              </button>
-
-              <div
-                style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '50%',
-                  background: 'rgba(230, 157, 69, 0.16)',
-                  color: 'var(--amber-light)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 16px',
-                  border: '1px solid var(--amber-glow)',
-                }}
-              >
-                <ShoppingBag size={28} />
-              </div>
-
-              <span className="section-tag" style={{ marginBottom: '8px', display: 'inline-block' }}>
-                Exclusive Partner Perk
-              </span>
-              <h2
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: 'clamp(1.35rem, 3vw, 1.65rem)',
-                  marginBottom: '10px',
-                  fontWeight: '700',
-                }}
-              >
-                Unlock 4-Level Recurring Commissions
-              </h2>
-              <p
-                style={{
-                  color: 'var(--text-secondary)',
-                  fontSize: '0.88rem',
-                  lineHeight: '1.6',
-                  marginBottom: '22px',
-                }}
-              >
-                Active subscribers earn direct and multi-tier recurring affiliate commissions on every coffee box ordered in their network.
-              </p>
-
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                }}
-              >
-                {isLoggedIn ? (
-                  <>
-                    <Link
-                      href="/user/subscription"
-                      className="btn-primary"
-                      style={{ width: '100%', justifyContent: 'center' }}
-                    >
-                      <span>Activate Subscription — $69/Month</span>
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => setShowSubPrompt(false)}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.86rem',
-                        padding: '6px',
-                        cursor: 'pointer',
-                        marginTop: '2px',
-                      }}
-                    >
-                      Continue to Standard Checkout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      href="/register"
-                      className="btn-primary"
-                      style={{ width: '100%', justifyContent: 'center' }}
-                    >
-                      <span>Subscribe &amp; Create Account</span>
-                    </Link>
-                    <Link
-                      href="/login"
-                      className="btn-secondary"
-                      style={{ width: '100%', justifyContent: 'center' }}
-                    >
-                      <span>Member Login</span>
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => setShowSubPrompt(false)}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.86rem',
-                        padding: '6px',
-                        cursor: 'pointer',
-                        marginTop: '2px',
-                      }}
-                    >
-                      Continue as Guest
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
+              <CheckCircle2 size={12} />
+              {isLoggedIn ? 'Member Checkout' : 'Guest Checkout'}
+            </span>
+            <span style={{ fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
+              {isLoggedIn ? (
+                <>
+                  Logged in as <strong style={{ color: 'var(--text-primary)' }}>{currentUser?.name || formData.name}</strong> ({currentUser?.email || formData.email})
+                </>
+              ) : (
+                <>
+                  No account required. Your order will be placed directly as a <strong style={{ color: 'var(--text-primary)' }}>Guest Checkout</strong>.
+                </>
+              )}
+            </span>
           </div>
-        )}
+
+          {!isLoggedIn && (
+            <Link
+              href="/login?redirect=/checkout"
+              style={{
+                fontSize: '0.82rem',
+                color: 'var(--amber-light)',
+                textDecoration: 'underline',
+                fontWeight: '600',
+              }}
+            >
+              Have a Member Account? Sign In
+            </Link>
+          )}
+        </div>
 
         {cart.length === 0 ? (
           <div
