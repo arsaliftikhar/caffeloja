@@ -1,7 +1,48 @@
 import connectToDatabase from '@/lib/mongoose';
 import User from '@/models/User';
+import Order from '@/models/Order';
 import Commission from '@/models/Commission';
 import MLMSettings from '@/models/MLMSettings';
+
+/**
+ * Checks whether a sponsor currently has an active subscription.
+ * Inactive sponsors are NOT qualified to earn commissions from downlines.
+ */
+export async function isSponsorSubscriptionActive(sponsor) {
+  if (!sponsor) return false;
+
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const activeOrder = await Order.findOne({
+    $or: [
+      { userId: sponsor._id },
+      { 'customer.email': sponsor.email?.toLowerCase() },
+    ],
+    orderType: 'subscription',
+    paymentStatus: 'paid',
+    status: { $ne: 'cancelled' },
+    createdAt: { $gte: thirtyDaysAgo },
+  })
+    .sort({ createdAt: -1 })
+    .select('createdAt')
+    .lean();
+
+  const hasNewerActiveOrder = Boolean(
+    activeOrder &&
+      (!sponsor.subscriptionUpdatedAt ||
+        new Date(activeOrder.createdAt) > new Date(sponsor.subscriptionUpdatedAt))
+  );
+
+  const isSubActive =
+    sponsor.subscriptionStatus === 'cancelled'
+      ? hasNewerActiveOrder
+      : Boolean(
+          sponsor.hasActiveSubscription ||
+            sponsor.subscriptionStatus === 'active' ||
+            activeOrder
+        );
+
+  return Boolean(isSubActive);
+}
 
 /**
  * Get or create current Affiliate Commission Settings
@@ -73,35 +114,57 @@ export async function distribute4LevelCommissions(order, referralCode) {
     const commissionAmount = parseFloat((perBoxCommission * totalBoxes).toFixed(2));
 
     if (commissionAmount > 0) {
-      // 1. Create commission record
-      const commissionDoc = await Commission.create({
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        beneficiaryId: currentSponsor._id,
-        beneficiaryName: currentSponsor.name,
-        buyerName: order.customer?.name || 'Customer',
-        buyerReferralCode: referralCode,
-        level: currentLevel,
-        percentage,
-        orderAmount,
-        commissionAmount,
-        status: 'approved',
-      });
+      // QUALIFICATION CHECK: Sponsor must have an active subscription to earn commissions
+      const isQualified = await isSponsorSubscriptionActive(currentSponsor);
 
-      commissionsCreated.push(commissionDoc);
-      totalCommissionsDistributed += commissionAmount;
+      if (isQualified) {
+        // 1. Create approved commission record
+        const commissionDoc = await Commission.create({
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          beneficiaryId: currentSponsor._id,
+          beneficiaryName: currentSponsor.name,
+          buyerName: order.customer?.name || 'Customer',
+          buyerReferralCode: referralCode,
+          level: currentLevel,
+          percentage,
+          orderAmount,
+          commissionAmount,
+          status: 'approved',
+        });
 
-      // 2. Update sponsor wallet balance & total earnings
-      await User.findByIdAndUpdate(currentSponsor._id, {
-        $inc: {
-          walletBalance: commissionAmount,
-          totalEarnings: commissionAmount,
-          totalSalesVolume: orderAmount,
-        },
-      });
+        commissionsCreated.push(commissionDoc);
+        totalCommissionsDistributed += commissionAmount;
 
-      // Update rank if milestone reached
-      await checkAndUpgradeRank(currentSponsor._id);
+        // 2. Update sponsor wallet balance & total earnings
+        await User.findByIdAndUpdate(currentSponsor._id, {
+          $inc: {
+            walletBalance: commissionAmount,
+            totalEarnings: commissionAmount,
+            totalSalesVolume: orderAmount,
+          },
+        });
+
+        // Update rank if milestone reached
+        await checkAndUpgradeRank(currentSponsor._id);
+      } else {
+        // Sponsor's subscription is inactive: Commission is forfeited ($0 to wallet)
+        const forfeitedDoc = await Commission.create({
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          beneficiaryId: currentSponsor._id,
+          beneficiaryName: currentSponsor.name,
+          buyerName: order.customer?.name || 'Customer',
+          buyerReferralCode: referralCode,
+          level: currentLevel,
+          percentage,
+          orderAmount,
+          commissionAmount,
+          status: 'cancelled',
+        });
+
+        commissionsCreated.push(forfeitedDoc);
+      }
     }
 
     // Move to next sponsor in lineage (Level 2, 3, 4)

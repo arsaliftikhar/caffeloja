@@ -2002,8 +2002,12 @@ export default function AffiliatePage() {
                               <td style={{ color: 'var(--text-muted)' }}>{new Date(comm.createdAt).toLocaleDateString()}</td>
                               <td>Level {comm.level}</td>
                               <td>${comm.orderAmount.toFixed(2)}</td>
-                              <td style={{ fontWeight: '700', color: 'var(--amber-light)' }}>+${comm.commissionAmount.toFixed(2)}</td>
-                              <td style={{ color: 'var(--success)', textTransform: 'capitalize' }}>{comm.status}</td>
+                              <td style={{ fontWeight: '700', color: comm.status === 'cancelled' ? 'var(--text-muted)' : 'var(--amber-light)', textDecoration: comm.status === 'cancelled' ? 'line-through' : 'none' }}>
+                                +${comm.commissionAmount.toFixed(2)}
+                              </td>
+                              <td style={{ color: comm.status === 'approved' || comm.status === 'paid' ? 'var(--success)' : '#ef4444', fontSize: '0.82rem', fontWeight: '600' }}>
+                                {comm.status === 'cancelled' ? 'Forfeited (Inactive)' : comm.status}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
