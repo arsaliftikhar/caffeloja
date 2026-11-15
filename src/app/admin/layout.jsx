@@ -169,39 +169,10 @@ export default function AdminLayout({ children }) {
           onClick={() => setMobileSidebarOpen(false)}
         />
 
-        <div
-          className="admin-dashboard-layout animate-fadeIn"
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'flex-start',
-            gap: '24px',
-            width: '100%',
-          }}
-        >
+        <div className="admin-dashboard-layout animate-fadeIn">
           {/* LEFT SIDEBAR NAVIGATION */}
           <aside
             className={`admin-dashboard-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              width: '280px',
-              minWidth: '280px',
-              maxWidth: '280px',
-              flexShrink: 0,
-              position: 'sticky',
-              top: '32px',
-              transform: 'none',
-              visibility: 'visible',
-              opacity: 1,
-              zIndex: 10,
-              background: 'linear-gradient(180deg, #18110c 0%, #120c09 100%)',
-              border: '1px solid var(--mocha-border, #3a2a20)',
-              borderRadius: '20px',
-              padding: '24px 18px',
-              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
-              boxSizing: 'border-box',
-            }}
           >
             {/* Profile Card */}
             <div className="affiliate-profile-card">
@@ -363,22 +334,7 @@ export default function AdminLayout({ children }) {
           </aside>
 
           {/* MAIN CONTENT AREA */}
-          <main
-            className="affiliate-main-content admin-dashboard-content"
-            style={{
-              flex: '1 1 0%',
-              minWidth: 0,
-              width: '100%',
-              background: '#150e0a',
-              border: '1px solid var(--mocha-border, #3a2a20)',
-              borderRadius: '20px',
-              padding: '32px',
-              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
-              minHeight: '600px',
-              overflow: 'hidden',
-              boxSizing: 'border-box',
-            }}
-          >
+          <main className="affiliate-main-content admin-dashboard-content">
             {/* Clean Top Header Bar */}
             <div className="affiliate-top-bar">
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>

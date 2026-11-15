@@ -577,7 +577,7 @@ export default function AffiliatePage() {
   return (
     <div
       className="affiliate-dashboard-wrap"
-      style={isUserRoute ? { paddingTop: '32px' } : undefined}
+      style={isUserRoute ? { paddingTop: '24px' } : undefined}
     >
       {isUserRoute && (
         <div
@@ -951,33 +951,10 @@ export default function AffiliatePage() {
               onClick={() => setMobileSidebarOpen(false)}
             />
 
-            <div
-              className="affiliate-layout animate-fadeIn"
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-                gap: '24px',
-                width: '100%',
-              }}
-            >
+            <div className="affiliate-layout animate-fadeIn">
               {/* LEFT SIDEBAR NAVIGATION */}
               <aside
                 className={`affiliate-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  width: '280px',
-                  minWidth: '280px',
-                  maxWidth: '280px',
-                  flexShrink: 0,
-                  position: 'sticky',
-                  top: '115px',
-                  transform: 'none',
-                  visibility: 'visible',
-                  opacity: 1,
-                  zIndex: 10,
-                }}
               >
               {/* Profile Card */}
               <div className="affiliate-profile-card">
@@ -1135,14 +1112,7 @@ export default function AffiliatePage() {
             </aside>
 
             {/* MAIN CONTENT AREA */}
-            <main
-              className="affiliate-main-content"
-              style={{
-                flex: '1 1 0%',
-                minWidth: 0,
-                width: '100%',
-              }}
-            >
+            <main className="affiliate-main-content">
               {/* Clean Top Header Bar */}
               <div className="affiliate-top-bar">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>

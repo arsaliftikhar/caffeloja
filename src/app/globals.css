@@ -1545,17 +1545,8 @@ input, textarea, select {
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
 }
 
-.affiliate-layout {
-  display: flex !important;
-  flex-direction: row !important;
-  gap: 28px !important;
-  align-items: flex-start !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-/* DEDICATED ADMIN DASHBOARD LAYOUT & SIDEBAR (IMMUNE TO ALL MOBILE HIDING) */
+/* UNIFIED PORTAL LAYOUT ARCHITECTURE (ADMIN & USER PORTALS) */
+.affiliate-layout,
 .admin-dashboard-layout {
   display: flex !important;
   flex-direction: row !important;
@@ -1566,81 +1557,46 @@ input, textarea, select {
   box-sizing: border-box !important;
 }
 
+.affiliate-sidebar,
 .admin-dashboard-sidebar {
-  width: 280px !important;
-  min-width: 280px !important;
-  max-width: 280px !important;
+  width: 275px !important;
+  min-width: 275px !important;
+  max-width: 275px !important;
   flex-shrink: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 20px !important;
+  box-sizing: border-box !important;
   background: linear-gradient(180deg, #18110c 0%, #120c09 100%) !important;
   border: 1px solid var(--mocha-border) !important;
   border-radius: 20px !important;
   padding: 24px 18px !important;
   position: sticky !important;
-  top: 32px !important;
+  top: 24px !important;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
   backdrop-filter: blur(12px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
   transform: none !important;
   visibility: visible !important;
   opacity: 1 !important;
   z-index: 20 !important;
-  box-sizing: border-box !important;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
 }
 
+.affiliate-main-content,
 .admin-dashboard-content {
   flex: 1 1 0% !important;
   min-width: 0 !important;
   width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
   background: #150e0a !important;
   border: 1px solid var(--mocha-border) !important;
   border-radius: 20px !important;
-  padding: 32px !important;
+  padding: 30px !important;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
   min-height: 600px !important;
   overflow: hidden !important;
-  box-sizing: border-box !important;
-}
-
-@media (max-width: 900px) {
-  .admin-dashboard-sidebar {
-    width: 240px !important;
-    min-width: 240px !important;
-    max-width: 240px !important;
-    padding: 18px 14px !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .admin-dashboard-layout {
-    flex-direction: column !important;
-  }
-  .admin-dashboard-sidebar {
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
-    position: static !important;
-  }
-}
-
-.affiliate-sidebar {
-  width: 280px !important;
-  min-width: 280px !important;
-  max-width: 280px !important;
-  flex-shrink: 0 !important;
-  box-sizing: border-box !important;
-  background: linear-gradient(180deg, #18110c 0%, #120c09 100%);
-  border: 1px solid var(--mocha-border);
-  border-radius: 20px;
-  padding: 24px 18px;
-  position: sticky;
-  top: 115px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
 .affiliate-profile-card {
@@ -2146,37 +2102,50 @@ input, textarea, select {
 }
 
 /* RESPONSIVENESS */
-/* Medium Tablet / Compact Laptop / Half-Screen (641px to 1024px): Keep sidebar visible and side-by-side */
-@media (min-width: 641px) and (max-width: 1024px) {
-  .affiliate-layout {
+/* Medium Tablet / Compact Laptop / Half-Screen (769px to 1024px): Keep sidebar visible and compact side-by-side */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .affiliate-layout,
+  .admin-dashboard-layout {
     display: flex !important;
     flex-direction: row !important;
     gap: 16px !important;
     align-items: flex-start !important;
     width: 100% !important;
   }
-  .affiliate-sidebar {
+  .affiliate-sidebar,
+  .admin-dashboard-sidebar {
     width: 230px !important;
     min-width: 230px !important;
     max-width: 230px !important;
     flex-shrink: 0 !important;
     position: sticky !important;
+    top: 20px !important;
     transform: none !important;
     display: flex !important;
     padding: 18px 12px !important;
+    max-height: calc(100vh - 40px) !important;
   }
-  .affiliate-main-content {
+  .affiliate-main-content,
+  .admin-dashboard-content {
     flex: 1 1 0% !important;
     min-width: 0 !important;
     width: 100% !important;
-    padding: 20px 16px !important;
+    padding: 22px 18px !important;
   }
   .user-sidebar-toggle-btn {
     display: none !important;
   }
-  .user-kpi-grid {
+  .user-sidebar-close-btn {
+    display: none !important;
+  }
+  .user-sidebar-backdrop {
+    display: none !important;
+  }
+  .user-kpi-grid,
+  .affiliate-stat-grid-4,
+  .affiliate-stat-grid-5 {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 12px !important;
+    gap: 14px !important;
   }
   .hero-grid {
     grid-template-columns: 1fr;
@@ -2187,77 +2156,7 @@ input, textarea, select {
   }
 }
 
-/* Mobile Screens Only (<= 640px): Off-canvas sliding drawer with toggle button */
-@media (max-width: 640px) {
-  .affiliate-layout {
-    display: block !important;
-    width: 100% !important;
-  }
-  .user-sidebar-toggle-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 6px 14px !important;
-    width: auto !important;
-    height: 38px !important;
-    background: rgba(230, 157, 69, 0.16) !important;
-    border: 1px solid var(--amber-primary) !important;
-    border-radius: 8px !important;
-    color: var(--amber-light) !important;
-    font-weight: 700 !important;
-    font-size: 0.82rem !important;
-    cursor: pointer !important;
-  }
-  .user-sidebar-close-btn {
-    display: inline-flex !important;
-  }
-  .user-sidebar-backdrop.open {
-    display: block !important;
-    position: fixed;
-    inset: 0;
-    z-index: 1240;
-    background: rgba(10, 7, 5, 0.78);
-    backdrop-filter: blur(5px);
-  }
-  .affiliate-sidebar {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    bottom: 0 !important;
-    width: 280px !important;
-    max-width: 84vw !important;
-    z-index: 1250 !important;
-    border-radius: 0 20px 20px 0 !important;
-    padding: 24px 18px !important;
-    overflow-y: auto !important;
-    transform: translateX(-105%);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .affiliate-sidebar.sidebar-open {
-    transform: translateX(0) !important;
-  }
-  .affiliate-sidebar .affiliate-nav-menu {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 6px !important;
-  }
-  .affiliate-main-content {
-    width: 100% !important;
-    max-width: 100% !important;
-    display: block !important;
-    padding: 20px 14px !important;
-    border-radius: 16px !important;
-  }
-  .user-kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 12px !important;
-  }
-  .user-cards-grid-2,
-  .user-cards-grid-3 {
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
-}
-
+/* Mobile & Small Tablet Screens (<= 768px): Full-Width Right Section + Off-Canvas Sliding Drawer */
 @media (max-width: 768px) {
   .navbar-links, .btn-reserve-nav {
     display: none;
@@ -2277,22 +2176,168 @@ input, textarea, select {
     text-align: center;
   }
 
-  /* Affiliate Dashboard Mobile Overhauls */
-  .affiliate-dashboard-wrap {
-    padding-top: 110px;
-    padding-bottom: 40px;
+  .affiliate-layout,
+  .admin-dashboard-layout {
+    display: block !important;
+    width: 100% !important;
   }
 
+  .affiliate-main-content,
+  .admin-dashboard-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    padding: 18px 14px !important;
+    border-radius: 16px !important;
+    min-height: auto !important;
+  }
+
+  /* Prominent Menu Toggle Button in Header */
+  .user-sidebar-toggle-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 14px !important;
+    width: auto !important;
+    height: 38px !important;
+    background: rgba(230, 157, 69, 0.16) !important;
+    border: 1px solid var(--amber-primary) !important;
+    border-radius: 10px !important;
+    color: var(--amber-light) !important;
+    font-weight: 700 !important;
+    font-size: 0.84rem !important;
+    cursor: pointer !important;
+    transition: var(--transition) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .user-sidebar-toggle-btn:hover {
+    background: var(--amber-primary) !important;
+    color: #0d0907 !important;
+  }
+
+  /* Close Button in Sidebar Header */
+  .user-sidebar-close-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-left: auto !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid var(--mocha-border) !important;
+    color: var(--text-secondary) !important;
+    cursor: pointer !important;
+    transition: var(--transition) !important;
+    flex-shrink: 0 !important;
+  }
+
+  .user-sidebar-close-btn:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #f87171 !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+  }
+
+  /* Dark Blurred Backdrop */
+  .user-sidebar-backdrop.open {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 1240 !important;
+    background: rgba(10, 7, 5, 0.8) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+  }
+
+  /* Sliding Drawer for BOTH Admin and User Portals */
+  .affiliate-sidebar,
+  .admin-dashboard-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 285px !important;
+    max-width: 86vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    z-index: 1250 !important;
+    border-radius: 0 20px 20px 0 !important;
+    padding: 24px 18px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    transform: translateX(-105%) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: none !important;
+    background: linear-gradient(180deg, #18110c 0%, #120c09 100%) !important;
+    border: 1px solid var(--mocha-border) !important;
+    border-left: none !important;
+  }
+
+  .affiliate-sidebar.sidebar-open,
+  .admin-dashboard-sidebar.sidebar-open {
+    transform: translateX(0) !important;
+    box-shadow: 15px 0 50px rgba(0, 0, 0, 0.85) !important;
+  }
+
+  .affiliate-sidebar .affiliate-nav-menu,
+  .admin-dashboard-sidebar .affiliate-nav-menu {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  /* Responsive Top Bar */
+  .affiliate-top-bar {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 14px !important;
+  }
+
+  /* Responsive KPI & Stat Grids */
+  .user-kpi-grid,
+  .affiliate-stat-grid-4,
+  .affiliate-stat-grid-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .user-cards-grid-2,
+  .user-cards-grid-3 {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  /* Affiliate Auth Card */
   .affiliate-auth-card {
     padding: 24px 18px;
     border-radius: 18px;
     margin: 10px auto 40px;
   }
+}
 
-  .affiliate-main-content {
-    padding: 20px 16px;
-    border-radius: 16px;
+/* Extra Small Phones (<= 480px) */
+@media (max-width: 480px) {
+  .user-kpi-grid,
+  .affiliate-stat-grid-4,
+  .affiliate-stat-grid-5 {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
   }
+
+  .affiliate-main-content,
+  .admin-dashboard-content {
+    padding: 16px 12px !important;
+    border-radius: 14px !important;
+  }
+}
 
   .affiliate-top-bar {
     flex-direction: column;
