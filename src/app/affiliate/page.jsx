@@ -943,285 +943,255 @@ export default function AffiliatePage() {
             </div>
           )
         ) : (
-          /* Logged In: SIMPLE, RESPONSIVE USER PORTAL */
+          /* Logged In: RESPONSIVE TOP-NAVIGATION USER PORTAL */
           <>
-            <style>{`
-              @media (min-width: 641px) {
-                .affiliate-layout {
-                  display: flex !important;
-                  flex-direction: row !important;
-                  align-items: flex-start !important;
-                  gap: 24px !important;
-                  width: 100% !important;
-                }
-                .affiliate-sidebar {
-                  display: flex !important;
-                  flex-direction: column !important;
-                  width: 275px !important;
-                  min-width: 275px !important;
-                  max-width: 275px !important;
-                  flex-shrink: 0 !important;
-                  position: sticky !important;
-                  top: 24px !important;
-                  transform: none !important;
-                  visibility: visible !important;
-                  opacity: 1 !important;
-                  z-index: 20 !important;
-                  background: linear-gradient(180deg, #18110c 0%, #120c09 100%) !important;
-                  border: 1px solid var(--mocha-border, #3a2a20) !important;
-                  border-radius: 20px !important;
-                  padding: 24px 18px !important;
-                  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
-                  box-sizing: border-box !important;
-                }
-                .affiliate-main-content {
-                  flex: 1 1 0% !important;
-                  min-width: 0 !important;
-                  width: 100% !important;
-                  background: #150e0a !important;
-                  border: 1px solid var(--mocha-border, #3a2a20) !important;
-                  border-radius: 20px !important;
-                  padding: 30px !important;
-                  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
-                  box-sizing: border-box !important;
-                }
-                .user-sidebar-toggle-btn,
-                .user-sidebar-close-btn,
-                .user-sidebar-backdrop {
-                  display: none !important;
-                }
-              }
-              @media (max-width: 640px) {
-                .affiliate-layout {
-                  display: block !important;
-                  width: 100% !important;
-                }
-                .affiliate-main-content {
-                  width: 100% !important;
-                  display: block !important;
-                  padding: 18px 14px !important;
-                }
-                .user-sidebar-toggle-btn {
-                  display: inline-flex !important;
-                }
-                .affiliate-sidebar {
-                  position: fixed !important;
-                  top: 0 !important;
-                  left: 0 !important;
-                  bottom: 0 !important;
-                  width: 285px !important;
-                  max-width: 86vw !important;
-                  height: 100vh !important;
-                  height: 100dvh !important;
-                  z-index: 1250 !important;
-                  border-radius: 0 20px 20px 0 !important;
-                  padding: 24px 18px !important;
-                  overflow-y: auto !important;
-                  transform: translateX(-105%) !important;
-                  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-                }
-                .affiliate-sidebar.sidebar-open {
-                  transform: translateX(0) !important;
-                  box-shadow: 15px 0 50px rgba(0, 0, 0, 0.85) !important;
-                }
-                .user-sidebar-close-btn {
-                  display: inline-flex !important;
-                }
-                .user-sidebar-backdrop.open {
-                  display: block !important;
-                }
-              }
-            `}</style>
-
-            {/* Mobile Backdrop */}
-            <div
-              className={`user-sidebar-backdrop ${mobileSidebarOpen ? 'open' : ''}`}
-              onClick={() => setMobileSidebarOpen(false)}
-            />
-
-            <div className="affiliate-layout">
-              {/* LEFT SIDEBAR NAVIGATION */}
-              <aside
-                className={`affiliate-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}
-              >
-              {/* Profile Card */}
-              <div className="affiliate-profile-card">
-                <div className="affiliate-avatar">
-                  {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
+            {/* TOP DASHBOARD HEADER & NAVIGATION CARD */}
+            <header className="portal-top-header">
+              {/* Upper Tier: Brand / User Profile / Referral Pill / Actions */}
+              <div className="portal-header-upper">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                  <Link href="/user/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+                    <img src="/logo.png" alt="Caffeloja" style={{ height: '36px', width: 'auto', display: 'block' }} />
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '0.5px' }}>
+                          Caffeloja
+                        </span>
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            background: user.hasActiveSubscription
+                              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.25))'
+                              : 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.25))',
+                            border: user.hasActiveSubscription
+                              ? '1px solid rgba(16, 185, 129, 0.5)'
+                              : '1px solid rgba(239, 68, 68, 0.5)',
+                            color: user.hasActiveSubscription ? '#34d399' : '#fca5a5',
+                            fontSize: '0.68rem',
+                            fontWeight: '800',
+                            padding: '2px 8px',
+                            borderRadius: '6px',
+                            letterSpacing: '0.5px',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          <ShieldCheck size={12} />
+                          {user.hasActiveSubscription ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                        Member & Rewards Portal
+                      </span>
+                    </div>
+                  </Link>
                 </div>
-                <div style={{ overflow: 'hidden', flex: 1 }}>
-                  <h3 style={{ fontSize: '0.98rem', fontWeight: '700', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', color: 'var(--text-primary)', margin: '0 0 4px' }}>
-                    {user.name}
-                  </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.76rem', color: 'var(--amber-light)' }}>
-                      {user.referralCode}
-                    </span>
-                    <span
+
+                {/* Right: Referral Pill, User Profile, Visit Store, Log Out */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  {/* Referral Code Quick Copy Pill */}
+                  {user.referralCode && (
+                    <div
                       style={{
-                        display: 'inline-block',
-                        padding: '2px 8px',
-                        borderRadius: '6px',
-                        fontSize: '0.68rem',
-                        fontWeight: '700',
-                        letterSpacing: '0.3px',
-                        textTransform: 'uppercase',
-                        background: user.hasActiveSubscription ? 'rgba(16, 185, 129, 0.14)' : 'rgba(239, 68, 68, 0.14)',
-                        border: user.hasActiveSubscription ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid rgba(239, 68, 68, 0.35)',
-                        color: user.hasActiveSubscription ? '#34d399' : '#fca5a5',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        background: 'rgba(245, 158, 11, 0.08)',
+                        border: '1px solid rgba(245, 158, 11, 0.3)',
+                        padding: '5px 10px',
+                        borderRadius: '10px',
+                        fontSize: '0.80rem',
                       }}
                     >
-                      {user.hasActiveSubscription ? 'Active' : 'Inactive'}
-                    </span>
+                      <span style={{ color: 'var(--text-muted)' }}>Code:</span>
+                      <code style={{ color: 'var(--amber-light)', fontWeight: '700' }}>{user.referralCode}</code>
+                      <button
+                        type="button"
+                        onClick={() => copyReferralLink(user.referralCode, `Referral code (${user.referralCode}) copied!`)}
+                        title="Copy Referral Code"
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: copied ? '#34d399' : 'var(--text-secondary)',
+                          cursor: 'pointer',
+                          padding: '2px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        {copied ? <Check size={14} /> : <Copy size={14} />}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* User Profile Info */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      border: '1px solid var(--mocha-border)',
+                      padding: '5px 12px 5px 8px',
+                      borderRadius: '12px',
+                    }}
+                  >
+                    <div
+                      className="affiliate-avatar"
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        fontSize: '0.88rem',
+                        background: 'linear-gradient(135deg, #f59e0b, #b45309)',
+                        color: '#0d0907',
+                      }}
+                    >
+                      {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
+                    </div>
+                    <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+                      <div style={{ fontSize: '0.86rem', fontWeight: '700', color: 'var(--text-primary)', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {user.name}
+                      </div>
+                      <div style={{ fontSize: '0.70rem', color: user.hasActiveSubscription ? '#34d399' : '#fca5a5' }}>
+                        {user.hasActiveSubscription ? 'Subscribed' : 'No Active Plan'}
+                      </div>
+                    </div>
                   </div>
+
+                  <Link
+                    href="/"
+                    className="btn-secondary btn-sm"
+                    style={{
+                      padding: '7px 14px',
+                      fontSize: '0.82rem',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <ExternalLink size={14} />
+                    <span>Visit Store</span>
+                  </Link>
+
+                  <button
+                    onClick={handleLogout}
+                    className="btn-outline btn-sm"
+                    style={{
+                      padding: '7px 14px',
+                      fontSize: '0.82rem',
+                      borderColor: 'rgba(239, 68, 68, 0.4)',
+                      color: '#f87171',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <LogOut size={14} />
+                    <span>Log Out</span>
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="user-sidebar-close-btn"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  aria-label="Close sidebar"
-                >
-                  <X size={16} />
-                </button>
               </div>
 
-              {/* Sidebar Menu Links (/user/*) */}
-              <nav className="affiliate-nav-menu">
+              {/* Lower Tier: Horizontal Navigation Menu Tabs on Top */}
+              <nav className="portal-top-nav-tabs">
                 <Link
                   href="/user/dashboard"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  className={`affiliate-nav-btn ${sidebarTab === 'overview' ? 'active' : ''}`}
-                  style={{ textDecoration: 'none' }}
+                  className={`portal-nav-tab ${sidebarTab === 'overview' ? 'active' : ''}`}
                 >
-                  <div className="affiliate-nav-btn-left">
-                    <LayoutDashboard size={18} />
-                    <span>Dashboard</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: sidebarTab === 'overview' ? 1 : 0.4 }} />
+                  <LayoutDashboard size={16} />
+                  <span>Dashboard</span>
                 </Link>
 
                 <Link
                   href="/user/subscription"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  className={`affiliate-nav-btn ${sidebarTab === 'subscription' ? 'active' : ''}`}
-                  style={{ textDecoration: 'none' }}
+                  className={`portal-nav-tab ${sidebarTab === 'subscription' ? 'active' : ''}`}
                 >
-                  <div className="affiliate-nav-btn-left">
-                    <ShoppingBag size={18} />
-                    <span>Subscription</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: sidebarTab === 'subscription' ? 1 : 0.4 }} />
+                  <ShoppingBag size={16} />
+                  <span>Coffee Box Subscription</span>
                 </Link>
 
                 <Link
                   href="/user/orders"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  className={`affiliate-nav-btn ${sidebarTab === 'orders' ? 'active' : ''}`}
-                  style={{ textDecoration: 'none' }}
+                  className={`portal-nav-tab ${sidebarTab === 'orders' ? 'active' : ''}`}
                 >
-                  <div className="affiliate-nav-btn-left">
-                    <Package size={18} />
-                    <span>Orders History</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: sidebarTab === 'orders' ? 1 : 0.4 }} />
+                  <Package size={16} />
+                  <span>Orders History</span>
                 </Link>
 
                 <Link
                   href="/user/network"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  className={`affiliate-nav-btn ${sidebarTab === 'network' ? 'active' : ''}`}
-                  style={{ textDecoration: 'none' }}
+                  className={`portal-nav-tab ${sidebarTab === 'network' ? 'active' : ''}`}
                 >
-                  <div className="affiliate-nav-btn-left">
-                    <Users size={18} />
-                    <span>My Network</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: sidebarTab === 'network' ? 1 : 0.4 }} />
+                  <Users size={16} />
+                  <span>My Network</span>
                 </Link>
 
                 <Link
                   href="/user/commissions"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  className={`affiliate-nav-btn ${sidebarTab === 'commissions' ? 'active' : ''}`}
-                  style={{ textDecoration: 'none' }}
+                  className={`portal-nav-tab ${sidebarTab === 'commissions' ? 'active' : ''}`}
                 >
-                  <div className="affiliate-nav-btn-left">
-                    <TrendingUp size={18} />
-                    <span>Commissions</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: sidebarTab === 'commissions' ? 1 : 0.4 }} />
+                  <TrendingUp size={16} />
+                  <span>Commissions</span>
                 </Link>
 
                 <Link
                   href="/user/payouts"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  className={`affiliate-nav-btn ${sidebarTab === 'payouts' ? 'active' : ''}`}
-                  style={{ textDecoration: 'none' }}
+                  className={`portal-nav-tab ${sidebarTab === 'payouts' ? 'active' : ''}`}
                 >
-                  <div className="affiliate-nav-btn-left">
-                    <CreditCard size={18} />
-                    <span>Payouts</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: sidebarTab === 'payouts' ? 1 : 0.4 }} />
+                  <CreditCard size={16} />
+                  <span>Payouts</span>
                 </Link>
 
                 <Link
                   href="/user/settings"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  className={`affiliate-nav-btn ${sidebarTab === 'settings' ? 'active' : ''}`}
-                  style={{ textDecoration: 'none' }}
+                  className={`portal-nav-tab ${sidebarTab === 'settings' ? 'active' : ''}`}
                 >
-                  <div className="affiliate-nav-btn-left">
-                    <Settings size={18} />
-                    <span>Settings</span>
-                  </div>
-                  <ChevronRight size={14} style={{ opacity: sidebarTab === 'settings' ? 1 : 0.4 }} />
+                  <Settings size={16} />
+                  <span>Settings</span>
                 </Link>
               </nav>
+            </header>
 
-              {/* Storefront & Logout */}
-              <div style={{ marginTop: 'auto', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'grid', gap: '8px' }}>
-                <Link
-                  href="/"
-                  className="btn-secondary btn-sm"
-                  style={{ width: '100%', justifyContent: 'center', fontSize: '0.82rem' }}
-                >
-                  <span>Visit Store</span>
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="btn-outline btn-sm"
-                  style={{ width: '100%', justifyContent: 'center', borderColor: 'rgba(239, 68, 68, 0.35)', color: '#f87171', fontSize: '0.82rem' }}
-                >
-                  <LogOut size={14} />
-                  <span>Log Out</span>
-                </button>
-              </div>
-            </aside>
-
-            {/* MAIN CONTENT AREA */}
-            <main className="affiliate-main-content">
-              {/* Clean Top Header Bar */}
-              <div className="affiliate-top-bar">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-                  <button
-                    type="button"
-                    className="user-sidebar-toggle-btn"
-                    onClick={() => setMobileSidebarOpen(true)}
-                    aria-label="Open menu"
+            {/* FULL-WIDTH MAIN CONTENT AREA */}
+            <main className="portal-main-card">
+              {/* Content Title Header */}
+              <div className="portal-content-header">
+                <div>
+                  <h1
+                    style={{
+                      fontFamily: 'var(--font-serif)',
+                      fontSize: 'clamp(1.25rem, 2.5vw, 1.65rem)',
+                      fontWeight: '700',
+                      color: 'var(--text-primary)',
+                      margin: 0,
+                    }}
                   >
-                    <Menu size={18} />
-                    <span>Menu</span>
-                  </button>
-                  <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.25rem, 3vw, 1.65rem)', fontWeight: '700', color: 'var(--text-primary)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {sidebarTab === 'overview' && 'Dashboard'}
+                    {sidebarTab === 'overview' && 'Member Dashboard'}
                     {sidebarTab === 'subscription' && 'Coffee Box Subscription'}
                     {sidebarTab === 'orders' && 'Orders History'}
-                    {sidebarTab === 'network' && 'My Network'}
-                    {sidebarTab === 'commissions' && 'Commissions'}
-                    {sidebarTab === 'payouts' && 'Payouts'}
-                    {sidebarTab === 'settings' && 'Settings'}
+                    {sidebarTab === 'network' && 'My Referral Network'}
+                    {sidebarTab === 'commissions' && 'Commissions & Earnings'}
+                    {sidebarTab === 'payouts' && 'Payout Requests & History'}
+                    {sidebarTab === 'settings' && 'Account Settings'}
                   </h1>
+                  <p
+                    style={{
+                      fontSize: '0.84rem',
+                      color: 'var(--text-muted)',
+                      margin: '4px 0 0',
+                    }}
+                  >
+                    {sidebarTab === 'overview' && 'Track your network growth, commissions, and monthly coffee subscription'}
+                    {sidebarTab === 'subscription' && 'Manage your recurring $69/month specialty coffee box deliveries'}
+                    {sidebarTab === 'orders' && 'View fulfilled coffee box orders, receipts, and tracking information'}
+                    {sidebarTab === 'network' && 'Explore your 4-level referral genealogy and team performance'}
+                    {sidebarTab === 'commissions' && 'Detailed breakdown of direct and indirect sponsor commission rewards'}
+                    {sidebarTab === 'payouts' && 'Manage payout methods, request cash withdrawals, and view statements'}
+                    {sidebarTab === 'settings' && 'Update profile details, password, shipping addresses, and security settings'}
+                  </p>
                 </div>
               </div>
 
@@ -2031,7 +2001,6 @@ export default function AffiliatePage() {
                 </div>
               )}
             </main>
-          </div>
           </>
         )}
       </div>

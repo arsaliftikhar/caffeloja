@@ -8,12 +8,10 @@ import {
   Users,
   Sliders,
   ShoppingBag,
-  Menu,
-  X,
   LogOut,
-  ChevronRight,
   ShieldCheck,
   RefreshCw,
+  ExternalLink,
 } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
@@ -21,16 +19,11 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const [authChecking, setAuthChecking] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     checkAdminAuth();
   }, []);
 
-  // Close mobile sidebar on route change
-  useEffect(() => {
-    setMobileSidebarOpen(false);
-  }, [pathname]);
 
   const checkAdminAuth = async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('caffeloja_token') : null;
@@ -138,7 +131,7 @@ export default function AdminLayout({ children }) {
     <div
       className="affiliate-dashboard-wrap"
       style={{
-        paddingTop: '32px',
+        paddingTop: '28px',
         minHeight: '100vh',
         paddingBottom: '80px',
         position: 'relative',
@@ -162,334 +155,194 @@ export default function AdminLayout({ children }) {
         }}
       />
 
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <style>{`
-          @media (min-width: 641px) {
-            .admin-dashboard-layout {
-              display: flex !important;
-              flex-direction: row !important;
-              align-items: flex-start !important;
-              gap: 24px !important;
-              width: 100% !important;
-            }
-            .admin-dashboard-sidebar {
-              display: flex !important;
-              flex-direction: column !important;
-              width: 275px !important;
-              min-width: 275px !important;
-              max-width: 275px !important;
-              flex-shrink: 0 !important;
-              position: sticky !important;
-              top: 24px !important;
-              transform: none !important;
-              visibility: visible !important;
-              opacity: 1 !important;
-              z-index: 20 !important;
-              background: linear-gradient(180deg, #18110c 0%, #120c09 100%) !important;
-              border: 1px solid var(--mocha-border, #3a2a20) !important;
-              border-radius: 20px !important;
-              padding: 24px 18px !important;
-              box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
-              box-sizing: border-box !important;
-            }
-            .admin-dashboard-content {
-              flex: 1 1 0% !important;
-              min-width: 0 !important;
-              width: 100% !important;
-              background: #150e0a !important;
-              border: 1px solid var(--mocha-border, #3a2a20) !important;
-              border-radius: 20px !important;
-              padding: 30px !important;
-              box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
-              box-sizing: border-box !important;
-            }
-            .user-sidebar-toggle-btn,
-            .user-sidebar-close-btn,
-            .user-sidebar-backdrop {
-              display: none !important;
-            }
-          }
-          @media (max-width: 640px) {
-            .admin-dashboard-layout {
-              display: block !important;
-              width: 100% !important;
-            }
-            .admin-dashboard-content {
-              width: 100% !important;
-              display: block !important;
-              padding: 18px 14px !important;
-            }
-            .user-sidebar-toggle-btn {
-              display: inline-flex !important;
-            }
-            .admin-dashboard-sidebar {
-              position: fixed !important;
-              top: 0 !important;
-              left: 0 !important;
-              bottom: 0 !important;
-              width: 285px !important;
-              max-width: 86vw !important;
-              height: 100vh !important;
-              height: 100dvh !important;
-              z-index: 1250 !important;
-              border-radius: 0 20px 20px 0 !important;
-              padding: 24px 18px !important;
-              overflow-y: auto !important;
-              transform: translateX(-105%) !important;
-              transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            }
-            .admin-dashboard-sidebar.sidebar-open {
-              transform: translateX(0) !important;
-              box-shadow: 15px 0 50px rgba(0, 0, 0, 0.85) !important;
-            }
-            .user-sidebar-close-btn {
-              display: inline-flex !important;
-            }
-            .user-sidebar-backdrop.open {
-              display: block !important;
-            }
-          }
-        `}</style>
-
-        {/* Mobile Backdrop */}
-        <div
-          className={`user-sidebar-backdrop ${mobileSidebarOpen ? 'open' : ''}`}
-          onClick={() => setMobileSidebarOpen(false)}
-        />
-
-        <div className="admin-dashboard-layout">
-          {/* LEFT SIDEBAR NAVIGATION */}
-          <aside
-            className={`admin-dashboard-sidebar ${mobileSidebarOpen ? 'sidebar-open' : ''}`}
-          >
-            {/* Profile Card */}
-            <div className="affiliate-profile-card">
-              <div
-                className="affiliate-avatar"
-                style={{
-                  background: 'linear-gradient(135deg, #f59e0b, #b45309)',
-                  color: '#0d0907',
-                }}
-              >
-                {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
-              </div>
-              <div style={{ overflow: 'hidden', flex: 1 }}>
-                <h3
-                  style={{
-                    fontSize: '0.98rem',
-                    fontWeight: '700',
-                    whiteSpace: 'nowrap',
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
-                    color: 'var(--text-primary)',
-                    margin: '0 0 4px',
-                  }}
-                >
-                  {adminUser?.name || 'Admin'}
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.74rem', color: 'var(--amber-light)' }}>
-                    Executive Access
-                  </span>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      padding: '2px 8px',
-                      borderRadius: '6px',
-                      fontSize: '0.68rem',
-                      fontWeight: '800',
-                      letterSpacing: '0.5px',
-                      textTransform: 'uppercase',
-                      background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.25))',
-                      border: '1px solid rgba(245, 158, 11, 0.6)',
-                      color: '#fbbf24',
-                    }}
-                  >
-                    ADMIN
+      <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1440px' }}>
+        {/* TOP DASHBOARD HEADER & NAVIGATION CARD */}
+        <header className="portal-top-header">
+          {/* Upper Tier: Logo / Brand, Admin Profile, Quick Actions */}
+          <div className="portal-header-upper">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <Link href="/admin/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+                <img src="/logo.png" alt="Caffeloja" style={{ height: '36px', width: 'auto', display: 'block' }} />
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '0.5px' }}>
+                      Caffeloja
+                    </span>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.25))',
+                        border: '1px solid rgba(245, 158, 11, 0.6)',
+                        color: '#fbbf24',
+                        fontSize: '0.68rem',
+                        fontWeight: '800',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      <ShieldCheck size={12} />
+                      ADMIN
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                    Executive Control Center
                   </span>
                 </div>
-              </div>
-              <button
-                type="button"
-                className="user-sidebar-close-btn"
-                onClick={() => setMobileSidebarOpen(false)}
-                aria-label="Close sidebar"
-              >
-                <X size={16} />
-              </button>
+              </Link>
             </div>
 
-            {/* Sidebar Navigation Menu */}
-            <nav className="affiliate-nav-menu">
-              <Link
-                href="/admin/dashboard"
-                onClick={() => setMobileSidebarOpen(false)}
-                className={`affiliate-nav-btn ${isDashboard ? 'active' : ''}`}
-                style={{ textDecoration: 'none' }}
+            {/* Right: Admin Profile, Visit Store, Log Out */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid var(--mocha-border)',
+                  padding: '6px 12px 6px 8px',
+                  borderRadius: '12px',
+                }}
               >
-                <div className="affiliate-nav-btn-left">
-                  <LayoutDashboard size={18} />
-                  <span>Overview</span>
+                <div
+                  className="affiliate-avatar"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    fontSize: '0.88rem',
+                    background: 'linear-gradient(135deg, #f59e0b, #b45309)',
+                    color: '#0d0907',
+                  }}
+                >
+                  {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
                 </div>
-                <ChevronRight size={14} style={{ opacity: isDashboard ? 1 : 0.4 }} />
-              </Link>
-
-              <Link
-                href="/admin/users"
-                onClick={() => setMobileSidebarOpen(false)}
-                className={`affiliate-nav-btn ${isUsers ? 'active' : ''}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <div className="affiliate-nav-btn-left">
-                  <Users size={18} />
-                  <span>Registered Users</span>
+                <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+                  <div style={{ fontSize: '0.86rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                    {adminUser?.name || 'Admin'}
+                  </div>
+                  <div style={{ fontSize: '0.70rem', color: 'var(--amber-light)' }}>
+                    Executive Access
+                  </div>
                 </div>
-                <ChevronRight size={14} style={{ opacity: isUsers ? 1 : 0.4 }} />
-              </Link>
+              </div>
 
-              <Link
-                href="/admin/commissions"
-                onClick={() => setMobileSidebarOpen(false)}
-                className={`affiliate-nav-btn ${isCommissions ? 'active' : ''}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <div className="affiliate-nav-btn-left">
-                  <Sliders size={18} />
-                  <span>Commission Rates</span>
-                </div>
-                <ChevronRight size={14} style={{ opacity: isCommissions ? 1 : 0.4 }} />
-              </Link>
-
-              <Link
-                href="/admin/orders"
-                onClick={() => setMobileSidebarOpen(false)}
-                className={`affiliate-nav-btn ${isOrders ? 'active' : ''}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <div className="affiliate-nav-btn-left">
-                  <ShoppingBag size={18} />
-                  <span>Orders & Logs</span>
-                </div>
-                <ChevronRight size={14} style={{ opacity: isOrders ? 1 : 0.4 }} />
-              </Link>
-
-              <Link
-                href="/admin/settings"
-                onClick={() => setMobileSidebarOpen(false)}
-                className={`affiliate-nav-btn ${isSettings ? 'active' : ''}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <div className="affiliate-nav-btn-left">
-                  <ShieldCheck size={18} />
-                  <span>Settings & Security</span>
-                </div>
-                <ChevronRight size={14} style={{ opacity: isSettings ? 1 : 0.4 }} />
-              </Link>
-            </nav>
-
-            {/* Bottom Actions: Visit Store & Log Out */}
-            <div
-              style={{
-                marginTop: 'auto',
-                paddingTop: '14px',
-                borderTop: '1px solid rgba(255,255,255,0.06)',
-                display: 'grid',
-                gap: '8px',
-              }}
-            >
               <Link
                 href="/"
                 className="btn-secondary btn-sm"
-                style={{ width: '100%', justifyContent: 'center', fontSize: '0.82rem', textDecoration: 'none' }}
+                style={{
+                  padding: '7px 14px',
+                  fontSize: '0.82rem',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
               >
+                <ExternalLink size={14} />
                 <span>Visit Store</span>
               </Link>
+
               <button
                 onClick={handleLogout}
                 className="btn-outline btn-sm"
                 style={{
-                  width: '100%',
-                  justifyContent: 'center',
-                  borderColor: 'rgba(239, 68, 68, 0.35)',
-                  color: '#f87171',
+                  padding: '7px 14px',
                   fontSize: '0.82rem',
+                  borderColor: 'rgba(239, 68, 68, 0.4)',
+                  color: '#f87171',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
                 }}
               >
                 <LogOut size={14} />
                 <span>Log Out</span>
               </button>
             </div>
-          </aside>
+          </div>
 
-          {/* MAIN CONTENT AREA */}
-          <main className="affiliate-main-content admin-dashboard-content">
-            {/* Clean Top Header Bar */}
-            <div className="affiliate-top-bar">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-                <button
-                  type="button"
-                  className="user-sidebar-toggle-btn"
-                  onClick={() => setMobileSidebarOpen(true)}
-                  aria-label="Open menu"
-                >
-                  <Menu size={18} />
-                  <span>Menu</span>
-                </button>
-                <div>
-                  <h1
-                    style={{
-                      fontFamily: 'var(--font-serif)',
-                      fontSize: 'clamp(1.15rem, 2.5vw, 1.45rem)',
-                      fontWeight: '700',
-                      color: 'var(--text-primary)',
-                      margin: 0,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {pageHeader.title}
-                  </h1>
-                  <p
-                    style={{
-                      fontSize: '0.78rem',
-                      color: 'var(--text-muted)',
-                      margin: '2px 0 0',
-                    }}
-                  >
-                    {pageHeader.subtitle}
-                  </p>
-                </div>
-              </div>
+          {/* Lower Tier: Horizontal Navigation Menu Tabs on Top */}
+          <nav className="portal-top-nav-tabs">
+            <Link
+              href="/admin/dashboard"
+              className={`portal-nav-tab ${isDashboard ? 'active' : ''}`}
+            >
+              <LayoutDashboard size={16} />
+              <span>Overview</span>
+            </Link>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    background: 'rgba(245, 158, 11, 0.16)',
-                    border: '1px solid rgba(245, 158, 11, 0.5)',
-                    color: '#fbbf24',
-                    fontSize: '0.74rem',
-                    fontWeight: '800',
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    letterSpacing: '0.5px',
-                  }}
-                >
-                  <ShieldCheck size={14} />
-                  ADMIN
-                </span>
-              </div>
+            <Link
+              href="/admin/users"
+              className={`portal-nav-tab ${isUsers ? 'active' : ''}`}
+            >
+              <Users size={16} />
+              <span>Registered Users</span>
+            </Link>
+
+            <Link
+              href="/admin/commissions"
+              className={`portal-nav-tab ${isCommissions ? 'active' : ''}`}
+            >
+              <Sliders size={16} />
+              <span>Commission Rates</span>
+            </Link>
+
+            <Link
+              href="/admin/orders"
+              className={`portal-nav-tab ${isOrders ? 'active' : ''}`}
+            >
+              <ShoppingBag size={16} />
+              <span>Orders & Logs</span>
+            </Link>
+
+            <Link
+              href="/admin/settings"
+              className={`portal-nav-tab ${isSettings ? 'active' : ''}`}
+            >
+              <ShieldCheck size={16} />
+              <span>Settings & Security</span>
+            </Link>
+          </nav>
+        </header>
+
+        {/* FULL-WIDTH MAIN CONTENT AREA */}
+        <main className="portal-main-card">
+          {/* Header Title inside Content Area */}
+          <div className="portal-content-header">
+            <div>
+              <h1
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: 'clamp(1.25rem, 2.5vw, 1.65rem)',
+                  fontWeight: '700',
+                  color: 'var(--text-primary)',
+                  margin: 0,
+                }}
+              >
+                {pageHeader.title}
+              </h1>
+              <p
+                style={{
+                  fontSize: '0.84rem',
+                  color: 'var(--text-muted)',
+                  margin: '4px 0 0',
+                }}
+              >
+                {pageHeader.subtitle}
+              </p>
             </div>
+          </div>
 
-            {/* Injected Page Content */}
-            <div style={{ marginTop: '20px' }}>
-              {children}
-            </div>
-          </main>
-        </div>
+          {/* Injected Page Content */}
+          <div style={{ marginTop: '24px' }}>
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );
