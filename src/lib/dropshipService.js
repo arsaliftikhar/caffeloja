@@ -62,6 +62,9 @@ export async function forwardOrderToWordPress(order) {
 
     const countryCode = normalizeCountryCode(order.customer?.address?.country);
 
+    // Billing email on the API must ALWAYS be the Contact Form Recipient Email configured in Admin Settings
+    const billingEmail = String(settings?.contactEmail || 'caffeloja77@gmail.com').trim();
+
     const wcPayload = {
       billing: {
         first_name: firstName,
@@ -72,7 +75,7 @@ export async function forwardOrderToWordPress(order) {
         state: order.customer?.address?.state || '',
         postcode: order.customer?.address?.postalCode || '',
         country: countryCode,
-        email: order.customer?.email || 'order@caffeloja.com',
+        email: billingEmail,
         phone: order.customer?.phone || '',
       },
       shipping: {
@@ -92,7 +95,7 @@ export async function forwardOrderToWordPress(order) {
       customer_id: 0,
       payment_method: 'cod',
       payment_method_title: 'Cash on Delivery',
-      customer_note: `Caffeloja Order ${order.orderNumber}${order.referralCode ? ` | Referral: ${order.referralCode}` : ''}`,
+      customer_note: `Caffeloja Order ${order.orderNumber}${order.customer?.email ? ` | Customer: ${order.customer.email}` : ''}${order.referralCode ? ` | Referral: ${order.referralCode}` : ''}`,
     };
 
     let responseResult;
