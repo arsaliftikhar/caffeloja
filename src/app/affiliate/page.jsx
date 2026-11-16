@@ -1138,7 +1138,7 @@ export default function AffiliatePage() {
                   </div>
                 </div>
                 <div className="form-field">
-                  <label>Referral Code (Optional)</label>
+                  <label>Referral Code</label>
                   <input
                     type="text"
                     placeholder="e.g. LOJA-4029"
