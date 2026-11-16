@@ -49,6 +49,8 @@ import {
   X,
   Package,
   ChevronDown,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AffiliateLineChart from '@/components/AffiliateLineChart';
@@ -100,6 +102,8 @@ export default function AffiliatePage() {
     sponsorCode: '',
     acceptTerms: false,
   });
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -935,16 +939,42 @@ export default function AffiliatePage() {
                       Forgot password?
                     </Link>
                   </div>
-                  <input
-                    type="password"
-                    required
-                    placeholder="••••••••"
-                    value={loginForm.password}
-                    onChange={(e) => {
-                      setLoginForm({ ...loginForm, password: e.target.value });
-                      if (authError) setAuthError('');
-                    }}
-                  />
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <input
+                      type={showLoginPassword ? 'text' : 'password'}
+                      required
+                      placeholder="••••••••"
+                      value={loginForm.password}
+                      onChange={(e) => {
+                        setLoginForm({ ...loginForm, password: e.target.value });
+                        if (authError) setAuthError('');
+                      }}
+                      style={{ paddingRight: '42px' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword((prev) => !prev)}
+                      aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+                      tabIndex={-1}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        padding: '4px',
+                        cursor: 'pointer',
+                        color: showLoginPassword ? 'var(--amber-light)' : 'var(--text-muted)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {showLoginPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
                 {requiresTwoFactor && (
                   <div className="form-field animate-fadeIn">
@@ -1069,17 +1099,43 @@ export default function AffiliatePage() {
                 </div>
                 <div className="form-field">
                   <label>Password *</label>
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    placeholder="At least 6 characters"
-                    value={regForm.password}
-                    onChange={(e) => {
-                      setRegForm({ ...regForm, password: e.target.value });
-                      if (authError) setAuthError('');
-                    }}
-                  />
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <input
+                      type={showRegPassword ? 'text' : 'password'}
+                      required
+                      minLength={6}
+                      placeholder="At least 6 characters"
+                      value={regForm.password}
+                      onChange={(e) => {
+                        setRegForm({ ...regForm, password: e.target.value });
+                        if (authError) setAuthError('');
+                      }}
+                      style={{ paddingRight: '42px' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegPassword((prev) => !prev)}
+                      aria-label={showRegPassword ? 'Hide password' : 'Show password'}
+                      tabIndex={-1}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        padding: '4px',
+                        cursor: 'pointer',
+                        color: showRegPassword ? 'var(--amber-light)' : 'var(--text-muted)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {showRegPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
                 <div className="form-field">
                   <label>Referral Code (Optional)</label>
