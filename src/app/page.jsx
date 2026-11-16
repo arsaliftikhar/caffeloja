@@ -31,7 +31,7 @@ export default function HomePage() {
       title: 'Distinct Aroma',
       subtitle: 'The World’s Best Coffee',
       desc: 'Small batch specialty roasts, directly sourced from high elevation volcanic slopes and fresh roasted continuously.',
-      image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1920&q=85',
+      image: 'https://images.unsplash.com/photo-1518832553480-cd0e625ed3e6?auto=format&fit=crop&w=1920&q=85',
       ctaText: 'Explore Coffee',
       ctaLink: '/menu',
     },
@@ -215,6 +215,24 @@ export default function HomePage() {
               <span>{heroSlides[activeSlide].ctaText}</span>
               <ArrowRight size={18} />
             </Link>
+            <a
+              href="#watch-video"
+              className="btn-secondary"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 24px',
+                borderRadius: '999px',
+                border: '1px solid var(--mocha-border)',
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-primary)',
+                fontWeight: '600',
+              }}
+            >
+              <Play size={16} style={{ fill: 'var(--amber-primary)', color: 'var(--amber-primary)' }} />
+              <span>Watch Video</span>
+            </a>
           </div>
 
           {/* Slide Indicator Dots */}
@@ -298,7 +316,90 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. THE WORLD'S BEST COFFEE / CONTINUOUS FRESH ROASTED SECTION */}
+      {/* 3. WATCH VIDEO SECTION */}
+      <section
+        id="watch-video"
+        style={{
+          padding: '90px 0',
+          background: '#120d09',
+          borderTop: '1px solid var(--mocha-border)',
+          borderBottom: '1px solid var(--mocha-border)',
+          scrollMarginTop: '80px',
+        }}
+      >
+        <div className="container" style={{ maxWidth: '960px', textAlign: 'center' }}>
+          <img
+            src="/images/title-separator.svg"
+            alt="separator"
+            style={{ margin: '0 auto 12px', display: 'block', height: '16px' }}
+          />
+          <span
+            style={{
+              fontSize: '0.88rem',
+              letterSpacing: '3px',
+              textTransform: 'uppercase',
+              color: 'var(--amber-light)',
+              fontWeight: '600',
+              display: 'block',
+              marginBottom: '10px',
+            }}
+          >
+            Founder&apos;s Presentation
+          </span>
+          <h2
+            style={{
+              fontFamily: 'var(--font-serif)',
+              fontSize: 'clamp(2rem, 4vw, 2.8rem)',
+              marginBottom: '14px',
+              fontWeight: '700',
+            }}
+          >
+            Watch Video: How To Get Started
+          </h2>
+          <p
+            style={{
+              color: 'var(--text-secondary)',
+              fontSize: '1.02rem',
+              maxWidth: '620px',
+              margin: '0 auto 36px',
+              lineHeight: '1.7',
+            }}
+          >
+            Watch the video to learn about Caffeloja, our 150-year roasting tradition, the $69 artisan Coffee Box, and how our 4-level recurring affiliate program works.
+          </p>
+
+          {/* Responsive 16:9 Video Embed */}
+          <div
+            style={{
+              position: 'relative',
+              paddingBottom: '56.25%',
+              height: 0,
+              overflow: 'hidden',
+              borderRadius: '20px',
+              border: '1px solid var(--mocha-border)',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.75)',
+              background: '#0d0907',
+            }}
+          >
+            <iframe
+              src="https://www.youtube.com/embed/Jbr5lOUOVag"
+              title="Caffe Loja - How To Get Started Quickly!"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                border: 'none',
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 4. THE WORLD'S BEST COFFEE / CONTINUOUS FRESH ROASTED SECTION */}
       <section className="home-split-section" style={{ background: '#140e0a', borderTop: '1px solid var(--mocha-border)', borderBottom: '1px solid var(--mocha-border)' }}>
         <div className="container">
           <div className="home-split-grid">
