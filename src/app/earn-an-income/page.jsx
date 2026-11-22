@@ -121,8 +121,20 @@ export default function EarnAnIncomePage() {
           >
             Compensation Plan & Calculator
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '600px', margin: '0 auto' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '620px', margin: '0 auto 10px' }}>
             Out of every $69 box, $30 is shared back with active members. Adjust the subscribers in each tier to calculate your monthly recurring income:
+          </p>
+          <p
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--amber-light)',
+              fontSize: 'clamp(1.05rem, 2.2vw, 1.25rem)',
+              fontWeight: '700',
+              letterSpacing: '0.3px',
+              margin: '0 auto',
+            }}
+          >
+            An affiliate can earn $0 - $72,000 Per Month In This Business
           </p>
         </div>
 
