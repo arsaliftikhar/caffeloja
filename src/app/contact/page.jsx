@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, ShieldCheck, RefreshCw } from 'lucide-react';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -11,7 +11,12 @@ export default function ContactPage() {
     phone: '',
     subject: 'General Inquiry',
     message: '',
+    website: '', // Honeypot field for bot trap
+    company: '', // Honeypot field for bot trap
   });
+
+  const [formTime, setFormTime] = useState(() => Date.now());
+  const [securityCheck, setSecurityCheck] = useState({ num1: 4, num2: 3, userAnswer: '' });
 
   const [contactInfo, setContactInfo] = useState({
     email: 'caffeloja77@gmail.com',
@@ -19,6 +24,16 @@ export default function ContactPage() {
   });
 
   const [status, setStatus] = useState({ loading: false, success: false, message: '' });
+
+  const generateNewSecurityCheck = () => {
+    const n1 = Math.floor(Math.random() * 8) + 2; // 2 - 9
+    const n2 = Math.floor(Math.random() * 7) + 1; // 1 - 7
+    setSecurityCheck({ num1: n1, num2: n2, userAnswer: '' });
+  };
+
+  useEffect(() => {
+    generateNewSecurityCheck();
+  }, []);
 
   useEffect(() => {
     fetch('/api/contact')
@@ -44,13 +59,30 @@ export default function ContactPage() {
       toast.error('Please fill in your name, email, and message before sending.');
       return;
     }
+
+    // Client-side human verification check
+    if (
+      !securityCheck.userAnswer ||
+      parseInt(securityCheck.userAnswer, 10) !== securityCheck.num1 + securityCheck.num2
+    ) {
+      toast.error('Please answer the quick verification question correctly.');
+      generateNewSecurityCheck();
+      return;
+    }
+
     setStatus({ loading: true, success: false, message: '' });
 
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          _formTime: formTime,
+          securityNum1: securityCheck.num1,
+          securityNum2: securityCheck.num2,
+          securityAnswer: securityCheck.userAnswer,
+        }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -60,7 +92,17 @@ export default function ContactPage() {
           message: data.message || 'Thank you for reaching out. We will get back to you shortly.',
         });
         toast.success('Message sent successfully!');
-        setFormData({ name: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: 'General Inquiry',
+          message: '',
+          website: '',
+          company: '',
+        });
+        generateNewSecurityCheck();
+        setFormTime(Date.now());
       } else {
         const msg = data.message || 'Unable to send message. Please try again.';
         setStatus({
@@ -69,6 +111,7 @@ export default function ContactPage() {
           message: msg,
         });
         toast.error(msg);
+        generateNewSecurityCheck();
       }
     } catch {
       const msg = 'Network error: Unable to connect to server. Please try again shortly.';
@@ -226,6 +269,42 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="checkout-form">
+                {/* Honeypot anti-bot trap fields (hidden from human visitors) */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    opacity: 0,
+                    pointerEvents: 'none',
+                    height: 0,
+                    width: 0,
+                    zIndex: -1,
+                    left: '-9999px',
+                    overflow: 'hidden',
+                  }}
+                  aria-hidden="true"
+                >
+                  <label htmlFor="website">Website</label>
+                  <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData.website}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="company">Company</label>
+                  <input
+                    type="text"
+                    id="company"
+                    name="company"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData.company}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
                 <div className="form-grid-2">
                   <div className="form-field">
                     <label>Name *</label>
@@ -286,8 +365,99 @@ export default function ContactPage() {
                   />
                 </div>
 
+                {/* Human Verification Math Check */}
+                <div
+                  style={{
+                    marginTop: '14px',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid var(--mocha-border)',
+                    borderRadius: '12px',
+                    padding: '12px 16px',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        color: 'var(--amber-light)',
+                        fontSize: '0.8rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.6px',
+                        fontWeight: '600',
+                      }}
+                    >
+                      <ShieldCheck size={16} /> Human Verification *
+                    </span>
+                    <button
+                      type="button"
+                      onClick={generateNewSecurityCheck}
+                      title="Generate new question"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--text-muted)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '0.74rem',
+                        padding: '2px 6px',
+                      }}
+                    >
+                      <RefreshCw size={12} /> New question
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span
+                      style={{
+                        fontSize: '0.94rem',
+                        color: 'var(--text-primary)',
+                        fontWeight: '600',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      What is {securityCheck.num1} + {securityCheck.num2}?
+                    </span>
+                    <input
+                      type="number"
+                      required
+                      placeholder="Answer"
+                      value={securityCheck.userAnswer}
+                      onChange={(e) =>
+                        setSecurityCheck({ ...securityCheck, userAnswer: e.target.value })
+                      }
+                      style={{
+                        maxWidth: '110px',
+                        padding: '8px 12px',
+                        background: 'var(--bg-card)',
+                        border: '1px solid var(--mocha-border)',
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--text-primary)',
+                      }}
+                    />
+                  </div>
+                </div>
+
                 {status.message && !status.success && (
-                  <div style={{ color: '#ef4444', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div
+                    style={{
+                      color: '#ef4444',
+                      fontSize: '0.88rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      marginTop: '10px',
+                    }}
+                  >
                     <AlertCircle size={16} /> {status.message}
                   </div>
                 )}
@@ -296,7 +466,7 @@ export default function ContactPage() {
                   type="submit"
                   disabled={status.loading}
                   className="btn-primary"
-                  style={{ width: '100%', justifyContent: 'center', marginTop: '6px' }}
+                  style={{ width: '100%', justifyContent: 'center', marginTop: '14px' }}
                 >
                   <span>{status.loading ? 'Sending...' : 'Send Message'}</span>
                 </button>

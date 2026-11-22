@@ -3,6 +3,12 @@ import connectToDatabase from '@/lib/mongoose';
 import mongoose from 'mongoose';
 import MLMSettings from '@/models/MLMSettings';
 import { sendEmail } from '@/lib/emailService';
+import {
+  getClientIp,
+  checkRateLimit,
+  isValidSubmissionTiming,
+  isSpamContent,
+} from '@/lib/antiSpam';
 
 // Simple Contact Message Schema
 const ContactMessageSchema = new mongoose.Schema(
@@ -13,6 +19,7 @@ const ContactMessageSchema = new mongoose.Schema(
     subject: { type: String, default: 'General Inquiry' },
     message: { type: String, required: true },
     status: { type: String, enum: ['new', 'read', 'responded'], default: 'new' },
+    ip: { type: String, default: '' },
   },
   { timestamps: true }
 );
@@ -41,14 +48,85 @@ export async function GET() {
 }
 
 /**
- * POST: Handles contact form submissions, records in DB, and sends email to Admin & Customer
+ * POST: Handles contact form submissions with multi-layer bot & spam defenses
  */
 export async function POST(request) {
   try {
-    await connectToDatabase();
+    const clientIp = getClientIp(request);
     const body = await request.json();
-    const { name, email, phone, subject, message } = body;
+    const {
+      name,
+      email,
+      phone,
+      subject,
+      message,
+      website,
+      company,
+      _formTime,
+      securityNum1,
+      securityNum2,
+      securityAnswer,
+    } = body;
 
+    // --- DEFENSE LAYER 1: Honeypot Trap ---
+    // Bots scan input tags and autofill hidden dummy fields. Real humans never see or fill them.
+    if (website || company) {
+      console.warn(`[Anti-Spam] Bot caught by honeypot from IP: ${clientIp}`);
+      // Return 200 mock success so the bot script believes it delivered and does not adapt
+      return NextResponse.json({
+        success: true,
+        message: 'Thank you for contacting Caffeloja! Our team has received your message and will respond shortly.',
+      });
+    }
+
+    // --- DEFENSE LAYER 2: IP & Email Rate Limiting ---
+    // Limit IP to 3 contact submissions per 10 minutes
+    if (!checkRateLimit(`contact_ip_${clientIp}`, 3, 600000)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Too many messages submitted from your connection. Please wait 10 minutes before submitting again.',
+        },
+        { status: 429 }
+      );
+    }
+
+    // Limit individual email address to 3 submissions per hour
+    if (email && !checkRateLimit(`contact_email_${email.trim().toLowerCase()}`, 3, 3600000)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'You have submitted multiple inquiries recently. Our team will review them shortly.',
+        },
+        { status: 429 }
+      );
+    }
+
+    // --- DEFENSE LAYER 3: Submission Timing Check ---
+    // Humans take at least 2.5 seconds to fill out name, email, subject, message.
+    if (_formTime && !isValidSubmissionTiming(_formTime, 2.5)) {
+      console.warn(`[Anti-Spam] Submission too rapid (${Date.now() - Number(_formTime)}ms) from IP: ${clientIp}`);
+      return NextResponse.json({
+        success: true,
+        message: 'Thank you for contacting Caffeloja! Our team has received your message and will respond shortly.',
+      });
+    }
+
+    // --- DEFENSE LAYER 4: Human Math Verification Check ---
+    if (securityNum1 !== undefined && securityNum2 !== undefined) {
+      const expected = Number(securityNum1) + Number(securityNum2);
+      if (Number(securityAnswer) !== expected) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'Security verification failed. Please enter the correct answer to the math check.',
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    // --- DEFENSE LAYER 5: Required Fields & Format Sanitization ---
     if (!name || !email || !message) {
       return NextResponse.json(
         { success: false, message: 'Name, email, and message are required fields.' },
@@ -56,13 +134,35 @@ export async function POST(request) {
       );
     }
 
-    // 1. Save submission to MongoDB
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.trim())) {
+      return NextResponse.json(
+        { success: false, message: 'Please provide a valid email address.' },
+        { status: 400 }
+      );
+    }
+
+    // --- DEFENSE LAYER 6: Content Heuristics & Pattern Spam Filtering ---
+    const spamCheck = isSpamContent({ name, email, subject, message });
+    if (spamCheck.isSpam) {
+      console.warn(`[Anti-Spam] Message flagged as spam (${spamCheck.reason}) from ${email} / IP: ${clientIp}`);
+      // Drop silently with fake success so spam distributors do not modify payloads
+      return NextResponse.json({
+        success: true,
+        message: 'Thank you for contacting Caffeloja! Our team has received your message and will respond shortly.',
+      });
+    }
+
+    await connectToDatabase();
+
+    // 1. Save genuine submission to MongoDB
     const contactDoc = await ContactMessage.create({
       name: name.trim(),
       email: email.trim().toLowerCase(),
       phone: phone ? phone.trim() : '',
       subject: subject ? subject.trim() : 'General Inquiry',
       message: message.trim(),
+      ip: clientIp,
     });
 
     // 2. Fetch admin contact email from settings
